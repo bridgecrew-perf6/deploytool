@@ -2,14 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/fabtestorg/fabtest/tpl"
+	"github.com/peersafe/deployFabricTool/tpl"
 	"strings"
 	"sync"
 )
 
 func CreateCert() error {
 	obj := NewLocalFabCmd("apply_cert.py")
-	err := obj.RunShow("generate_certs", BinPath(), ConfigDir(), ConfigDir())
+	err := obj.RunShow("generate_certs", BinPath(), ConfigDir(), ConfigDir(), GlobalConfig.CryptoType)
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func CreateGenesisBlock() error {
 		return fmt.Errorf("ConsensusType %s unknow", GlobalConfig.ConsensusType)
 	}
 	obj := NewLocalFabCmd("apply_cert.py")
-	err := obj.RunShow("generate_genesis_block", model, BinPath(), ConfigDir(), ConfigDir())
+	err := obj.RunShow("generate_genesis_block", model, BinPath(), ConfigDir(), ConfigDir(), GlobalConfig.CryptoType)
 	if err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func CreateChannel(channelName string) error {
 		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ConfigTxPort)
 		break
 	}
-	err := obj.RunShow("create_channel", BinPath(), ConfigDir(), ChannelPath(), channelName, ordererAddress, GlobalConfig.Domain)
+	err := obj.RunShow("create_channel", BinPath(), ConfigDir(), ChannelPath(), channelName, ordererAddress, GlobalConfig.Domain, GlobalConfig.CryptoType)
 	if err != nil {
 		return err
 	}
@@ -104,7 +104,7 @@ func UpdateAnchor(channelName string) error {
 		if peer.Id == "0" {
 			obj := NewFabCmd("create_channel.py", peer.Ip, peer.SshUserName, peer.SshPwd)
 			mspid := peer.OrgId
-			err := obj.RunShow("update_anchor", BinPath(), ConfigDir(), ChannelPath(), channelName, mspid, ordererAddress, GlobalConfig.Domain)
+			err := obj.RunShow("update_anchor", BinPath(), ConfigDir(), ChannelPath(), channelName, mspid, ordererAddress, GlobalConfig.Domain, GlobalConfig.CryptoType)
 			if err != nil {
 				return err
 			}
@@ -120,7 +120,7 @@ func CopyConfig(obj *NodeObj) {
 	obj.Peers = GlobalConfig.Peers
 	obj.UseCouchdb = GlobalConfig.UseCouchdb
 	obj.ImageTag = GlobalConfig.ImageTag
-	obj.ImagePre = GlobalConfig.ImagePre
+	obj.CryptoType = GlobalConfig.CryptoType
 }
 
 func JoinChannel(channelName string) error {
@@ -130,7 +130,7 @@ func JoinChannel(channelName string) error {
 	for _, peer := range GlobalConfig.Peers {
 		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ConfigTxPort)
 		obj := NewLocalFabCmd("create_channel.py")
-		err := obj.RunShow("join_channel", BinPath(), ConfigDir(), ChannelPath(), channelName, peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
+		err := obj.RunShow("join_channel", BinPath(), ConfigDir(), ChannelPath(), channelName, peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain, GlobalConfig.CryptoType)
 		if err != nil {
 			return err
 		}
@@ -140,9 +140,9 @@ func JoinChannel(channelName string) error {
 
 func PutCryptoConfig() error {
 	var wg sync.WaitGroup
-	putCrypto := func(ip, sshuser, sshpwd, cfg, nodeTy string, w1 *sync.WaitGroup) {
-		obj := NewFabCmd("create_channel.py", ip, sshuser, sshpwd)
-		err := obj.RunShow("put_cryptoconfig", cfg, nodeTy)
+	putCrypto := func(ip, sshuser, sshpwd, cfg, nodeTy, nodeName, orgName string, w1 *sync.WaitGroup) {
+		obj := NewFabCmd("apply_cert.py", ip, sshuser, sshpwd)
+		err := obj.RunShow("put_cryptoconfig", cfg, nodeTy, nodeName, orgName)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
@@ -150,19 +150,25 @@ func PutCryptoConfig() error {
 	}
 	for _, kafka := range GlobalConfig.Kafkas {
 		wg.Add(1)
-		go putCrypto(kafka.Ip, kafka.SshUserName, kafka.SshPwd, ConfigDir(), "kafka", &wg)
+		nodeName := fmt.Sprintf("kafka%s", kafka.Id)
+		go putCrypto(kafka.Ip, kafka.SshUserName, kafka.SshPwd, ConfigDir(), "kafka", nodeName, "", &wg)
 	}
 	for _, zk := range GlobalConfig.Zookeepers {
 		wg.Add(1)
-		go putCrypto(zk.Ip, zk.SshUserName, zk.SshPwd, ConfigDir(), "zk", &wg)
+		nodeName := fmt.Sprintf("zk%s", zk.Id)
+		go putCrypto(zk.Ip, zk.SshUserName, zk.SshPwd, ConfigDir(), "zk", nodeName, "", &wg)
 	}
 	for _, ord := range GlobalConfig.Orderers {
 		wg.Add(1)
-		go putCrypto(ord.Ip, ord.SshUserName, ord.SshPwd, ConfigDir(), "orderer", &wg)
+		orgName := fmt.Sprintf("ord%s.%s", ord.OrgId, GlobalConfig.Domain)
+		nodeName := fmt.Sprintf("orderer%s.ord%s.%s", ord.Id, ord.OrgId, GlobalConfig.Domain)
+		go putCrypto(ord.Ip, ord.SshUserName, ord.SshPwd, ConfigDir(), "orderer", nodeName, orgName, &wg)
 	}
 	for _, peer := range GlobalConfig.Peers {
 		wg.Add(1)
-		go putCrypto(peer.Ip, peer.SshUserName, peer.SshPwd, ConfigDir(), "peer", &wg)
+		orgName := fmt.Sprintf("org%s.%s", peer.OrgId, GlobalConfig.Domain)
+		nodeName := fmt.Sprintf("peer%s.org%s.%s", peer.Id, peer.OrgId, GlobalConfig.Domain)
+		go putCrypto(peer.Ip, peer.SshUserName, peer.SshPwd, ConfigDir(), "peer", nodeName, orgName, &wg)
 	}
 	wg.Wait()
 	return nil

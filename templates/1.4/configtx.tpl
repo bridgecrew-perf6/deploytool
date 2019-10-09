@@ -34,11 +34,15 @@ Organizations:{{range $key,$value:= .ordList}}
 
 Capabilities:
     Channel: &ChannelCapabilities
-        V1_3: true
+        V1_4_3: true
+        V1_3: false
+        V1_1: false
     Orderer: &OrdererCapabilities
+        V1_4_2: true
         V1_1: true
     Application: &ApplicationCapabilities
-        V1_3: true
+        V1_4_2: true
+        V1_3: false
         V1_2: false
         V1_1: false
 

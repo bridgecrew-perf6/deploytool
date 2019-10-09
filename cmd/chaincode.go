@@ -22,7 +22,7 @@ func InstallChaincode(ccname, ccversion, ccpath string) error {
 		go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
 			defer wg.Done()
 			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd)
-			err := obj.RunShow("install_chaincode", binPath, configDir, peerAds, PeerId, OrgId, Pdn, ccname, ccversion, ccpath)
+			err := obj.RunShow("install_chaincode", binPath, configDir, peerAds, PeerId, OrgId, Pdn, ccname, ccversion, ccpath, GlobalConfig.CCInstallType, GlobalConfig.CryptoType)
 			if err != nil {
 				fmt.Printf(err.Error())
 			}
@@ -56,7 +56,7 @@ func RunChaincode(ccname, ccversion, channelName, opration string) error {
 			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd)
 			initparam := fmt.Sprintf(`%s`, GlobalConfig.CCInit)
 			policy := fmt.Sprintf("%s", GlobalConfig.CCPolicy)
-			err := obj.RunShow("instantiate_chaincode", BinPath(), opration, ConfigDir(), peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain, channelName, ccname, ccversion, initparam, policy)
+			err := obj.RunShow("instantiate_chaincode", BinPath(), opration, ConfigDir(), peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain, channelName, ccname, ccversion, initparam, policy, GlobalConfig.CryptoType)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -88,7 +88,7 @@ func TestChaincode(ccname, channelName, function, testArgs string) error {
 		go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
 			defer wg.Done()
 			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd)
-			err := obj.RunShow("test_chaincode", function, BinPath(), ConfigDir(), peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain, channelName, ccname, testArgs)
+			err := obj.RunShow("test_chaincode", function, BinPath(), ConfigDir(), peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain, channelName, ccname, testArgs, GlobalConfig.CryptoType)
 			if err != nil {
 				fmt.Println(err)
 			}

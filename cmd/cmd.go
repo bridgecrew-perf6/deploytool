@@ -29,6 +29,7 @@ func NewFabCmd(fileName, host, sshuser, sshpwd string) *FabCmd {
 	checkAdd("-H", host)
 	checkAdd("-u", sshuser)
 	checkAdd("-p", sshpwd)
+	checkAdd("-i", GlobalConfig.SshKey)
 	return &FabCmd{args: append(args, "-f"), dir: ScriptPath(), fileName: fileName}
 }
 

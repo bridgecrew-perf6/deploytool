@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fabtestorg/fabtest/cmd"
+	"github.com/peersafe/deployFabricTool/cmd"
 )
 
 var (

@@ -50,6 +50,7 @@ type ConfigObj struct {
 	CCPath         string         `json:"ccPath"`
 	CCName         string         `json:"ccName"`
 	CCVersion      string         `json:"ccVersion"`
+	CCInstallType  string         `json:"ccInstallType"`
 	ConsensusType  string         `json:"consensusType"`
 	BatchTime      string         `json:"batchTime"`
 	BatchPreferred string         `json:"batchPreferred"`
@@ -64,6 +65,7 @@ type ConfigObj struct {
 type Expand struct {
 	SshUserName    string    `json:"sshUserName"`
 	SshPwd         string    `json:"sshPwd"`
+	SshKey         string    `json:"sshKey"`
 	Log            string    `json:"log"`
 	UseCouchdb     string    `json:"useCouchdb"`
 	Domain         string    `json:"domain"`
@@ -71,6 +73,7 @@ type Expand struct {
 	Peers          []NodeObj `json:"peers"`
 	ImageTag       string    `json:"imageTag"`
 	ImagePre       string    `json:"imagePre"`
+	CryptoType     string    `json:"cryptoType"`
 	DefaultNetwork string    `json:"defaultNetwork"`
 }
 

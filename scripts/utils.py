@@ -4,12 +4,17 @@ from fabric.api import run, settings,local
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+def get_bin_path(path, type, crypto_type):
+    if crypto_type == "GM":
+        return  ' BCCSP_CRYPTO_TYPE=GM %s/%s '%(path, type)
+    return  ' %s/%s '%(path, type)
+
 def kill_process(name):
     # kill the jmeter processes for unified order project
     with settings(warn_only=True):
         result = run("pgrep %s"%name)
         if result != "":
-	   run("kill -9 %s"%result)
+            run("kill -9 %s"%result)
 
 def check_remote_file_exist(file):
     with settings(warn_only=True):
