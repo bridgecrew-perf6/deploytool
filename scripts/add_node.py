@@ -41,12 +41,12 @@ def start_node(node_name, config_dir):
     with lcd(config_dir):
         local("tar -zcvf %s.tar.gz %s.yaml"%(node_name,node_name))
         #remote yaml
-        run("mkdir -p ~/fabtest/%s"%node_name)
-        put("%s.tar.gz"%node_name,"~/fabtest/%s"%node_name)
+        run("mkdir -p ~/deployFabricTool/%s"%node_name)
+        put("%s.tar.gz"%node_name,"~/deployFabricTool/%s"%node_name)
         local("rm %s.tar.gz"%node_name)
 
     #start container
-    with cd("~/fabtest/%s"%node_name):
+    with cd("~/deployFabricTool/%s"%node_name):
         run("tar zxvfm %s.tar.gz"%node_name)
         run("rm %s.tar.gz"%node_name)
         run("docker-compose -f %s.yaml up -d"%node_name)
@@ -64,16 +64,16 @@ def start_api(peer_id, org_id, config_dir, api_id):
     #apiserver
     with lcd(parent_path):
         #remote yaml
-        run("mkdir -p ~/fabtest/api_server/%s"%name)
-        run("rm -rf ~/fabtest/api_server/%s/*"%name)
-        put("api_server.tar.gz","~/fabtest/api_server/%s"%name)
-    with cd("~/fabtest/api_server/%s"%name):
+        run("mkdir -p ~/deployFabricTool/api_server/%s"%name)
+        run("rm -rf ~/deployFabricTool/api_server/%s/*"%name)
+        put("api_server.tar.gz","~/deployFabricTool/api_server/%s"%name)
+    with cd("~/deployFabricTool/api_server/%s"%name):
         run("tar zxvfm api_server.tar.gz --strip-components=1")
         run("rm -rf api_server.tar.gz")
     with lcd(config_dir):
-        put("%s.yaml"%apiclientname, "~/fabtest/api_server/%s/client_sdk.yaml"%name)
-        put("%s.yaml"%apidockername, "~/fabtest/api_server/%s/docker-compose.yaml"%name)
-    with cd("~/fabtest/api_server/%s"%name):
+        put("%s.yaml"%apiclientname, "~/deployFabricTool/api_server/%s/client_sdk.yaml"%name)
+        put("%s.yaml"%apidockername, "~/deployFabricTool/api_server/%s/docker-compose.yaml"%name)
+    with cd("~/deployFabricTool/api_server/%s"%name):
         run("docker-compose -f docker-compose.yaml down")
         run("docker-compose -f docker-compose.yaml up -d")
 
@@ -85,16 +85,16 @@ def start_event(peer_id, org_id, config_dir, clitype, api_id):
     with lcd(parent_path):
         put("/etc/hosts","~")
         #remote yaml
-        run("mkdir -p ~/fabtest/%s_server/%s"%(clitype,name))
-        run("rm -rf ~/fabtest/%s_server/%s/*"%(clitype,name))
-        put("%s_server.tar.gz"%clitype,"~/fabtest/%s_server/%s"%(clitype,name))
+        run("mkdir -p ~/deployFabricTool/%s_server/%s"%(clitype,name))
+        run("rm -rf ~/deployFabricTool/%s_server/%s/*"%(clitype,name))
+        put("%s_server.tar.gz"%clitype,"~/deployFabricTool/%s_server/%s"%(clitype,name))
        # utils.kill_process("%sserver"%clitype)
-    with cd("~/fabtest/%s_server/%s"%(clitype,name)):
+    with cd("~/deployFabricTool/%s_server/%s"%(clitype,name)):
         run("tar zxvfm %s_server.tar.gz --strip-components=1"%clitype)
         run("rm %s_server.tar.gz"%clitype)
     with lcd(config_dir):
-        put("%s.yaml"%yamlname, "~/fabtest/%s_server/%s/client_sdk.yaml"%(clitype,name))
-    with cd("~/fabtest/%s_server/%s"%(clitype,name)):
+        put("%s.yaml"%yamlname, "~/deployFabricTool/%s_server/%s/client_sdk.yaml"%(clitype,name))
+    with cd("~/deployFabricTool/%s_server/%s"%(clitype,name)):
         sudo("cp ~/hosts /etc/hosts")
         run("chmod +x %sserver"%clitype)
         run("rm -rf %sserver.log"%clitype)
@@ -103,7 +103,7 @@ def start_event(peer_id, org_id, config_dir, clitype, api_id):
 
 def stop_node(node_name):
     #start container
-    with cd("~/fabtest/%s"%node_name):
+    with cd("~/deployFabricTool/%s"%node_name):
         run("docker-compose -f %s.yaml stop"%node_name)
 
 def check_node():
@@ -114,5 +114,5 @@ def check_node():
 def restart_node(type, node_id, yaml_name):
     dir_name = type + node_id
     #start container
-    with cd("~/fabtest/%s"%dir_name):
+    with cd("~/deployFabricTool/%s"%dir_name):
         run("docker-compose -f %s.yaml start"%yaml_name)

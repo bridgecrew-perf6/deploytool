@@ -38,8 +38,8 @@ services:
     command: peer node start
     volumes:
         - /var/run/:/host/var/run/
-        - ~/fabtest/crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/msp:/etc/hyperledger/fabric/msp
-        - ~/fabtest/crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/tls:/etc/hyperledger/fabric/tls
+        - ~/deployFabricTool/crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/msp:/etc/hyperledger/fabric/msp
+        - ~/deployFabricTool/crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/tls:/etc/hyperledger/fabric/tls
         - /data/peer{{.id}}.org{{.orgId}}.{{.domain}}:/var/hyperledger/production
     logging:
       driver: "json-file"

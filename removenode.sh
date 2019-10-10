@@ -7,5 +7,5 @@ verifyResult() {
   fi
 }
 echo "清除所有网络信息"
-./fabtest -d all
+./deployFabricTool -d all
 verifyResult $?

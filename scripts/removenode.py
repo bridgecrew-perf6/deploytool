@@ -14,15 +14,15 @@ def remove_node(type):
             if type == "peer":
                 run("unset GREP_OPTIONS && docker images |grep 'dev\-peer'|awk '{print $3}'|xargs docker rmi -f")
         run("docker network prune -f")
-        sudo("rm -rf ~/fabtest")
+        sudo("rm -rf ~/deployFabricTool")
         sudo("rm -rf /data/*")
 
 def remove_client():
     with settings(warn_only=True):
        run("docker ps -a | awk '{print $1}' | xargs docker rm -f")
        run("docker network prune -f")
-       sudo("rm -rf ~/fabtest")
-       sudo("rm -rf ~/fabTestData")
+       sudo("rm -rf ~/deployFabricTool")
+       sudo("rm -rf ~/deployFabricToolData")
        utils.kill_process("eventserver")
 
 def remove_jmeter():

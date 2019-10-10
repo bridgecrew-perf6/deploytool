@@ -39,7 +39,7 @@ def generate_certs(bin_path, cfg_path ,out_path, crypto_type):
 
 
 def put_cryptoconfig(config_path, type, node_name, org_name):
-    run("mkdir -p ~/fabtest")
+    run("mkdir -p ~/deployFabricTool")
     with lcd(config_path):
         if type == "orderer":
             local('tar -zcvf %s_crypto-config.tar.gz crypto-config/ordererOrganizations/%s/orderers/%s'%(node_name,org_name,node_name))
@@ -55,11 +55,11 @@ def put_cryptoconfig(config_path, type, node_name, org_name):
         #     copy_file(config_path,"crypto-config.tar.gz")
 
 def copy_file(config_path, file_name):
-    remote_file = "~/fabtest/%s"%file_name
+    remote_file = "~/deployFabricTool/%s"%file_name
     if utils.check_remote_file_exist(remote_file) == "false":
-        put("%s%s"%(config_path,file_name), "~/fabtest/")
+        put("%s%s"%(config_path,file_name), "~/deployFabricTool/")
         local("rm -rf %s%s"%(config_path,file_name))
-        with cd("~/fabtest"):
+        with cd("~/deployFabricTool"):
             run("tar zxfm %s"%file_name)
-            #run("rm %s"%file_name)
+            run("rm %s"%file_name)
 

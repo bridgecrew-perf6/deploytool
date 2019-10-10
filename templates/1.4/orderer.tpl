@@ -26,9 +26,9 @@ services:
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric
     command: orderer
     volumes:
-      - ~/fabtest/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-      - ~/fabtest/crypto-config/ordererOrganizations/ord{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/msp:/var/hyperledger/orderer/msp
-      - ~/fabtest/crypto-config/ordererOrganizations/ord{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/tls:/var/hyperledger/orderer/tls
+      - ~/deployFabricTool/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ~/deployFabricTool/crypto-config/ordererOrganizations/ord{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/msp:/var/hyperledger/orderer/msp
+      - ~/deployFabricTool/crypto-config/ordererOrganizations/ord{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/tls:/var/hyperledger/orderer/tls
       - /data/orderer{{.id}}.ord{{.orgId}}.{{.domain}}:/var/hyperledger/production
     logging:
       driver: "json-file"

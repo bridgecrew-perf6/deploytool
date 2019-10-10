@@ -7,6 +7,6 @@ verifyResult() {
   fi
 }
 echo "测试chaincode"
-./fabtest -r testcc -n mychannel -func invoke
+./deployFabricTool -r testcc -n mychannel -func invoke
 verifyResult $?
 

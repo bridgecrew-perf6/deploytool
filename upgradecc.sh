@@ -7,8 +7,8 @@ verifyResult() {
   fi
 }
 echo "安装智能合约"
-./fabtest -r installchaincode
+./deployFabricTool -r installchaincode
 verifyResult $?
 echo "升级chaincode"
-./fabtest -r upgradecc -n mychannel
+./deployFabricTool -r upgradecc -n mychannel
 verifyResult $?

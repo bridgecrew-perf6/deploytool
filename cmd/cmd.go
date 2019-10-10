@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"os"
 )
 
 type FabCmd struct {
@@ -29,8 +30,22 @@ func NewFabCmd(fileName, host, sshuser, sshpwd string) *FabCmd {
 	checkAdd("-H", host)
 	checkAdd("-u", sshuser)
 	checkAdd("-p", sshpwd)
-	checkAdd("-i", GlobalConfig.SshKey)
+	if PathExists(GlobalConfig.SshKey) {
+		checkAdd("-i", GlobalConfig.SshKey)
+	}
 	return &FabCmd{args: append(args, "-f"), dir: ScriptPath(), fileName: fileName}
+}
+
+//判断文件或文件夹是否存在
+func PathExists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return false
 }
 
 func NewLocalFabCmd(fileName string) *FabCmd {

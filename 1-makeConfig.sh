@@ -10,10 +10,10 @@ verifyResult() {
 }
 if [ "$1" = "" ]; then
     echo "生成证书配置文件"
-    ./fabtest -f crypto-config
+    ./deployFabricTool -f crypto-config
     verifyResult $?
     echo "生成证书目录"
-    ./fabtest -c crypto-config
+    ./deployFabricTool -c crypto-config
     verifyResult $?
 else
     echo "$1"
@@ -21,14 +21,14 @@ else
 fi
 
 echo "生成configtx配置文件"
-./fabtest -f configtx
+./deployFabricTool -f configtx
 verifyResult $?
 
 echo "生成节点docker启动文件"
-./fabtest -f node
+./deployFabricTool -f node
 verifyResult $?
 
 echo "生成创世区块"
-./fabtest -c genesisblock
+./deployFabricTool -c genesisblock
 verifyResult $?
 

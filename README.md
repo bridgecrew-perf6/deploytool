@@ -10,30 +10,37 @@ node.json 文件：节点服务器配置文件
 
 ## 根据需求修改配置文件node.json
 
-下面为模板文件： 采用fabric1.4.1版本， etcdraft 共识类型，3个orderer，2个peer 节点
+下面为模板文件： 采用fabric1.4.3版本， etcdraft 共识类型，3个orderer，2个peer 节点
 
 *具体参数需根据实际数据进行调整*，主要关注“xxx” 这些参数修改，ip写内网ip
 
 ```json
 {
-  "fabricVersion":"1.4.1","domain":"example.com",
-  "ccInit":"'{\"Args\":[\"init\"\\,\"xxx\"]}'",
+  "fabricVersion":"1.4","domain":"example.com","cryptoType":"GM",
+  "sshUserName":"test","sshPwd":"test","sshKey":"/etc/login.pem",
+  "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
-  "ccName":"name","ccVersion":"1.0",
-  "ccPath":"github.com/chaincode",
+  "ccName":"mycc","ccVersion":"1.0","ccInstallType":"path",
+  "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
+  "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
   "chan_counts":1,
-  "consensusType":"raft", "imageTag":"1.4.1","log":"INFO",
+  "consensusType":"raft", "imagePre":"peersafes","imageTag":"1.4.3-gm","log":"INFO",
   "batchTime":"2s", "batchSize":100, "batchPreferred":"512 KB", "useCouchdb":"false",
   "orderers":[
-   {"sshUserName":"xxx","sshPwd":"xxx","ip":"xxx","id":"0","orgId":"1","ports":["7050:7050"]},
-   {"sshUserName":"xxx","sshPwd":"xxx","ip":"xxx","id":"1","orgId":"1","ports":["7050:7050"]},
-  {"sshUserName":"xxx","sshPwd":"xxx","ip":"xxx","id":"2","orgId":"1","ports":["7050:7050"]}
+    {"ip":"xxx","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
+    {"ip":"xxx","id":"1","orgId":"1","ports":["8050:7050","6443:9443"]},
+    {"ip":"xxx","sshUserName":"","sshPwd":"","id":"2","orgId":"1","ports":["9050:7050","7443:9443"]}
   ],
   "peers": [
-   {"sshUserName":"xxx","sshPwd":"xxx","ip":"xxx","id":"0","orgId":"1","ports":["7051:7051"]},
-   {"sshUserName":"xxx","sshPwd":"xxx","ip":"xxx","id":"1","orgId":"1","ports":["7051:7051"]}
+    {"ip":"xxx","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
+    {"ip":"xxx","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
+  ],
+  "zookeepers": [
+  ],
+  "kafkas": [
   ]
 }
+
 
 ```
 
@@ -47,14 +54,48 @@ mkdir -p ~/deploy && cd  ~/deploy
 
 ### 复制资源文件 
 
-复制（chaincode目录，修改正确数据的 node.json 配置文件) 到deploy目录下
+复制所需的资源文件（chaincode源码目录和 node.json 配置文件) 到deploy目录下
+
+### 配置文件修改
+
+node.json 参数解释
+
+```bash
+fabricVersion： fabric的版本，容器内bin目录下可执行文件和tpl模板文件对应的版本
+domain： 生成证书的后缀名，推荐用默认值
+cryptoType： 算法类型, "GM" 国密、"FGM" 非国密
+sshUserName： ssh默认登陆用户名，"每个机器也可配置自定义用户名"
+sshPwd： ssh默认登陆密码，"每个机器也可配置自定义密码"
+sshKey： ssh默认登陆私钥(容器内位置),需要宿主机映射到容器中
+ccInit: 智能合约初始化参数
+ccPolicy： 智能合约背书策略
+ccName： 智能合约名称
+ccVersion： 智能合约版本， 升级时要修改
+ccPath： 智能合约源码路径或包绝对路径(容器内位置)
+ccInstallType：智能合约安装方式， "path" 源码路径方式 "pkg" 包安装方式
+testArgs： 执行调用智能合约的参数
+chan_counts： 创建的业务通道个数，默认为1对应通道"mychannel" 修改后为"mychannel2" ...
+consensusType: 共识方式，"raft"、"solo"、"kafka"  目前实现只raft
+imagePre： 镜像前缀,   eg：  "peersafes"、"hyperledger"
+imageTag: 镜像标签， eg: "1.4.3"、"1.4.3-gm" 
+log: orderer和peer日志级别， eg: "INFO"、"DEBUG"
+batchTime、batchSize、batchPreferred: 切块的条件
+orderers： 对应orderer节点数组
+ip: 服务器ip
+id： 当前节点序列号
+orgId: 当前节点归属组织id
+ports： 当前节点端口映射数组列表， eg: ["8050:7050","10443:9443"] , 前面为外部访问端口
+peers: 对应peers节点数组， 和orderer解释一样
+```
 
 ### 启动部署工具
 
 *这个过程需要拉取部署工具镜像文件,第一次执行需要等待几分钟，以下命令为一行*
 
+chaincode映射路径要与node.json配置的ccpath相同
+
 ```bash
-docker run -it -d --name manager -v $PWD/config:/opt/fabtest/config -v $PWD/node.json:/opt/fabtest/data/node.json -v $PWD/chaincode:/opt/gopath/src/github.com/peersafe/aiwan/fabric/chaincode peersafes/deploy-cli:latest
+docker run -it -d --name manager -v $PWD/config:/opt/deployFabricTool/config -v $PWD/node.json:/opt/deployFabricTool/data/node.json -v $PWD/chaincode:/opt/gopath/src/github.com/peersafe/xxx/chaincode peersafes/deploy-tool:latest
 ```
 
 如果报错，需要根据具体错误调整
@@ -71,8 +112,18 @@ docker exec manager bash -c ./0-checknode.sh
 
 ### 生成fabric需要配置文件
 
+需要生成新的crypto-config 证书目录
+
 ```bash
 docker exec manager bash -c ./1-makeConfig.sh
+```
+
+或
+
+用已经存在的crypto-config证书目录，需要在启动容器签将证书放在config/crypto-config目录下
+
+```bash
+docker exec manager bash -c './1-makeConfig.sh 1'
 ```
 
 ### 启动fabric节点
@@ -108,20 +159,20 @@ docker exec manager bash -c ./0-checknode.sh
 ## 重新部署-清理环境
 
 ```bash
-docker exec manager bash -c ./deletenode.sh
+docker exec manager bash -c ./removenode.sh
 ```
 
 然后再重头开始执行
 
 ## 业务变动升级fabric智能合约
 
+替换新版本chaincode源码或包文件
+
 修改node.json文件里面的ccVersion为新版本号：  "ccVersion":"1.1"
 
 ```bash
 docker exec manager bash -c ./upgradecc.sh
 ```
-
-### 
 
 ## 特别说明：
 
@@ -130,14 +181,11 @@ docker exec manager bash -c ./upgradecc.sh
 如果想要部署在内网环境机器，可以先用外网机器拉取所需镜像，在将镜像导入到内网服务器
 
 ```bash
-docker pull peersafes/deploy-cli:latest   		#部署工具镜像
-docker pull peersafes/fabric-zookeeper:1.4.1	#zookeeper镜像
-docker pull peersafes/fabric-kafka:1.4.1		#kafka镜像
-docker pull peersafes/fabric-orderer:1.4.1		#orderer镜像
-docker pull peersafes/fabric-peer:1.4.1			#peer镜像
-docker pull peersafes/fabric-ccenv:1.4.1		#编译智能合约依赖镜像
-docker pull peersafes/fabric-baseos:1.4.1		#智能合约运行镜像
-docker pull peersafes/fabric-ca:1.4.1			#ca镜像
+docker pull peersafes/deploy-tool:latest   		#部署工具镜像
+docker pull peersafes/fabric-orderer:XXX		#orderer镜像
+docker pull peersafes/fabric-peer:XXX		#peer镜像
+docker pull peersafes/fabric-ccenv:XXX		#编译智能合约依赖镜像
+docker pull peersafes/fabric-baseos:XXX		#智能合约运行镜像
 ```
 
 
