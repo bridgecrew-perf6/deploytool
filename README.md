@@ -56,6 +56,14 @@ mkdir -p ~/deploy && cd  ~/deploy
 
 复制所需的资源文件（chaincode源码目录和 node.json 配置文件) 到deploy目录下
 
+### 修改文件权限
+
+修改宿主机node.json 权限为777，否则修改宿主机上的文件会引起内容不同步的问题
+
+```bash
+sudo chmod 777 ~/deploy/node.json   
+```
+
 ### 配置文件修改
 
 node.json 参数解释
@@ -172,6 +180,32 @@ docker exec manager bash -c ./removenode.sh
 
 ```bash
 docker exec manager bash -c ./upgradecc.sh
+```
+
+### 隐藏功能
+
+#### 1. 自定义bin、tpl， 比如需要1.3版本的bin和tpl, 先自己准备好bin和tpl
+
+```bash
+docker run -it -d --name manager -v $PWD/config:/opt/deployFabricTool/config -v $PWD/node.json:/opt/deployFabricTool/data/node.json -v $PWD/chaincode:/opt/gopath/src/github.com/peersafe/xxx/chaincode -v
+$PWD/bin/1.3/:/opt/deployFabricTool/bin/1.3/ -v
+$PWD/templates/1.3/:/opt/deployFabricTool/templates/1.3/ -v
+peersafes/deploy-tool:latest
+```
+
+#### 2. 单独执行拆分命令
+
+先看原有包含哪些命令
+
+```bash
+docker exec manager bash -c 'cat 1-makeConfig.sh'
+docker exec manager bash -c 'cat 2-startNode.sh'
+```
+
+只执行其中包含的某条命令
+
+```bash
+docker exec manager bash -c './deployFabricTool -r runchaincode -n mychannel'
 ```
 
 ## 特别说明：

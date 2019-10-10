@@ -61,5 +61,5 @@ def copy_file(config_path, file_name):
         local("rm -rf %s%s"%(config_path,file_name))
         with cd("~/deployFabricTool"):
             run("tar zxfm %s"%file_name)
-            run("rm %s"%file_name)
+            # run("rm %s"%file_name)
 
