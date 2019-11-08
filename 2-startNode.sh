@@ -7,13 +7,13 @@ verifyResult() {
   fi
 }
 echo "向节点传输证书、配置文件"
-./fabtest -p all
+./deployFabricTool -p all
 verifyResult $?
 
 echo "启动节点"
-./fabtest -s orderer
+./deployFabricTool -s orderer
 verifyResult $?
 
-./fabtest -s peer
+./deployFabricTool -s peer
 verifyResult $?
 

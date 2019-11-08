@@ -8,5 +8,5 @@ verifyResult() {
 }
 
 echo "验证所有节点"
-./fabtest -r checknode
+./deployFabricTool -r checknode
 verifyResult $?

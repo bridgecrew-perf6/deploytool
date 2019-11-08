@@ -1,15 +1,13 @@
 {
-  "fabricVersion":"1.4.1","domain":"example.com",
-  "sshUserName":"test","sshPwd":"test","sudoPwd":"test",
+  "fabricVersion":"1.4","domain":"example.com","cryptoType":"GM",
+  "sshUserName":"test","sshPwd":"test","sshKey":"/etc/login.pem",
   "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
-  "ccName":"aiwan","ccVersion":"1.1",
+  "ccName":"mycc","ccVersion":"1.0","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
-  "testArgs":"'{\"Args\":[\"query\"\\,\"a\"]}'",
   "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
-  "jmeter":{"ip":"10.9.62.25", "haproxyip":"10.9.62.25","haproxyport":2222, "thread_count":1650, "loop_count":50, "throughput":"60.0"},
   "chan_counts":1,
-  "consensusType":"raft", "imagePre":"peersafes","imageTag":"1.4.1","log":"INFO",
+  "consensusType":"raft", "imagePre":"peersafes","imageTag":"1.4.3-gm","log":"INFO",
   "batchTime":"2s", "batchSize":100, "batchPreferred":"512 KB", "useCouchdb":"false",
   "orderers":[
     {"ip":"192.168.0.21","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
@@ -17,10 +15,10 @@
     {"ip":"192.168.0.21","id":"2","orgId":"1","ports":["9050:7050","7443:9443"]}
   ],
   "peers": [
-    {"ip":"192.168.0.21","apiIp":"127.0.0.1","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
-    {"ip":"192.168.0.21","apiIp":"127.0.0.1","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
-    {"ip":"192.168.0.21","apiIp":"127.0.0.1","id":"0","orgId":"2","ports":["9051:7051","10443:9443"]},
-    {"ip":"192.168.0.21","apiIp":"127.0.0.1","id":"1","orgId":"2","ports":["10051:7051","11443:9443"]}
+    {"ip":"192.168.0.21","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
+    {"ip":"192.168.0.21","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
+    {"ip":"192.168.0.21","id":"0","orgId":"2","ports":["9051:7051","10443:9443"]},
+    {"ip":"192.168.0.21","id":"1","orgId":"2","ports":["10051:7051","11443:9443"]}
   ],
   "zookeepers": [
   ],

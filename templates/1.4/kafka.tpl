@@ -33,7 +33,7 @@ services:
       - 9092:9092
       - 8092:8092
     volumes:
-      - ~/fabtest/kafkaTlsServer:/opt/kafka/ssl
+      - ~/deployFabricTool/kafkaTlsServer:/opt/kafka/ssl
       - /etc/localtime:/etc/localtime
       - /data/kafka_log:/tmp/kafka-logs
     logging:

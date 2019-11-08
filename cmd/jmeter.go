@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/fabtestorg/fabtest/tpl"
+	"github.com/peersafe/deployFabricTool/tpl"
 	"strconv"
 	"sync"
 )
