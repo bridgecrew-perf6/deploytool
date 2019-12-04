@@ -121,6 +121,7 @@ func CopyConfig(obj *NodeObj) {
 	obj.UseCouchdb = GlobalConfig.UseCouchdb
 	obj.ImageTag = GlobalConfig.ImageTag
 	obj.ImagePre = GlobalConfig.ImagePre
+	obj.MountPath = GlobalConfig.MountPath
 	obj.CryptoType = GlobalConfig.CryptoType
 }
 

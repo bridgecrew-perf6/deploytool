@@ -15,13 +15,23 @@ func InstallChaincode(ccname, ccversion, ccpath string) error {
 	if ccname == "" {
 		ccname = GlobalConfig.CCName
 	}
+	for _, peer := range GlobalConfig.Peers {
+		//make cc pkg file even by chaincode path or pkg type
+		obj := NewLocalFabCmd("chaincode.py")
+		err := obj.RunShow("pkg_chaincode", BinPath(), ConfigDir(), peer.OrgId, GlobalConfig.Domain, ccname, ccversion, ccpath, GlobalConfig.CCInstallType, GlobalConfig.CryptoType)
+		if err != nil {
+			return err
+		}
+		//only once
+		break
+	}
 	var wg sync.WaitGroup
 	for _, peer := range GlobalConfig.Peers {
 		wg.Add(1)
 		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ConfigTxPort)
 		go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
 			defer wg.Done()
-			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd)
+			obj := NewLocalFabCmd("chaincode.py")
 			err := obj.RunShow("install_chaincode", binPath, configDir, peerAds, PeerId, OrgId, Pdn, ccname, ccversion, ccpath, GlobalConfig.CCInstallType, GlobalConfig.CryptoType)
 			if err != nil {
 				fmt.Printf(err.Error())

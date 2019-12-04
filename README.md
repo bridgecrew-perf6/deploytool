@@ -23,23 +23,26 @@ node.json 文件：节点服务器配置文件
   "ccName":"mycc","ccVersion":"1.0","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
   "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
-  "chan_counts":1,
+  "chan_counts":1,"dataVolume": "volume",
   "consensusType":"raft", "imagePre":"peersafes","imageTag":"1.4.3-gm","log":"INFO",
   "batchTime":"2s", "batchSize":100, "batchPreferred":"512 KB", "useCouchdb":"false",
   "orderers":[
-    {"ip":"xxx","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
-    {"ip":"xxx","id":"1","orgId":"1","ports":["8050:7050","6443:9443"]},
-    {"ip":"xxx","sshUserName":"","sshPwd":"","id":"2","orgId":"1","ports":["9050:7050","7443:9443"]}
+    {"ip":"192.168.0.21","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
+    {"ip":"192.168.0.21","id":"1","orgId":"1","ports":["8050:7050","6443:9443"]},
+    {"ip":"192.168.0.21","id":"2","orgId":"1","ports":["9050:7050","7443:9443"]}
   ],
   "peers": [
-    {"ip":"xxx","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
-    {"ip":"xxx","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
+    {"ip":"192.168.0.21","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
+    {"ip":"192.168.0.21","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
+    {"ip":"192.168.0.21","id":"0","orgId":"2","ports":["9051:7051","10443:9443"]},
+    {"ip":"192.168.0.21","id":"1","orgId":"2","ports":["10051:7051","11443:9443"]}
   ],
   "zookeepers": [
   ],
   "kafkas": [
   ]
 }
+
 
 
 ```
@@ -83,6 +86,7 @@ ccPath： 智能合约源码路径或包绝对路径(容器内位置)
 ccInstallType：智能合约安装方式， "path" 源码路径方式 "pkg" 包安装方式
 testArgs： 执行调用智能合约的参数
 chan_counts： 创建的业务通道个数，默认为1对应通道"mychannel" 修改后为"mychannel2" ...
+dataVolume： 数据账本挂载方式，将节点的账本映射到主机，分为"mount","volume"; 不指定为volume
 consensusType: 共识方式，"raft"、"solo"、"kafka"  目前实现只raft
 imagePre： 镜像前缀,   eg：  "peersafes"、"hyperledger"
 imageTag: 镜像标签， eg: "1.4.3"、"1.4.3-gm" 

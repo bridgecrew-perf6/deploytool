@@ -6,11 +6,11 @@ verifyResult() {
     exit 1
   fi
 }
-echo "向节点传输证书、配置文件"
+echo "-------put crypto and config file (向节点传输证书、配置文件)-------"
 ./deployFabricTool -p all
 verifyResult $?
 
-echo "启动节点"
+echo "-------start node (启动节点)-------"
 ./deployFabricTool -s orderer
 verifyResult $?
 

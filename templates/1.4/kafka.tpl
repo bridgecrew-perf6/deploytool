@@ -33,9 +33,9 @@ services:
       - 9092:9092
       - 8092:8092
     volumes:
-      - ~/deployFabricTool/kafkaTlsServer:/opt/kafka/ssl
       - /etc/localtime:/etc/localtime
-      - /data/kafka_log:/tmp/kafka-logs
+      - ~/deployFabricTool/kafkaTlsServer:/opt/kafka/ssl
+      - {{.mountPath}}/kafka{{.kfk_id}}:/tmp/kafka-logs
     logging:
       driver: "json-file"
       options:

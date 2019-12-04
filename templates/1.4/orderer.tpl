@@ -29,7 +29,7 @@ services:
       - ~/deployFabricTool/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
       - ~/deployFabricTool/crypto-config/ordererOrganizations/ord{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/msp:/var/hyperledger/orderer/msp
       - ~/deployFabricTool/crypto-config/ordererOrganizations/ord{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/tls:/var/hyperledger/orderer/tls
-      - /data/orderer{{.id}}.ord{{.orgId}}.{{.domain}}:/var/hyperledger/production
+      - {{.mountPath}}/orderer{{.id}}.ord{{.orgId}}.{{.domain}}:/var/hyperledger/production
     logging:
       driver: "json-file"
       options:

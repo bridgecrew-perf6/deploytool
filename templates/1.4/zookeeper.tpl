@@ -19,8 +19,6 @@ services:
           - 3888:3888
         volumes:
           - /etc/localtime:/etc/localtime
-          - /PATH1:/data
-          - /PATH2:/datalog
         extra_hosts:
           zk0.{{.kfk_domain}}: {{.ip0}}
           zk1.{{.kfk_domain}}: {{.ip1}}

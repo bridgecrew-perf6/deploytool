@@ -7,6 +7,6 @@ verifyResult() {
   fi
 }
 
-echo "验证所有节点"
+echo "-------check node (验证所有节点)-------"
 ./deployFabricTool -r checknode
 verifyResult $?

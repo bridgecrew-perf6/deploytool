@@ -1,5 +1,8 @@
 version: '2'
 
+volumes:
+  peer{{.id}}.org{{.orgId}}.{{.domain}}:
+
 services:
   peer{{.id}}.org{{.orgId}}.{{.domain}}:
     image: {{.imagePre}}/fabric-peer:{{.imageTag}}
@@ -40,7 +43,7 @@ services:
         - /var/run/:/host/var/run/
         - ~/deployFabricTool/crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/msp:/etc/hyperledger/fabric/msp
         - ~/deployFabricTool/crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/tls:/etc/hyperledger/fabric/tls
-        - /data/peer{{.id}}.org{{.orgId}}.{{.domain}}:/var/hyperledger/production
+        - {{.mountPath}}/peer{{.id}}.org{{.orgId}}.{{.domain}}:/var/hyperledger/production
     logging:
       driver: "json-file"
       options:

@@ -6,7 +6,7 @@ verifyResult() {
     exit 1
   fi
 }
-echo "测试chaincode"
+echo "-------test chaincode (测试chaincode)-------"
 ./deployFabricTool -r testcc -n mychannel -func invoke
 verifyResult $?
 

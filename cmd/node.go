@@ -77,10 +77,10 @@ func WriteHost() error {
 
 func DeleteObj(stringType string) error {
 	var wg sync.WaitGroup
-	StopN := func(Ip, Sshuser, Sshpwd, Ty string, w1 *sync.WaitGroup) {
+	StopN := func(Ip, Sshuser, Sshpwd, Ty, ImageName, MountName string, w1 *sync.WaitGroup) {
 		defer w1.Done()
 		obj := NewFabCmd("removenode.py", Ip, Sshuser, Sshpwd)
-		err := obj.RunShow("remove_node", Ty)
+		err := obj.RunShow("remove_node", Ty, ImageName, GlobalConfig.MountPath, MountName)
 		if err != nil {
 			fmt.Println("stopnode err or")
 		}
@@ -88,25 +88,33 @@ func DeleteObj(stringType string) error {
 	if stringType == "all" || stringType == TypeKafka {
 		for _, kafka := range GlobalConfig.Kafkas {
 			wg.Add(1)
-			go StopN(kafka.Ip, kafka.SshUserName, kafka.SshPwd, TypeKafka, &wg)
+			imageName := fmt.Sprintf("%s/fabric-kafka:%s", GlobalConfig.ImagePre, GlobalConfig.ImageTag)
+			mountName := fmt.Sprintf("kafka%s", kafka.Id)
+			go StopN(kafka.Ip, kafka.SshUserName, kafka.SshPwd, TypeKafka, imageName, mountName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypeZookeeper {
 		for _, zk := range GlobalConfig.Zookeepers {
 			wg.Add(1)
-			go StopN(zk.Ip, zk.SshUserName, zk.SshPwd, TypeZookeeper, &wg)
+			imageName := fmt.Sprintf("%s/fabric-zookeeper:%s", GlobalConfig.ImagePre, GlobalConfig.ImageTag)
+			mountName := fmt.Sprintf("zk%s", zk.Id)
+			go StopN(zk.Ip, zk.SshUserName, zk.SshPwd, TypeZookeeper, imageName, mountName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypeOrder {
 		for _, ord := range GlobalConfig.Orderers {
 			wg.Add(1)
-			go StopN(ord.Ip, ord.SshUserName, ord.SshPwd, TypeOrder, &wg)
+			imageName := fmt.Sprintf("%s/fabric-orderer:%s", GlobalConfig.ImagePre, GlobalConfig.ImageTag)
+			mountName := fmt.Sprintf("orderer%s.ord%s.%s", ord.Id, ord.OrgId, GlobalConfig.Domain)
+			go StopN(ord.Ip, ord.SshUserName, ord.SshPwd, TypeOrder, imageName, mountName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypePeer {
 		for _, peer := range GlobalConfig.Peers {
 			wg.Add(1)
-			go StopN(peer.Ip, peer.SshUserName, peer.SshPwd, TypePeer, &wg)
+			imageName := fmt.Sprintf("%s/fabric-peer:%s", GlobalConfig.ImagePre, GlobalConfig.ImageTag)
+			mountName := fmt.Sprintf("peer%s.org%s.%s", peer.Id, peer.OrgId, GlobalConfig.Domain)
+			go StopN(peer.Ip, peer.SshUserName, peer.SshPwd, TypePeer, imageName, mountName, &wg)
 		}
 	}
 	wg.Wait()

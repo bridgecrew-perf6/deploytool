@@ -73,6 +73,7 @@ type Expand struct {
 	Peers          []NodeObj `json:"peers"`
 	ImageTag       string    `json:"imageTag"`
 	ImagePre       string    `json:"imagePre"`
+	MountPath      string    `json:"mountPath"`
 	CryptoType     string    `json:"cryptoType"`
 	DefaultNetwork string    `json:"defaultNetwork"`
 }
@@ -138,7 +139,7 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		obj.Peers[i].ConfigTxPort = configTxPort
 	}
 	for i, v := range obj.Orderers {
-		obj.OrdList[v.OrgId] = obj.OrgList[v.OrgId] + 1
+		obj.OrdList[v.OrgId] = obj.OrdList[v.OrgId] + 1
 		configTxPort, err := findConfigTxPort(v.Ports, "7050")
 		if err != nil {
 			return &obj, err
@@ -154,6 +155,9 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 	}
 	if obj.ImagePre == "" {
 		obj.ImagePre = "peersafes"
+	}
+	if obj.MountPath == "" {
+		obj.MountPath = "/data"
 	}
 
 	//fmt.Printf("config obj is %#v\n", obj)
