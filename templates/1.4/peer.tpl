@@ -1,8 +1,5 @@
 version: '2'
 
-volumes:
-  peer{{.id}}.org{{.orgId}}.{{.domain}}:
-
 services:
   peer{{.id}}.org{{.orgId}}.{{.domain}}:
     image: {{.imagePre}}/fabric-peer:{{.imageTag}}
@@ -27,16 +24,24 @@ services:
       - CORE_CHAINCODE_GOLANG_RUNTIME=peersafes/fabric-baseos:{{.imageTag}}{{end}}
       # improve env
       - CORE_PEER_ID=peer{{.id}}.org{{.orgId}}.{{.domain}}
-      - CORE_PEER_ADDRESS=peer{{.id}}.org{{.orgId}}.{{.domain}}:7051
-      - CORE_PEER_CHAINCODELISTENADDRESS=peer{{.id}}.org{{.orgId}}.{{.domain}}:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer{{.id}}.org{{.orgId}}.{{.domain}}:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer{{.id}}.org{{.orgId}}.{{.domain}}:7051
+      #peer listen service
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      #for same org peer connect
+      - CORE_PEER_ADDRESS=peer{{.id}}.org{{.orgId}}.{{.domain}}:{{.externalPort}}
+      #listen chaincode connect
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      #chaincode connect to peer
+      - CORE_PEER_CHAINCODEADDRESS=peer{{.id}}.org{{.orgId}}.{{.domain}}:7052
+      #connect peer when peer init{{if ne .bootStrapAddress ""}}
+      - CORE_PEER_GOSSIP_BOOTSTRAP={{.bootStrapAddress}}{{else}}
+      - CORE_PEER_GOSSIP_BOOTSTRAP=127.0.0.1:7051{{end}}
+      #for other org peer connect
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer{{.id}}.org{{.orgId}}.{{.domain}}:{{.externalPort}}
       - CORE_OPERATIONS_LISTENADDRESS=0.0.0.0:9443
       - CORE_PEER_LOCALMSPID=Org{{.orgId}}MSP
       {{if eq .useCouchdb "true"}}
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb:5984
-      {{end}}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb:5984{{end}}
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     volumes:

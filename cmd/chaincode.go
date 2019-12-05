@@ -28,7 +28,7 @@ func InstallChaincode(ccname, ccversion, ccpath string) error {
 	var wg sync.WaitGroup
 	for _, peer := range GlobalConfig.Peers {
 		wg.Add(1)
-		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ConfigTxPort)
+		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
 		go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
 			defer wg.Done()
 			obj := NewLocalFabCmd("chaincode.py")
@@ -54,13 +54,13 @@ func RunChaincode(ccname, ccversion, channelName, opration string) error {
 	}
 	ordererAddress := ""
 	for _, ord := range GlobalConfig.Orderers {
-		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ConfigTxPort)
+		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ExternalPort)
 		break
 	}
 	var wg sync.WaitGroup
 	for _, peer := range GlobalConfig.Peers {
 		wg.Add(1)
-		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ConfigTxPort)
+		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
 		go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
 			defer wg.Done()
 			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd)
@@ -88,13 +88,13 @@ func TestChaincode(ccname, channelName, function, testArgs string) error {
 	}
 	ordererAddress := ""
 	for _, ord := range GlobalConfig.Orderers {
-		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ConfigTxPort)
+		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ExternalPort)
 		break
 	}
 	var wg sync.WaitGroup
 	for _, peer := range GlobalConfig.Peers {
 		wg.Add(1)
-		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ConfigTxPort)
+		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
 		go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
 			defer wg.Done()
 			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd)

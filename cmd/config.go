@@ -79,12 +79,13 @@ type Expand struct {
 }
 
 type NodeObj struct {
-	Ip           string   `json:"ip"`
-	ApiIp        string   `json:"apiIp"`
-	Id           string   `json:"id"`
-	OrgId        string   `json:"orgId"`
-	Ports        []string `json:"ports"`
-	ConfigTxPort string   `json:"configTxPort"`
+	Ip               string   `json:"ip"`
+	ApiIp            string   `json:"apiIp"`
+	Id               string   `json:"id"`
+	OrgId            string   `json:"orgId"`
+	Ports            []string `json:"ports"`
+	ExternalPort     string   `json:"externalPort"`
+	BootStrapAddress string   `json:"bootStrapAddress"`
 	Expand
 }
 
@@ -124,34 +125,52 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 	if err != nil {
 		return &obj, err
 	}
+
 	obj.OrdList = make(map[string]int)
 	obj.OrgList = make(map[string]int)
+
+	peer0BootStrapMap := make(map[string]string)
+	otherPeerBootStrapMap := make(map[string]string)
+
 	err = json.Unmarshal(jsonData, &obj)
 	if err != nil {
 		return &obj, err
 	}
 	for i, v := range obj.Peers {
 		obj.OrgList[v.OrgId] = obj.OrgList[v.OrgId] + 1
-		configTxPort, err := findConfigTxPort(v.Ports, "7051")
+		extPort, err := findExternalPort(v.Ports, "7051")
 		if err != nil {
 			return &obj, err
 		}
-		obj.Peers[i].ConfigTxPort = configTxPort
+
+		obj.Peers[i].ExternalPort = extPort
+		if v.Id == "0" {
+			otherPeerBootStrapMap[v.OrgId] = fmt.Sprintf("peer%s.org%s.%s:%s", v.Id, v.OrgId, obj.Domain, extPort)
+		} else if peer0BootStrapMap[v.OrgId] == "" {
+			peer0BootStrapMap[v.OrgId] = fmt.Sprintf("peer%s.org%s.%s:%s", v.Id, v.OrgId, obj.Domain, extPort)
+		}
+	}
+	for i, v := range obj.Peers {
+		if v.Id == "0" {
+			obj.Peers[i].BootStrapAddress = peer0BootStrapMap[v.OrgId]
+		} else {
+			obj.Peers[i].BootStrapAddress = otherPeerBootStrapMap[v.OrgId]
+		}
 	}
 	for i, v := range obj.Orderers {
 		obj.OrdList[v.OrgId] = obj.OrdList[v.OrgId] + 1
-		configTxPort, err := findConfigTxPort(v.Ports, "7050")
+		extPort, err := findExternalPort(v.Ports, "7050")
 		if err != nil {
 			return &obj, err
 		}
-		obj.Orderers[i].ConfigTxPort = configTxPort
+		obj.Orderers[i].ExternalPort = extPort
 	}
 	for i, v := range obj.Kafkas {
-		configTxPort, err := findConfigTxPort(v.Ports, "9092")
+		extPort, err := findExternalPort(v.Ports, "9092")
 		if err != nil {
 			return &obj, err
 		}
-		obj.Kafkas[i].ConfigTxPort = configTxPort
+		obj.Kafkas[i].ExternalPort = extPort
 	}
 	if obj.ImagePre == "" {
 		obj.ImagePre = "peersafes"
@@ -181,15 +200,15 @@ func GetJsonMap(jsonfile string) map[string]interface{} {
 	return inputData
 }
 
-func findConfigTxPort(list []string, destPort string) (string, error) {
+func findExternalPort(list []string, destPort string) (string, error) {
 	for _, v := range list {
 		curLine := strings.Split(v, ":")
 		if len(curLine) != 2 {
-			return "", fmt.Errorf("findConfigTxPort err %s", v)
+			return "", fmt.Errorf("findExternalPort err %s", v)
 		}
 		if curLine[1] == destPort {
 			return curLine[0], nil
 		}
 	}
-	return "", fmt.Errorf("findConfigTxPort err destPort %s not exist ", destPort)
+	return "", fmt.Errorf("findExternalPort err destPort %s not exist ", destPort)
 }

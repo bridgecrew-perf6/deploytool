@@ -30,7 +30,7 @@ Organizations:{{range $key,$value:= .ordList}}
                  Rule: "OR('Org{{$key}}MSP.admin')"
         AnchorPeers:{{range $index,$peer:= $.peers}} {{if eq $peer.orgId $key}} {{if eq $peer.id "0"}}
             - Host: peer0.org{{$peer.orgId}}.{{$.domain}}
-              Port: {{$peer.configTxPort}}{{end}}{{end}}{{end}}{{end}}
+              Port: {{$peer.externalPort}}{{end}}{{end}}{{end}}{{end}}
 
 Capabilities:
     Channel: &ChannelCapabilities
@@ -135,7 +135,7 @@ Profiles:
             OrdererType: kafka
             Kafka:
                 Brokers:{{range $index,$kafka:= .kafkas}}
-                - kafka{{$kafka.id}}:{{$kafka.configTxPort}}{{end}}
+                - kafka{{$kafka.id}}:{{$kafka.externalPort}}{{end}}
             Organizations:{{range $key,$value:= .ordList}}
             - *OrdererOrg{{$key}}{{end}}
             Capabilities:
@@ -160,11 +160,11 @@ Profiles:
             EtcdRaft:
                 Consenters:{{range $index,$orderer:= .orderers}}
                 - Host: orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}
-                  Port: {{$orderer.configTxPort}}
+                  Port: {{$orderer.externalPort}}
                   ClientTLSCert: crypto-config/ordererOrganizations/ord{{$orderer.orgId}}.{{$.domain}}/orderers/orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}/tls/server.crt
                   ServerTLSCert: crypto-config/ordererOrganizations/ord{{$orderer.orgId}}.{{$.domain}}/orderers/orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}/tls/server.crt{{end}}
             Addresses:{{range $index,$orderer:= .orderers}}
-                - orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}:{{$orderer.configTxPort}}{{end}}
+                - orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}:{{$orderer.externalPort}}{{end}}
             Organizations:{{range $key,$value:= .ordList}}
             - *OrdererOrg{{$key}}{{end}}
             Capabilities:

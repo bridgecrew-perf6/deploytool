@@ -81,7 +81,7 @@ func CreateChannel(channelName string) error {
 	obj := NewLocalFabCmd("create_channel.py")
 	ordererAddress := ""
 	for _, ord := range GlobalConfig.Orderers {
-		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ConfigTxPort)
+		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ExternalPort)
 		break
 	}
 	err := obj.RunShow("create_channel", BinPath(), ConfigDir(), ChannelPath(), channelName, ordererAddress, GlobalConfig.Domain, GlobalConfig.CryptoType)
@@ -97,7 +97,7 @@ func UpdateAnchor(channelName string) error {
 	}
 	ordererAddress := ""
 	for _, ord := range GlobalConfig.Orderers {
-		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ConfigTxPort)
+		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ExternalPort)
 		break
 	}
 	for _, peer := range GlobalConfig.Peers {
@@ -130,7 +130,7 @@ func JoinChannel(channelName string) error {
 		return fmt.Errorf("channel name is nil")
 	}
 	for _, peer := range GlobalConfig.Peers {
-		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ConfigTxPort)
+		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
 		obj := NewLocalFabCmd("create_channel.py")
 		err := obj.RunShow("join_channel", BinPath(), ConfigDir(), ChannelPath(), channelName, peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain, GlobalConfig.CryptoType)
 		if err != nil {
