@@ -6,9 +6,9 @@ verifyResult() {
     exit 1
   fi
 }
-echo "安装智能合约"
+echo "----install chaincode (安装智能合约)----"
 ./deployFabricTool -r installchaincode
 verifyResult $?
-echo "升级chaincode"
+echo "----upgrade chaincode (升级chaincode)----"
 ./deployFabricTool -r upgradecc -n mychannel
 verifyResult $?
