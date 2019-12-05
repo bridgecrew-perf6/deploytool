@@ -10,41 +10,38 @@ node.json 文件：节点服务器配置文件
 
 ## 根据需求修改配置文件node.json
 
-下面为模板文件： 采用fabric1.4.3版本， etcdraft 共识类型，3个orderer，2个peer 节点
+下面为模板文件： 采用fabric1.4版本， etcdraft 共识类型，3个orderer，2个peer 节点
 
 *具体参数需根据实际数据进行调整*，主要关注“xxx” 这些参数修改，ip写内网ip
 
 ```json
 {
-  "fabricVersion":"1.4","domain":"example.com","cryptoType":"GM",
-  "sshUserName":"test","sshPwd":"test","sshKey":"/etc/login.pem",
+  "fabricVersion":"1.4","domain":"example.com","cryptoType":"FGM",
+  "sshUserName":"xxxx","sshPwd":"xxxx","sshKey":"/etc/login.pem",
   "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
   "ccName":"mycc","ccVersion":"1.0","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
   "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
-  "chan_counts":1,"dataVolume": "volume",
-  "consensusType":"raft", "imagePre":"peersafes","imageTag":"1.4.3-gm","log":"INFO",
+  "chan_counts":1,"mountPath": "/data",
+  "consensusType":"raft", "imagePre":"peersafes","imageTag":"1.4","log":"INFO",
   "batchTime":"2s", "batchSize":100, "batchPreferred":"512 KB", "useCouchdb":"false",
   "orderers":[
-    {"ip":"192.168.0.21","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
-    {"ip":"192.168.0.21","id":"1","orgId":"1","ports":["8050:7050","6443:9443"]},
-    {"ip":"192.168.0.21","id":"2","orgId":"1","ports":["9050:7050","7443:9443"]}
+    {"ip":"xxx.xxx.xxx.xx","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
+    {"ip":"xxx.xxx.xxx.xx","id":"1","orgId":"1","ports":["8050:7050","6443:9443"]},
+    {"ip":"xxx.xxx.xxx.xx","id":"2","orgId":"1","ports":["9050:7050","7443:9443"]}
   ],
   "peers": [
-    {"ip":"192.168.0.21","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
-    {"ip":"192.168.0.21","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
-    {"ip":"192.168.0.21","id":"0","orgId":"2","ports":["9051:7051","10443:9443"]},
-    {"ip":"192.168.0.21","id":"1","orgId":"2","ports":["10051:7051","11443:9443"]}
+    {"ip":"xxx.xxx.xxx.xx","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
+    {"ip":"xxx.xxx.xxx.xx","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
+    {"ip":"xxx.xxx.xxx.xx","id":"0","orgId":"2","ports":["9051:7051","10443:9443"]},
+    {"ip":"xxx.xxx.xxx.xx","id":"1","orgId":"2","ports":["10051:7051","11443:9443"]}
   ],
   "zookeepers": [
   ],
   "kafkas": [
   ]
 }
-
-
-
 ```
 
 ## 部署
@@ -86,10 +83,11 @@ ccPath： 智能合约源码路径或包绝对路径(容器内位置)
 ccInstallType：智能合约安装方式， "path" 源码路径方式 "pkg" 包安装方式
 testArgs： 执行调用智能合约的参数
 chan_counts： 创建的业务通道个数，默认为1对应通道"mychannel" 修改后为"mychannel2" ...
+mountPath: orderer和peer节点账本数据挂载的宿主机位置，默认"/data"eg:/data/peer0.org1.example.com
 dataVolume： 数据账本挂载方式，将节点的账本映射到主机，分为"mount","volume"; 不指定为volume
 consensusType: 共识方式，"raft"、"solo"、"kafka"  目前实现只raft
 imagePre： 镜像前缀,   eg：  "peersafes"、"hyperledger"
-imageTag: 镜像标签， eg: "1.4.3"、"1.4.3-gm" 
+imageTag: 镜像标签， eg: "1.4"、"1.4.3"、"1.4.3-gm" 
 log: orderer和peer日志级别， eg: "INFO"、"DEBUG"
 batchTime、batchSize、batchPreferred: 切块的条件
 orderers： 对应orderer节点数组
@@ -150,19 +148,27 @@ docker exec manager bash -c ./2-startNode.sh
 docker exec manager bash -c ./3-runChaincode.sh
 ```
 
+PS: 可能要等待一段时间
+
 ### 检查所有节点是否启动成功
 
 ```bash
 docker exec manager bash -c ./0-checknode.sh
 ```
 
-
-
 如果上面部署命令执行有错误，先根据错误日志判定是否node.json文件参数错误，然后要清理环境再重新部署。
 
+### 发交易测试CC
+
+修改node.json文件中的testArgs对应得参数
+
+```bash
+docker exec manager bash -c ./invokecc.sh
+```
 
 
-## 后台服务客户端所需证书目录
+
+## 后台APi服务客户端所需证书目录
 
 ```bash
 ~/depoly/config/crypto-config
@@ -183,7 +189,19 @@ docker exec manager bash -c ./removenode.sh
 修改node.json文件里面的ccVersion为新版本号：  "ccVersion":"1.1"
 
 ```bash
-docker exec manager bash -c ./upgradecc.sh
+docker exec manager bash -c './godeploycc.sh upgrade'
+```
+
+## 安装自定义智能合约
+
+替换新版本chaincode源码或包文件
+
+修改node.json文件里面的ccName、ccVersion、ccInit、ccPolicy、ccInstallType、ccPath
+
+执行安装和实例化智能合约命令
+
+```bash
+docker exec manager bash -c ./godeploycc.sh
 ```
 
 ### 隐藏功能
