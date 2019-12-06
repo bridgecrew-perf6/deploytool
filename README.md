@@ -84,7 +84,6 @@ ccInstallType：智能合约安装方式， "path" 源码路径方式 "pkg" 包�
 testArgs： 执行调用智能合约的参数
 chan_counts： 创建的业务通道个数，默认为1对应通道"mychannel" 修改后为"mychannel2" ...
 mountPath: orderer和peer节点账本数据挂载的宿主机位置，默认"/data"eg:/data/peer0.org1.example.com
-dataVolume： 数据账本挂载方式，将节点的账本映射到主机，分为"mount","volume"; 不指定为volume
 consensusType: 共识方式，"raft"、"solo"、"kafka"  目前实现只raft
 imagePre： 镜像前缀,   eg：  "peersafes"、"hyperledger"
 imageTag: 镜像标签， eg: "1.4"、"1.4.3"、"1.4.3-gm" 
