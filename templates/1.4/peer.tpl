@@ -52,14 +52,12 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "100m"
-        max-file: "10"
+        max-size: "200m"
+        max-file: "50"
     ports:{{range $index,$value:= .ports}}
       - {{$value}}{{end}}
-    extra_hosts:{{range $index,$orderer:= .orderers}}
-      - "orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}:{{$orderer.ip}}"{{end}}
-      {{range $index,$peer:= .peers}}{{if or (ne $peer.id $.id) (ne $peer.orgId $.orgId)}}
-      - "peer{{$peer.id}}.org{{$peer.orgId}}.{{$.domain}}:{{$peer.ip}}"{{end}}{{end}}
+    {{if gt (len .extra_hosts) 0}}extra_hosts:{{range $index,$value:= .extra_hosts}}
+      - "{{$value.domain}}:{{$value.ip}}"{{end}}{{end}}
   {{if eq .useCouchdb "true"}}
     depends_on:
       - couchdb

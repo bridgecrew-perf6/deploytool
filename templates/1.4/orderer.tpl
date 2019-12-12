@@ -33,12 +33,12 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "100m"
-        max-file: "10"
+        max-size: "200m"
+        max-file: "50"
     ports:{{range $index,$value:= .ports}}
       - {{$value}}{{end}}
-    extra_hosts:{{range $index,$orderer := .orderers}}{{if or (ne $orderer.id $.id) (ne $orderer.orgId $.orgId)}}
-       - "orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}:{{$orderer.ip}}"{{end}}{{end}}
+    {{if gt (len .extra_hosts) 0}}extra_hosts:{{range $index,$value:= .extra_hosts}}
+      - "{{$value.domain}}:{{$value.ip}}"{{end}}{{end}}
 
 
        

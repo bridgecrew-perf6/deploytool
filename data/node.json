@@ -6,19 +6,24 @@
   "ccName":"mycc","ccVersion":"1.0","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
   "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
-  "chan_counts":1,"mountPath": "/data",
-  "consensusType":"raft", "imagePre":"peersafes","imageTag":"1.4","log":"INFO",
+  "chan_counts":1,"mountPath": "/data", "caType": "cryptogen",
+  "consensusType":"raft", "imagePre":"hyperledger","imageTag":"1.4","log":"INFO",
   "batchTime":"2s", "batchSize":100, "batchPreferred":"512 KB", "useCouchdb":"false",
   "orderers":[
-    {"ip":"192.168.0.14","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
-    {"ip":"192.168.0.14","id":"1","orgId":"1","ports":["8050:7050","6443:9443"]},
-    {"ip":"192.168.0.14","id":"2","orgId":"1","ports":["9050:7050","7443:9443"]}
+    {"ip":"192.168.0.16","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
+    {"ip":"192.168.0.16","id":"1","orgId":"1","ports":["8050:7050","6443:9443"]},
+    {"ip":"192.168.0.16","id":"2","orgId":"1","ports":["9050:7050","7443:9443"]}
   ],
   "peers": [
-    {"ip":"192.168.0.14","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
-    {"ip":"192.168.0.14","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
-    {"ip":"192.168.0.14","id":"0","orgId":"2","ports":["9051:7051","10443:9443"]},
-    {"ip":"192.168.0.14","id":"1","orgId":"2","ports":["10051:7051","11443:9443"]}
+    {"ip":"192.168.0.16","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
+    {"ip":"192.168.0.16","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
+    {"ip":"192.168.0.16","id":"0","orgId":"2","ports":["9051:7051","10443:9443"]},
+    {"ip":"192.168.0.16","id":"1","orgId":"2","ports":["10051:7051","11443:9443"]}
+  ],
+  "cas": [
+    {"ip":"192.168.0.16","nodeType":"orderer","orgId":"1","ports":["7054:7054","9543:9443"]},
+    {"ip":"192.168.0.16","nodeType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]},
+    {"ip":"192.168.0.16","nodeType":"peer","orgId":"2","ports":["9054:7054","9743:9443"]}
   ],
   "zookeepers": [
   ],
