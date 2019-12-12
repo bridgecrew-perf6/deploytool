@@ -12,6 +12,7 @@ const (
 	TplZookeeper    = "zookeeper.tpl"
 	TplKafka        = "kafka.tpl"
 	TplOrderer      = "orderer.tpl"
+	TplCa           = "ca.tpl"
 	TplPeer         = "peer.tpl"
 	TplCryptoConfig = "crypto-config.tpl"
 	TplConfigtx     = "configtx.tpl"
@@ -20,6 +21,7 @@ const (
 	TplEventClient  = "eventclient.tpl"
 
 	TypePeer         = "peer"
+	TypeCa           = "ca"
 	TypeOrder        = "orderer"
 	TypeKafka        = "kafka"
 	TypeZookeeper    = "zookeeper"
@@ -45,6 +47,7 @@ var GlobalConfig *ConfigObj
 type ConfigObj struct {
 	FabricVersion  string         `json:"fabricVersion"`
 	TestArgs       string         `json:"testArgs"`
+	CaType         string         `json:"caType"`
 	CCInit         string         `json:"ccInit"`
 	CCPolicy       string         `json:"ccPolicy"`
 	CCPath         string         `json:"ccPath"`
@@ -55,38 +58,52 @@ type ConfigObj struct {
 	BatchTime      string         `json:"batchTime"`
 	BatchPreferred string         `json:"batchPreferred"`
 	BatchSize      int            `json:"batchSize"`
-	Zookeepers     []NodeObj      `json:"zookeepers"`
-	Kafkas         []NodeObj      `json:"kafkas"`
 	OrdList        map[string]int `json:"ordList"`
 	OrgList        map[string]int `json:"orgList"`
-	Expand
+	Zookeepers     []NodeObj      `json:"zookeepers"`
+	Kafkas         []NodeObj      `json:"kafkas"`
+	Orderers       []NodeObj      `json:"orderers"`
+	Peers          []NodeObj      `json:"peers"`
+	Cas            []NodeObj      `json:"cas"`
+	TPLExpand
 }
 
-type Expand struct {
-	SshUserName    string    `json:"sshUserName"`
-	SshPwd         string    `json:"sshPwd"`
-	SshKey         string    `json:"sshKey"`
-	Log            string    `json:"log"`
-	UseCouchdb     string    `json:"useCouchdb"`
-	Domain         string    `json:"domain"`
-	Orderers       []NodeObj `json:"orderers"`
-	Peers          []NodeObj `json:"peers"`
-	ImageTag       string    `json:"imageTag"`
-	ImagePre       string    `json:"imagePre"`
-	MountPath      string    `json:"mountPath"`
-	CryptoType     string    `json:"cryptoType"`
-	DefaultNetwork string    `json:"defaultNetwork"`
+type TPLExpand struct {
+	SshUserName    string `json:"sshUserName"`
+	SshPwd         string `json:"sshPwd"`
+	SshKey         string `json:"sshKey"`
+	Log            string `json:"log"`
+	UseCouchdb     string `json:"useCouchdb"`
+	Domain         string `json:"domain"`
+	ImageTag       string `json:"imageTag"`
+	ImagePre       string `json:"imagePre"`
+	MountPath      string `json:"mountPath"`
+	CryptoType     string `json:"cryptoType"`
+	DefaultNetwork string `json:"defaultNetwork"`
 }
 
 type NodeObj struct {
-	Ip               string   `json:"ip"`
-	ApiIp            string   `json:"apiIp"`
-	Id               string   `json:"id"`
-	OrgId            string   `json:"orgId"`
-	Ports            []string `json:"ports"`
-	ExternalPort     string   `json:"externalPort"`
-	BootStrapAddress string   `json:"bootStrapAddress"`
-	Expand
+	Ip               string       `json:"ip"`
+	ApiIp            string       `json:"apiIp"`
+	Id               string       `json:"id"`
+	NodeType         string       `json:"nodeType"`
+	OrgId            string       `json:"orgId"`
+	Ports            []string     `json:"ports"`
+	ExternalPort     string       `json:"externalPort"`
+	NodeName         string       `json:"nodeName"`
+	CaUrl            string       `json:"caUrl"`
+	AdminName        string       `json:"adminName"`
+	AdminPw          string       `json:"adminPw"`
+	BootStrapAddress string       `json:"bootStrapAddress"`
+	ExtHosts         []ExtraHosts `json:"extra_hosts"`
+	TPLExpand
+}
+
+var allPeerHostIp, allOrdererHostIp []ExtraHosts
+
+type ExtraHosts struct {
+	Domain string `json:"domain"`
+	Ip     string `json:"ip"`
 }
 
 func ConfigDir() string {
@@ -128,27 +145,51 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 
 	obj.OrdList = make(map[string]int)
 	obj.OrgList = make(map[string]int)
-
 	peer0BootStrapMap := make(map[string]string)
 	otherPeerBootStrapMap := make(map[string]string)
+	ordererCaMap := make(map[string]string)
+	peerCaMap := make(map[string]string)
 
 	err = json.Unmarshal(jsonData, &obj)
 	if err != nil {
 		return &obj, err
 	}
+	for i, v := range obj.Cas {
+		extPort, err := findExternalPort(v.Ports, "7054")
+		if err != nil {
+			return &obj, err
+		}
+		if v.NodeType == TypeOrder {
+			ordererCaMap[v.OrgId] = fmt.Sprintf("%s:%s", v.Ip, extPort)
+			obj.Cas[i].NodeName = fmt.Sprintf("ca.ord%s.%s", v.OrgId, obj.Domain)
+			obj.Cas[i].AdminName = fmt.Sprintf("Admin@ord%s.%s", v.OrgId, obj.Domain)
+		} else if v.NodeType == TypePeer {
+			peerCaMap[v.OrgId] = fmt.Sprintf("%s:%s", v.Ip, extPort)
+			obj.Cas[i].NodeName = fmt.Sprintf("ca.org%s.%s", v.OrgId, obj.Domain)
+			obj.Cas[i].AdminName = fmt.Sprintf("Admin@org%s.%s", v.OrgId, obj.Domain)
+		}
+		obj.Cas[i].AdminPw = "adminpw"
+	}
+
 	for i, v := range obj.Peers {
 		obj.OrgList[v.OrgId] = obj.OrgList[v.OrgId] + 1
+
 		extPort, err := findExternalPort(v.Ports, "7051")
 		if err != nil {
 			return &obj, err
 		}
-
 		obj.Peers[i].ExternalPort = extPort
+		obj.Peers[i].AdminName = fmt.Sprintf("Admin@org%s.%s", v.OrgId, obj.Domain)
+		obj.Peers[i].AdminPw = "adminpw"
+		obj.Peers[i].CaUrl = peerCaMap[v.OrgId]
 		if v.Id == "0" {
 			otherPeerBootStrapMap[v.OrgId] = fmt.Sprintf("peer%s.org%s.%s:%s", v.Id, v.OrgId, obj.Domain, extPort)
 		} else if peer0BootStrapMap[v.OrgId] == "" {
 			peer0BootStrapMap[v.OrgId] = fmt.Sprintf("peer%s.org%s.%s:%s", v.Id, v.OrgId, obj.Domain, extPort)
 		}
+		obj.Peers[i].NodeName = fmt.Sprintf("peer%s.org%s.%s", v.Id, v.OrgId, obj.Domain)
+		obj.Peers[i].NodeType = TypePeer
+		allPeerHostIp = append(allPeerHostIp, ExtraHosts{obj.Peers[i].NodeName, v.Ip})
 	}
 	for i, v := range obj.Peers {
 		if v.Id == "0" {
@@ -164,6 +205,12 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 			return &obj, err
 		}
 		obj.Orderers[i].ExternalPort = extPort
+		obj.Orderers[i].AdminName = fmt.Sprintf("Admin@ord%s.%s", v.OrgId, obj.Domain)
+		obj.Orderers[i].AdminPw = "adminpw"
+		obj.Orderers[i].CaUrl = ordererCaMap[v.OrgId]
+		obj.Orderers[i].NodeType = TypeOrder
+		obj.Orderers[i].NodeName = fmt.Sprintf("orderer%s.ord%s.%s", v.Id, v.OrgId, obj.Domain)
+		allOrdererHostIp = append(allOrdererHostIp, ExtraHosts{obj.Orderers[i].NodeName, v.Ip})
 	}
 	for i, v := range obj.Kafkas {
 		extPort, err := findExternalPort(v.Ports, "9092")
@@ -171,7 +218,20 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 			return &obj, err
 		}
 		obj.Kafkas[i].ExternalPort = extPort
+		obj.Kafkas[i].NodeType = TypeKafka
+		obj.Kafkas[i].NodeName = fmt.Sprintf("kafka%s", v.Id)
 	}
+
+	for i, v := range obj.Zookeepers {
+		extPort, err := findExternalPort(v.Ports, "2888")
+		if err != nil {
+			return &obj, err
+		}
+		obj.Zookeepers[i].NodeType = TypeZookeeper
+		obj.Zookeepers[i].ExternalPort = extPort
+		obj.Zookeepers[i].NodeName = fmt.Sprintf("zk%s", v.Id)
+	}
+
 	if obj.ImagePre == "" {
 		obj.ImagePre = "peersafes"
 	}
@@ -179,8 +239,27 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		obj.MountPath = "/data"
 	}
 
+	SetExtalHost(&obj)
 	//fmt.Printf("config obj is %#v\n", obj)
 	return &obj, nil
+}
+
+func SetExtalHost(obj *ConfigObj) {
+	for i, v := range obj.Peers {
+		obj.Peers[i].ExtHosts = append(obj.Peers[i].ExtHosts, allOrdererHostIp...)
+		for _, item := range allPeerHostIp {
+			if item.Domain != v.NodeName {
+				obj.Peers[i].ExtHosts = append(obj.Peers[i].ExtHosts, item)
+			}
+		}
+	}
+	for i, v := range obj.Orderers {
+		for _, item := range allOrdererHostIp {
+			if item.Domain != v.NodeName {
+				obj.Orderers[i].ExtHosts = append(obj.Orderers[i].ExtHosts, item)
+			}
+		}
+	}
 }
 
 func GetJsonMap(jsonfile string) map[string]interface{} {

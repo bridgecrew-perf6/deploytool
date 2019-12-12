@@ -17,25 +17,30 @@ node.json 文件：节点服务器配置文件
 ```json
 {
   "fabricVersion":"1.4","domain":"example.com","cryptoType":"FGM",
-  "sshUserName":"xxxx","sshPwd":"xxxx","sshKey":"/etc/login.pem",
+  "sshUserName":"peersafe","sshPwd":"dev1@peersafe","sshKey":"/etc/login.pem",
   "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
   "ccName":"mycc","ccVersion":"1.0","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
   "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
-  "chan_counts":1,"mountPath": "/data",
-  "consensusType":"raft", "imagePre":"peersafes","imageTag":"1.4","log":"INFO",
+  "chan_counts":1,"mountPath": "/data", "caType": "cryptogen",
+  "consensusType":"raft", "imagePre":"hyperledger","imageTag":"1.4","log":"INFO",
   "batchTime":"2s", "batchSize":100, "batchPreferred":"512 KB", "useCouchdb":"false",
   "orderers":[
-    {"ip":"xxx.xxx.xxx.xx","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
-    {"ip":"xxx.xxx.xxx.xx","id":"1","orgId":"1","ports":["8050:7050","6443:9443"]},
-    {"ip":"xxx.xxx.xxx.xx","id":"2","orgId":"1","ports":["9050:7050","7443:9443"]}
+    {"ip":"XXX","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
+    {"ip":"XXX","id":"1","orgId":"1","ports":["8050:7050","6443:9443"]},
+    {"ip":"XXX","id":"2","orgId":"1","ports":["9050:7050","7443:9443"]}
   ],
   "peers": [
-    {"ip":"xxx.xxx.xxx.xx","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
-    {"ip":"xxx.xxx.xxx.xx","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
-    {"ip":"xxx.xxx.xxx.xx","id":"0","orgId":"2","ports":["9051:7051","10443:9443"]},
-    {"ip":"xxx.xxx.xxx.xx","id":"1","orgId":"2","ports":["10051:7051","11443:9443"]}
+    {"ip":"XXX","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
+    {"ip":"XXX","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
+    {"ip":"XXX","id":"0","orgId":"2","ports":["9051:7051","10443:9443"]},
+    {"ip":"XXX","id":"1","orgId":"2","ports":["10051:7051","11443:9443"]}
+  ],
+  "cas": [
+    {"ip":"XXX","nodeType":"orderer","orgId":"1","ports":["7054:7054","9543:9443"]},
+    {"ip":"XXX","nodeType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]},
+    {"ip":"XXX","nodeType":"peer","orgId":"2","ports":["9054:7054","9743:9443"]}
   ],
   "zookeepers": [
   ],
@@ -82,6 +87,7 @@ ccVersion： 智能合约版本， 升级时要修改
 ccPath： 智能合约源码路径或包绝对路径(容器内位置)
 ccInstallType：智能合约安装方式， "path" 源码路径方式 "pkg" 包安装方式
 testArgs： 执行调用智能合约的参数
+caType: 证书生成方式， "cryptogen","fabric-ca" 方式，默认为 cryptogen
 chan_counts： 创建的业务通道个数，默认为1对应通道"mychannel" 修改后为"mychannel2" ...
 mountPath: orderer和peer节点账本数据挂载的宿主机位置，默认"/data"eg:/data/peer0.org1.example.com
 consensusType: 共识方式，"raft"、"solo"、"kafka"  目前实现只raft

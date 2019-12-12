@@ -21,29 +21,33 @@ func StartNode(stringType string) error {
 	if stringType == "all" || stringType == TypeKafka {
 		for _, kafka := range GlobalConfig.Kafkas {
 			wg.Add(1)
-			nodeName := fmt.Sprintf("kafka%s", kafka.Id)
-			go StartN(kafka.Ip, kafka.SshUserName, kafka.SshPwd, nodeName, &wg)
+			go StartN(kafka.Ip, kafka.SshUserName, kafka.SshPwd, kafka.NodeName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypeZookeeper {
 		for _, zk := range GlobalConfig.Zookeepers {
 			wg.Add(1)
-			nodeName := fmt.Sprintf("zk%s", zk.Id)
-			go StartN(zk.Ip, zk.SshUserName, zk.SshPwd, nodeName, &wg)
+			go StartN(zk.Ip, zk.SshUserName, zk.SshPwd, zk.NodeName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypeOrder {
 		for _, ord := range GlobalConfig.Orderers {
 			wg.Add(1)
-			nodeName := fmt.Sprintf("orderer%s.ord%s.%s", ord.Id, ord.OrgId, GlobalConfig.Domain)
-			go StartN(ord.Ip, ord.SshUserName, ord.SshPwd, nodeName, &wg)
+			go StartN(ord.Ip, ord.SshUserName, ord.SshPwd, ord.NodeName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypePeer {
 		for _, peer := range GlobalConfig.Peers {
 			wg.Add(1)
-			nodeName := fmt.Sprintf("peer%s.org%s.%s", peer.Id, peer.OrgId, GlobalConfig.Domain)
-			go StartN(peer.Ip, peer.SshUserName, peer.SshPwd, nodeName, &wg)
+			go StartN(peer.Ip, peer.SshUserName, peer.SshPwd, peer.NodeName, &wg)
+		}
+	}
+	if GlobalConfig.CaType == "fabric-ca" {
+		if stringType == "all" || stringType == TypeCa {
+			for _, ca := range GlobalConfig.Cas {
+				wg.Add(1)
+				go StartN(ca.Ip, ca.SshUserName, ca.SshPwd, ca.NodeName, &wg)
+			}
 		}
 	}
 	wg.Wait()
@@ -52,25 +56,25 @@ func StartNode(stringType string) error {
 
 func WriteHost() error {
 	for _, ord := range GlobalConfig.Orderers {
-		if err := LocalHostsSet(ord.Ip, fmt.Sprintf("orderer%s.ord%s.%s", ord.Id, ord.OrgId, GlobalConfig.Domain)); err != nil {
+		if err := LocalHostsSet(ord.Ip, ord.NodeName); err != nil {
 			return err
 		}
 	}
 	for _, peer := range GlobalConfig.Peers {
-		if err := LocalHostsSet(peer.Ip, fmt.Sprintf("peer%s.org%s.%s", peer.Id, peer.OrgId, GlobalConfig.Domain)); err != nil {
+		if err := LocalHostsSet(peer.Ip, peer.NodeName); err != nil {
 			return err
 		}
 	}
-	for _, kafka := range GlobalConfig.Kafkas {
-		if err := LocalHostsSet(kafka.Ip, fmt.Sprintf("kafka%s", kafka.Id)); err != nil {
-			return err
-		}
-	}
-	for _, zk := range GlobalConfig.Zookeepers {
-		if err := LocalHostsSet(zk.Ip, fmt.Sprintf("zk%s", zk.Id)); err != nil {
-			return err
-		}
-	}
+	//for _, kafka := range GlobalConfig.Kafkas {
+	//	if err := LocalHostsSet(kafka.Ip, kafka.NodeName); err != nil {
+	//		return err
+	//	}
+	//}
+	//for _, zk := range GlobalConfig.Zookeepers {
+	//	if err := LocalHostsSet(zk.Ip, zk.NodeName); err != nil {
+	//		return err
+	//	}
+	//}
 
 	return nil
 }
@@ -117,6 +121,13 @@ func DeleteObj(stringType string) error {
 			go StopN(peer.Ip, peer.SshUserName, peer.SshPwd, TypePeer, imageName, mountName, &wg)
 		}
 	}
+	if stringType == "all" || stringType == TypeCa {
+		for _, ca := range GlobalConfig.Cas {
+			wg.Add(1)
+			imageName := fmt.Sprintf("%s/fabric-ca:%s", GlobalConfig.ImagePre, GlobalConfig.ImageTag)
+			go StopN(ca.Ip, ca.SshUserName, ca.SshPwd, TypeCa, imageName, ca.NodeName, &wg)
+		}
+	}
 	wg.Wait()
 	return nil
 }
@@ -126,7 +137,7 @@ func LocalHostsSet(ip, domain string) error {
 		return nil
 	}
 	if err := ModifyHosts("/etc/hosts", ip, domain); err != nil {
-		fmt.Errorf(err.Error())
+		fmt.Println(err.Error())
 		return err
 	}
 	return nil

@@ -21,7 +21,9 @@ func Handler(data interface{}, tplFile, outFile string) error {
 	//转换为map[string]interface{}
 	ret, _ := json.Marshal(data)
 	data = nil
-	json.Unmarshal(ret, &data)
+	if err := json.Unmarshal(ret, &data); err != nil {
+		return err
+	}
 
 	buf := bytes.NewBuffer(nil)
 	t := template.Must(template.New("data").Funcs(template.FuncMap{
@@ -29,7 +31,9 @@ func Handler(data interface{}, tplFile, outFile string) error {
 		"len": sliceLen,
 	}).Parse(string(tplData)))
 
-	t.Execute(buf, data)
+	if err := t.Execute(buf, data); err != nil {
+		return err
+	}
 
 	newBuf, err := stripNullLine(buf)
 	if err != nil {
