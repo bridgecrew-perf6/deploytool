@@ -17,7 +17,7 @@ node.json 文件：节点服务器配置文件
 ```json
 {
   "fabricVersion":"1.4","domain":"example.com","cryptoType":"FGM",
-  "sshUserName":"peersafe","sshPwd":"dev1@peersafe","sshKey":"/etc/login.pem",
+  "sshUserName":"peersafe","sshPwd":"dev1@peersafe","sshPort":"22","sshKey":"/etc/login.pem",
   "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
   "ccName":"mycc","ccVersion":"1.0","ccInstallType":"path",
@@ -80,6 +80,7 @@ cryptoType： 算法类型, "GM" 国密、"FGM" 非国密
 sshUserName： ssh默认登陆用户名，"每个机器也可配置自定义用户名"
 sshPwd： ssh默认登陆密码，"每个机器也可配置自定义密码"
 sshKey： ssh默认登陆私钥(容器内位置),需要宿主机映射到容器中
+sshPort: ssh默认登陆端口，"每个机器也可配置自定义密码"
 ccInit: 智能合约初始化参数
 ccPolicy： 智能合约背书策略
 ccName： 智能合约名称
