@@ -10,9 +10,9 @@ func StartNode(stringType string) error {
 		return err
 	}
 	var wg sync.WaitGroup
-	StartN := func(Ip, Sshuser, Sshpwd, NodeName string, w1 *sync.WaitGroup) {
+	StartN := func(Ip, Sshuser, Sshpwd, Sshport, Sshkey, NodeName string, w1 *sync.WaitGroup) {
 		defer w1.Done()
-		obj := NewFabCmd("add_node.py", Ip, Sshuser, Sshpwd)
+		obj := NewFabCmd("add_node.py", Ip, Sshuser, Sshpwd, Sshport, Sshkey)
 		err := obj.RunShow("start_node", NodeName, ConfigDir())
 		if err != nil {
 			fmt.Println("start node err or")
@@ -21,32 +21,32 @@ func StartNode(stringType string) error {
 	if stringType == "all" || stringType == TypeKafka {
 		for _, kafka := range GlobalConfig.Kafkas {
 			wg.Add(1)
-			go StartN(kafka.Ip, kafka.SshUserName, kafka.SshPwd, kafka.NodeName, &wg)
+			go StartN(kafka.Ip, kafka.SshUserName, kafka.SshPwd, kafka.SshPort, kafka.SshKey, kafka.NodeName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypeZookeeper {
 		for _, zk := range GlobalConfig.Zookeepers {
 			wg.Add(1)
-			go StartN(zk.Ip, zk.SshUserName, zk.SshPwd, zk.NodeName, &wg)
+			go StartN(zk.Ip, zk.SshUserName, zk.SshPwd, zk.SshPort, zk.SshKey, zk.NodeName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypeOrder {
 		for _, ord := range GlobalConfig.Orderers {
 			wg.Add(1)
-			go StartN(ord.Ip, ord.SshUserName, ord.SshPwd, ord.NodeName, &wg)
+			go StartN(ord.Ip, ord.SshUserName, ord.SshPwd, ord.SshPort, ord.SshKey, ord.NodeName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypePeer {
 		for _, peer := range GlobalConfig.Peers {
 			wg.Add(1)
-			go StartN(peer.Ip, peer.SshUserName, peer.SshPwd, peer.NodeName, &wg)
+			go StartN(peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey, peer.NodeName, &wg)
 		}
 	}
 	if GlobalConfig.CaType == "fabric-ca" {
 		if stringType == "all" || stringType == TypeCa {
 			for _, ca := range GlobalConfig.Cas {
 				wg.Add(1)
-				go StartN(ca.Ip, ca.SshUserName, ca.SshPwd, ca.NodeName, &wg)
+				go StartN(ca.Ip, ca.SshUserName, ca.SshPwd, ca.SshPort, ca.SshKey, ca.NodeName, &wg)
 			}
 		}
 	}
@@ -81,9 +81,9 @@ func WriteHost() error {
 
 func DeleteObj(stringType string) error {
 	var wg sync.WaitGroup
-	StopN := func(Ip, Sshuser, Sshpwd, Ty, ImageName, MountName string, w1 *sync.WaitGroup) {
+	StopN := func(Ip, Sshuser, Sshpwd, Sshport, Sshkey, Ty, ImageName, MountName string, w1 *sync.WaitGroup) {
 		defer w1.Done()
-		obj := NewFabCmd("removenode.py", Ip, Sshuser, Sshpwd)
+		obj := NewFabCmd("removenode.py", Ip, Sshuser, Sshpwd, Sshport, Sshkey)
 		err := obj.RunShow("remove_node", Ty, ImageName, GlobalConfig.MountPath, MountName)
 		if err != nil {
 			fmt.Println("stopnode err or")
@@ -94,7 +94,7 @@ func DeleteObj(stringType string) error {
 			wg.Add(1)
 			imageName := fmt.Sprintf("%s/fabric-kafka:%s", GlobalConfig.ImagePre, GlobalConfig.ImageTag)
 			mountName := fmt.Sprintf("kafka%s", kafka.Id)
-			go StopN(kafka.Ip, kafka.SshUserName, kafka.SshPwd, TypeKafka, imageName, mountName, &wg)
+			go StopN(kafka.Ip, kafka.SshUserName, kafka.SshPwd, kafka.SshPort, kafka.SshKey, TypeKafka, imageName, mountName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypeZookeeper {
@@ -102,7 +102,7 @@ func DeleteObj(stringType string) error {
 			wg.Add(1)
 			imageName := fmt.Sprintf("%s/fabric-zookeeper:%s", GlobalConfig.ImagePre, GlobalConfig.ImageTag)
 			mountName := fmt.Sprintf("zk%s", zk.Id)
-			go StopN(zk.Ip, zk.SshUserName, zk.SshPwd, TypeZookeeper, imageName, mountName, &wg)
+			go StopN(zk.Ip, zk.SshUserName, zk.SshPwd, zk.SshPort, zk.SshKey, TypeZookeeper, imageName, mountName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypeOrder {
@@ -110,7 +110,7 @@ func DeleteObj(stringType string) error {
 			wg.Add(1)
 			imageName := fmt.Sprintf("%s/fabric-orderer:%s", GlobalConfig.ImagePre, GlobalConfig.ImageTag)
 			mountName := fmt.Sprintf("orderer%s.ord%s.%s", ord.Id, ord.OrgId, GlobalConfig.Domain)
-			go StopN(ord.Ip, ord.SshUserName, ord.SshPwd, TypeOrder, imageName, mountName, &wg)
+			go StopN(ord.Ip, ord.SshUserName, ord.SshPwd, ord.SshPort, ord.SshKey, TypeOrder, imageName, mountName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypePeer {
@@ -118,14 +118,14 @@ func DeleteObj(stringType string) error {
 			wg.Add(1)
 			imageName := fmt.Sprintf("%s/fabric-peer:%s", GlobalConfig.ImagePre, GlobalConfig.ImageTag)
 			mountName := fmt.Sprintf("peer%s.org%s.%s", peer.Id, peer.OrgId, GlobalConfig.Domain)
-			go StopN(peer.Ip, peer.SshUserName, peer.SshPwd, TypePeer, imageName, mountName, &wg)
+			go StopN(peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey, TypePeer, imageName, mountName, &wg)
 		}
 	}
 	if stringType == "all" || stringType == TypeCa {
 		for _, ca := range GlobalConfig.Cas {
 			wg.Add(1)
 			imageName := fmt.Sprintf("%s/fabric-ca:%s", GlobalConfig.ImagePre, GlobalConfig.ImageTag)
-			go StopN(ca.Ip, ca.SshUserName, ca.SshPwd, TypeCa, imageName, ca.NodeName, &wg)
+			go StopN(ca.Ip, ca.SshUserName, ca.SshPwd, ca.SshPort, ca.SshKey, TypeCa, imageName, ca.NodeName, &wg)
 		}
 	}
 	wg.Wait()
@@ -146,7 +146,7 @@ func LocalHostsSet(ip, domain string) error {
 func CheckNode(stringType string) error {
 	if stringType == "all" || stringType == TypeKafka {
 		for _, kafka := range GlobalConfig.Kafkas {
-			obj := NewFabCmd("add_node.py", kafka.Ip, kafka.SshUserName, kafka.SshPwd)
+			obj := NewFabCmd("add_node.py", kafka.Ip, kafka.SshUserName, kafka.SshPwd, kafka.SshPort, kafka.SshKey)
 			if err := obj.RunShow("check_node"); err != nil {
 				return err
 			}
@@ -154,7 +154,7 @@ func CheckNode(stringType string) error {
 	}
 	if stringType == "all" || stringType == TypeZookeeper {
 		for _, zk := range GlobalConfig.Zookeepers {
-			obj := NewFabCmd("add_node.py", zk.Ip, zk.SshUserName, zk.SshPwd)
+			obj := NewFabCmd("add_node.py", zk.Ip, zk.SshUserName, zk.SshPwd, zk.SshPort, zk.SshKey)
 			if err := obj.RunShow("check_node"); err != nil {
 				return err
 			}
@@ -162,7 +162,7 @@ func CheckNode(stringType string) error {
 	}
 	if stringType == "all" || stringType == TypeOrder {
 		for _, ord := range GlobalConfig.Orderers {
-			obj := NewFabCmd("add_node.py", ord.Ip, ord.SshUserName, ord.SshPwd)
+			obj := NewFabCmd("add_node.py", ord.Ip, ord.SshUserName, ord.SshPwd, ord.SshPort, ord.SshKey)
 			if err := obj.RunShow("check_node"); err != nil {
 				return err
 			}
@@ -170,7 +170,7 @@ func CheckNode(stringType string) error {
 	}
 	if stringType == "all" || stringType == TypePeer {
 		for _, peer := range GlobalConfig.Peers {
-			obj := NewFabCmd("add_node.py", peer.Ip, peer.SshUserName, peer.SshPwd)
+			obj := NewFabCmd("add_node.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
 			if err := obj.RunShow("check_node"); err != nil {
 				return err
 			}

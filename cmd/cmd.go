@@ -14,7 +14,7 @@ type FabCmd struct {
 	fileName string
 }
 
-func NewFabCmd(fileName, host, sshuser, sshpwd string) *FabCmd {
+func NewFabCmd(fileName, host, sshuser, sshpwd, sshport, sshkey string) *FabCmd {
 	var args []string
 	var checkAdd = func(f, val string) {
 		if val != "" {
@@ -27,11 +27,21 @@ func NewFabCmd(fileName, host, sshuser, sshpwd string) *FabCmd {
 	if sshpwd == "" {
 		sshpwd = GlobalConfig.SshPwd
 	}
+	if sshport == "" {
+		sshport = GlobalConfig.SshPort
+	}
+	if sshport == "" {
+		sshport = "22"
+	}
+	if sshkey == "" {
+		sshkey = GlobalConfig.SshKey
+	}
 	checkAdd("-H", host)
+	checkAdd("--port", sshport)
 	checkAdd("-u", sshuser)
 	checkAdd("-p", sshpwd)
-	if PathExists(GlobalConfig.SshKey) {
-		checkAdd("-i", GlobalConfig.SshKey)
+	if PathExists(sshkey) {
+		checkAdd("-i", sshkey)
 	}
 	return &FabCmd{args: append(args, "-f"), dir: ScriptPath(), fileName: fileName}
 }

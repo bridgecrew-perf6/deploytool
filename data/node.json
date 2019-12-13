@@ -1,6 +1,6 @@
 {
   "fabricVersion":"1.4","domain":"example.com","cryptoType":"FGM",
-  "sshUserName":"peersafe","sshPwd":"dev1@peersafe","sshKey":"/etc/login.pem",
+  "sshUserName":"peersafe","sshPwd":"dev1@peersafe","sshPort":"22","sshKey":"/etc/login.pem",
   "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
   "ccName":"mycc","ccVersion":"1.0","ccInstallType":"path",

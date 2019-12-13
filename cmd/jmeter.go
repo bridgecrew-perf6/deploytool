@@ -47,7 +47,7 @@ func StartJmeter() error {
 	inputData := GetJsonMap("node.json")
 	value := inputData[JMETER].(map[string]interface{})
 	dir := ConfigDir()
-	obj := NewFabCmd("jmeter.py", value[IP].(string), "", "")
+	obj := NewFabCmd("jmeter.py", value[IP].(string), "", "", "", "")
 	err := obj.RunShow("start_jmeter", dir)
 	if err != nil {
 		fmt.Println("******star_jmeter error******")
@@ -59,7 +59,7 @@ func StartHaproxy() error {
 	inputData := GetJsonMap("node.json")
 	value := inputData[JMETER].(map[string]interface{})
 	dir := ConfigDir()
-	obj := NewFabCmd("jmeter.py", value[IP].(string), "", "")
+	obj := NewFabCmd("jmeter.py", value[IP].(string), "", "", "", "")
 	err := obj.RunShow("start_haproxy", dir)
 	if err != nil {
 		fmt.Println("******start_haproxy error******")
@@ -71,7 +71,7 @@ func GetJmeterLog(logdir string) error {
 	inputData := GetJsonMap("node.json")
 	value := inputData[JMETER].(map[string]interface{})
 	dir := ConfigDir()
-	obj := NewFabCmd("jmeter.py", value[IP].(string), "", "")
+	obj := NewFabCmd("jmeter.py", value[IP].(string), "", "", "", "")
 	err := obj.RunShow("get_jmeter_log", dir, logdir)
 	if err != nil {
 		fmt.Println("******get_jmeter_log error******")
@@ -101,7 +101,7 @@ func GetEventServerLog(logdir string) error {
 				clientname := TypePeer + value[PeerId].(string) + "org" + value[OrgId].(string) + "api" + apiid
 				wg.Add(1)
 				go func(Ip, CliName, Dir, LogDir string) {
-					obj := NewFabCmd("jmeter.py", Ip, "", "")
+					obj := NewFabCmd("jmeter.py", Ip, "", "", "", "")
 					err := obj.RunShow("get_eventserver_log", CliName, Dir, LogDir)
 					if err != nil {
 						fmt.Println(err)

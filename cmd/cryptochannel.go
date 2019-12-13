@@ -138,7 +138,7 @@ func UpdateAnchor(channelName string) error {
 	}
 	for _, peer := range GlobalConfig.Peers {
 		if peer.Id == "0" {
-			obj := NewFabCmd("create_channel.py", peer.Ip, peer.SshUserName, peer.SshPwd)
+			obj := NewFabCmd("create_channel.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
 			mspid := peer.OrgId
 			err := obj.RunShow("update_anchor", BinPath(), ConfigDir(), ChannelPath(), channelName, mspid, ordererAddress, GlobalConfig.Domain, GlobalConfig.CryptoType)
 			if err != nil {
@@ -176,8 +176,8 @@ func JoinChannel(channelName string) error {
 
 func PutCryptoConfig() error {
 	var wg sync.WaitGroup
-	putCrypto := func(ip, sshuser, sshpwd, cfg, nodeTy, nodeName, orgName string, w1 *sync.WaitGroup) {
-		obj := NewFabCmd("apply_cert.py", ip, sshuser, sshpwd)
+	putCrypto := func(ip, sshuser, sshpwd, sshport, sshkey, cfg, nodeTy, nodeName, orgName string, w1 *sync.WaitGroup) {
+		obj := NewFabCmd("apply_cert.py", ip, sshuser, sshpwd, sshport, sshkey)
 		err := obj.RunShow("put_cryptoconfig", cfg, nodeTy, nodeName, orgName)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -186,21 +186,21 @@ func PutCryptoConfig() error {
 	}
 	for _, kafka := range GlobalConfig.Kafkas {
 		wg.Add(1)
-		go putCrypto(kafka.Ip, kafka.SshUserName, kafka.SshPwd, ConfigDir(), TypeKafka, kafka.NodeName, "", &wg)
+		go putCrypto(kafka.Ip, kafka.SshUserName, kafka.SshPwd, kafka.SshPort, kafka.SshKey, ConfigDir(), TypeKafka, kafka.NodeName, "", &wg)
 	}
 	for _, zk := range GlobalConfig.Zookeepers {
 		wg.Add(1)
-		go putCrypto(zk.Ip, zk.SshUserName, zk.SshPwd, ConfigDir(), TypeZookeeper, zk.NodeName, "", &wg)
+		go putCrypto(zk.Ip, zk.SshUserName, zk.SshPwd, zk.SshPort, zk.SshKey, ConfigDir(), TypeZookeeper, zk.NodeName, "", &wg)
 	}
 	for _, ord := range GlobalConfig.Orderers {
 		wg.Add(1)
 		orgName := fmt.Sprintf("ord%s.%s", ord.OrgId, GlobalConfig.Domain)
-		go putCrypto(ord.Ip, ord.SshUserName, ord.SshPwd, ConfigDir(), TypeOrder, ord.NodeName, orgName, &wg)
+		go putCrypto(ord.Ip, ord.SshUserName, ord.SshPwd, ord.SshPort, ord.SshKey, ConfigDir(), TypeOrder, ord.NodeName, orgName, &wg)
 	}
 	for _, peer := range GlobalConfig.Peers {
 		wg.Add(1)
 		orgName := fmt.Sprintf("org%s.%s", peer.OrgId, GlobalConfig.Domain)
-		go putCrypto(peer.Ip, peer.SshUserName, peer.SshPwd, ConfigDir(), TypePeer, peer.NodeName, orgName, &wg)
+		go putCrypto(peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey, ConfigDir(), TypePeer, peer.NodeName, orgName, &wg)
 	}
 	wg.Wait()
 	return nil

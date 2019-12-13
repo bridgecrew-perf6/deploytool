@@ -72,6 +72,7 @@ type TPLExpand struct {
 	SshUserName    string `json:"sshUserName"`
 	SshPwd         string `json:"sshPwd"`
 	SshKey         string `json:"sshKey"`
+	SshPort         string `json:"sshPort"`
 	Log            string `json:"log"`
 	UseCouchdb     string `json:"useCouchdb"`
 	Domain         string `json:"domain"`

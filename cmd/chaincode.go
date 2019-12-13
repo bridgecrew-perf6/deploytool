@@ -63,7 +63,7 @@ func RunChaincode(ccname, ccversion, channelName, opration string) error {
 		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
 		go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
 			defer wg.Done()
-			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd)
+			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
 			initparam := fmt.Sprintf(`%s`, GlobalConfig.CCInit)
 			policy := fmt.Sprintf("%s", GlobalConfig.CCPolicy)
 			err := obj.RunShow("instantiate_chaincode", BinPath(), opration, ConfigDir(), peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain, channelName, ccname, ccversion, initparam, policy, GlobalConfig.CryptoType)
@@ -97,7 +97,7 @@ func TestChaincode(ccname, channelName, function, testArgs string) error {
 		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
 		go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
 			defer wg.Done()
-			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd)
+			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
 			err := obj.RunShow("test_chaincode", function, BinPath(), ConfigDir(), peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain, channelName, ccname, testArgs, GlobalConfig.CryptoType)
 			if err != nil {
 				fmt.Println(err)
