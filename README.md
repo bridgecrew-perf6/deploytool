@@ -24,7 +24,7 @@ node.json 文件：节点服务器配置文件
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
   "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
   "chan_counts":1,"mountPath": "/data", "caType": "cryptogen",
-  "consensusType":"raft", "imagePre":"hyperledger","imageTag":"1.4","log":"INFO",
+  "consensusType":"raft", "imagePre":"hyperledger","imageTag":"1.4.3","log":"INFO",
   "batchTime":"2s", "batchSize":100, "batchPreferred":"512 KB", "useCouchdb":"false",
   "orderers":[
     {"ip":"XXX","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
