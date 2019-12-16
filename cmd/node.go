@@ -176,5 +176,13 @@ func CheckNode(stringType string) error {
 			}
 		}
 	}
+	if stringType == "all" || stringType == TypeCa {
+		for _, ca := range GlobalConfig.Cas {
+			obj := NewFabCmd("add_node.py", ca.Ip, ca.SshUserName, ca.SshPwd, ca.SshPort, ca.SshKey)
+			if err := obj.RunShow("check_node"); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }

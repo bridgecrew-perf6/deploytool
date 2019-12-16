@@ -59,7 +59,6 @@ def copy_file(config_path, file_name):
     remote_file = "~/deployFabricTool/%s" % file_name
     if utils.check_remote_file_exist(remote_file) == "false":
         put("%s%s" % (config_path, file_name), "~/deployFabricTool/")
-        local("rm -rf %s%s" % (config_path, file_name))
         with cd("~/deployFabricTool"):
             run("tar zxfm %s" % file_name)
             # run("rm %s"%file_name)
