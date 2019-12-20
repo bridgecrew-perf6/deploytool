@@ -4,7 +4,7 @@ TARGET=deployFabricTool
 TARGET_TAR=$TARGET.tar.gz
 TARGET_PATH=$GOPATH/src/github.com/peersafe/$TARGET
 
-VERSION=gm
+VERSION=fgm
 echo "##########################################"
 echo "----------build $TARGET image----------"
 echo "##########################################"
@@ -45,8 +45,6 @@ fi
 tar -zcvf $TARGET_TAR $TARGET
 
 docker rmi peersafes/deploy-tool:latest
-docker rmi peersafes/deploy-tool:2.0
 docker build -t peersafes/deploy-tool:latest .
-docker tag peersafes/deploy-tool:latest peersafes/deploy-tool:2.0
 
 
