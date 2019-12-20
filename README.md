@@ -38,9 +38,9 @@ node.json 文件：节点服务器配置文件
     {"ip":"XXX","id":"1","orgId":"2","ports":["10051:7051","11443:9443"]}
   ],
   "cas": [
-    {"ip":"XXX","nodeType":"orderer","orgId":"1","ports":["7054:7054","9543:9443"]},
-    {"ip":"XXX","nodeType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]},
-    {"ip":"XXX","nodeType":"peer","orgId":"2","ports":["9054:7054","9743:9443"]}
+    {"ip":"XXX","certType":"orderer","orgId":"1","ports":["7054:7054","9543:9443"]},
+    {"ip":"XXX","certType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]},
+    {"ip":"XXX","certType":"peer","orgId":"2","ports":["9054:7054","9743:9443"]}
   ],
   "zookeepers": [
   ],
@@ -102,6 +102,7 @@ id： 当前节点序列号
 orgId: 当前节点归属组织id
 ports： 当前节点端口映射数组列表， eg: ["8050:7050","10443:9443"] , 前面为外部访问端口
 peers: 对应peers节点数组， 和orderer解释一样
+certType: 表示ca对应的组织类型,eg: "orderer"、"peer"
 ```
 
 ### 启动部署工具

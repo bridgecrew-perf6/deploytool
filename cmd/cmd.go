@@ -42,6 +42,8 @@ func NewFabCmd(fileName, host, sshuser, sshpwd, sshport, sshkey string) *FabCmd 
 	checkAdd("-p", sshpwd)
 	if PathExists(sshkey) {
 		checkAdd("-i", sshkey)
+	} else if sshpwd == "" {
+		panic(fmt.Sprintf("the host %s sshkey %s not exist and sshpwd is empty", host, sshkey))
 	}
 	return &FabCmd{args: append(args, "-f"), dir: ScriptPath(), fileName: fileName}
 }

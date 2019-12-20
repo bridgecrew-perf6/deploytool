@@ -42,7 +42,10 @@ const (
 	ChanCounts       = "chan_counts"
 )
 
-var GlobalConfig *ConfigObj
+var (
+	GlobalConfig *ConfigObj
+	HostMapList  = make(map[string]NodeObj)
+)
 
 type ConfigObj struct {
 	FabricVersion  string         `json:"fabricVersion"`
@@ -72,7 +75,7 @@ type TPLExpand struct {
 	SshUserName    string `json:"sshUserName"`
 	SshPwd         string `json:"sshPwd"`
 	SshKey         string `json:"sshKey"`
-	SshPort         string `json:"sshPort"`
+	SshPort        string `json:"sshPort"`
 	Log            string `json:"log"`
 	UseCouchdb     string `json:"useCouchdb"`
 	Domain         string `json:"domain"`
@@ -92,7 +95,9 @@ type NodeObj struct {
 	Ports            []string     `json:"ports"`
 	ExternalPort     string       `json:"externalPort"`
 	NodeName         string       `json:"nodeName"`
+	ImageName        string       `json:"imageName"`
 	CaUrl            string       `json:"caUrl"`
+	CertType         string       `json:"certType"`
 	AdminName        string       `json:"adminName"`
 	AdminPw          string       `json:"adminPw"`
 	BootStrapAddress string       `json:"bootStrapAddress"`
@@ -143,7 +148,6 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 	if err != nil {
 		return &obj, err
 	}
-
 	obj.OrdList = make(map[string]int)
 	obj.OrgList = make(map[string]int)
 	peer0BootStrapMap := make(map[string]string)
@@ -155,23 +159,28 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 	if err != nil {
 		return &obj, err
 	}
+	if obj.CaType != "fabric-ca" {
+		obj.Cas = []NodeObj{}
+	}
 	for i, v := range obj.Cas {
 		extPort, err := findExternalPort(v.Ports, "7054")
 		if err != nil {
 			return &obj, err
 		}
-		if v.NodeType == TypeOrder {
+		if v.CertType == TypeOrder {
 			ordererCaMap[v.OrgId] = fmt.Sprintf("%s:%s", v.Ip, extPort)
 			obj.Cas[i].NodeName = fmt.Sprintf("ca.ord%s.%s", v.OrgId, obj.Domain)
 			obj.Cas[i].AdminName = fmt.Sprintf("Admin@ord%s.%s", v.OrgId, obj.Domain)
-		} else if v.NodeType == TypePeer {
+		} else if v.CertType == TypePeer {
 			peerCaMap[v.OrgId] = fmt.Sprintf("%s:%s", v.Ip, extPort)
 			obj.Cas[i].NodeName = fmt.Sprintf("ca.org%s.%s", v.OrgId, obj.Domain)
 			obj.Cas[i].AdminName = fmt.Sprintf("Admin@org%s.%s", v.OrgId, obj.Domain)
 		}
+		obj.Cas[i].NodeType = TypeCa
 		obj.Cas[i].AdminPw = "adminpw"
+		obj.Cas[i].ImageName = fmt.Sprintf("%s/fabric-ca:%s", obj.ImagePre, obj.ImageTag)
+		HostMapList[v.Ip] = obj.Cas[i]
 	}
-
 	for i, v := range obj.Peers {
 		obj.OrgList[v.OrgId] = obj.OrgList[v.OrgId] + 1
 
@@ -191,6 +200,8 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		obj.Peers[i].NodeName = fmt.Sprintf("peer%s.org%s.%s", v.Id, v.OrgId, obj.Domain)
 		obj.Peers[i].NodeType = TypePeer
 		allPeerHostIp = append(allPeerHostIp, ExtraHosts{obj.Peers[i].NodeName, v.Ip})
+		obj.Peers[i].ImageName = fmt.Sprintf("%s/fabric-peer:%s", obj.ImagePre, obj.ImageTag)
+		HostMapList[v.Ip] = obj.Peers[i]
 	}
 	for i, v := range obj.Peers {
 		if v.Id == "0" {
@@ -212,6 +223,8 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		obj.Orderers[i].NodeType = TypeOrder
 		obj.Orderers[i].NodeName = fmt.Sprintf("orderer%s.ord%s.%s", v.Id, v.OrgId, obj.Domain)
 		allOrdererHostIp = append(allOrdererHostIp, ExtraHosts{obj.Orderers[i].NodeName, v.Ip})
+		obj.Orderers[i].ImageName = fmt.Sprintf("%s/fabric-orderer:%s", obj.ImagePre, obj.ImageTag)
+		HostMapList[v.Ip] = obj.Orderers[i]
 	}
 	for i, v := range obj.Kafkas {
 		extPort, err := findExternalPort(v.Ports, "9092")
@@ -221,6 +234,8 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		obj.Kafkas[i].ExternalPort = extPort
 		obj.Kafkas[i].NodeType = TypeKafka
 		obj.Kafkas[i].NodeName = fmt.Sprintf("kafka%s", v.Id)
+		obj.Kafkas[i].ImageName = fmt.Sprintf("%s/fabric-kafka:%s", obj.ImagePre, obj.ImageTag)
+		HostMapList[v.Ip] = obj.Kafkas[i]
 	}
 
 	for i, v := range obj.Zookeepers {
@@ -231,6 +246,8 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		obj.Zookeepers[i].NodeType = TypeZookeeper
 		obj.Zookeepers[i].ExternalPort = extPort
 		obj.Zookeepers[i].NodeName = fmt.Sprintf("zk%s", v.Id)
+		obj.Zookeepers[i].ImageName = fmt.Sprintf("%s/fabric-zookeeper:%s", obj.ImagePre, obj.ImageTag)
+		HostMapList[v.Ip] = obj.Zookeepers[i]
 	}
 
 	if obj.ImagePre == "" {

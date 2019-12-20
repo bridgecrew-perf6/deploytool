@@ -6,6 +6,6 @@ verifyResult() {
     exit 1
   fi
 }
-echo "清除所有网络信息"
+echo "----clean all node data---清除所有网络信息"
 ./deployFabricTool -d all
 verifyResult $?
