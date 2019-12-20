@@ -144,6 +144,9 @@ func LocalHostsSet(ip, domain string) error {
 }
 
 func CheckNode(stringType string) error {
+	if err := WriteHost(); err != nil {
+		return err
+	}
 	if stringType == "all" || stringType == TypeKafka {
 		for _, kafka := range GlobalConfig.Kafkas {
 			obj := NewFabCmd("add_node.py", kafka.Ip, kafka.SshUserName, kafka.SshPwd, kafka.SshPort, kafka.SshKey)
