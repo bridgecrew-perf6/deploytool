@@ -272,6 +272,7 @@ func SetExtalHost(obj *ConfigObj) {
 		}
 	}
 	for i, v := range obj.Orderers {
+		obj.Orderers[i].ExtHosts = []ExtraHosts{}
 		for _, item := range allOrdererHostIp {
 			if item.Domain != v.NodeName {
 				obj.Orderers[i].ExtHosts = append(obj.Orderers[i].ExtHosts, item)

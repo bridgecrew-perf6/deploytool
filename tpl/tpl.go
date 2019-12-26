@@ -30,7 +30,7 @@ func Handler(data interface{}, tplFile, outFile string) error {
 		"add": add,
 		"len": sliceLen,
 	}).Parse(string(tplData)))
-
+	//fmt.Printf("-----------%#v\n",data)
 	if err := t.Execute(buf, data); err != nil {
 		return err
 	}
