@@ -47,4 +47,6 @@ tar -zcvf $TARGET_TAR $TARGET
 docker rmi peersafes/deploy-tool:latest
 docker build -t peersafes/deploy-tool:latest .
 
-
+rm -rf $TARGET
+rm -rf $TARGET_TAR
+rm -rf $TARGET_PATH/config

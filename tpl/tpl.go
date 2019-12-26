@@ -54,14 +54,14 @@ func WriteFile(fileName string, data []byte) error {
 			if err := CreatFile(fileName); err != nil {
 				return err
 			}
-			return ioutil.WriteFile(fileName, data, 0755)
+			return ioutil.WriteFile(fileName, data, 0777)
 		} else if os.IsExist(err) {
-			return ioutil.WriteFile(fileName, data, 0755)
+			return ioutil.WriteFile(fileName, data, 0777)
 		} else {
 			return nil
 		}
 	}
-	return ioutil.WriteFile(fileName, data, 0755)
+	return ioutil.WriteFile(fileName, data, 0777)
 }
 
 func CreatFile(fileName string) error {

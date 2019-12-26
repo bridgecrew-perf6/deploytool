@@ -52,5 +52,8 @@ def get_domain_name(network_name,node_full_name,domain_name):
     yaml_file = "~/networklist/%s/%s/%s.yaml"%(network_name,node_full_name,node_full_name)
     out = run('docker-compose -f %s exec %s bash -c "%s"'%(yaml_file,node_full_name,get_cmd))
 
+def chmod_all(path,mode):
+    local("chmod -R %s %s"%(mode,path))
+
 def rm_local(path):
     local("rm -rf %s"%path)
