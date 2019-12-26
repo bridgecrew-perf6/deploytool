@@ -54,14 +54,14 @@ func WriteFile(fileName string, data []byte) error {
 			if err := CreatFile(fileName); err != nil {
 				return err
 			}
-			return ioutil.WriteFile(fileName, data, 0755)
+			return ioutil.WriteFile(fileName, data, 0777)
 		} else if os.IsExist(err) {
-			return ioutil.WriteFile(fileName, data, 0755)
+			return ioutil.WriteFile(fileName, data, 0777)
 		} else {
 			return nil
 		}
 	}
-	return ioutil.WriteFile(fileName, data, 0755)
+	return ioutil.WriteFile(fileName, data, 0777)
 }
 
 func CreatFile(fileName string) error {
@@ -69,7 +69,7 @@ func CreatFile(fileName string) error {
 	if _, err := os.Stat(dir); err != nil {
 		if os.IsNotExist(err) {
 			// Directory does not exist, create it //注意只能创建目录 filePath.Dir
-			if err := os.MkdirAll(dir, 0755); err != nil {
+			if err := os.MkdirAll(dir, 0777); err != nil {
 				return err
 			}
 			if _, err := os.Create(fileName); err != nil {

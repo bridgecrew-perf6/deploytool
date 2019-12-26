@@ -6,7 +6,7 @@
   "ccName":"mycc","ccVersion":"1.0","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
   "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
-  "chan_counts":1,"mountPath": "/data", "caType": "fabric-ca",
+  "chan_counts":1,"mountPath": "/data", "caType": "1fabric-ca",
   "consensusType":"raft", "imagePre":"hyperledger","imageTag":"latest","log":"INFO",
   "batchTime":"2s", "batchSize":100, "batchPreferred":"512 KB", "useCouchdb":"false",
   "orderers":[

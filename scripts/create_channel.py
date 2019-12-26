@@ -31,6 +31,7 @@ def create_channel(bin_path, yaml_path, out_path, channel_name, orderer_address,
     local(command)
     channel_block = channel_name + '.block'
     local('mv %s %s'%(channel_block, channel_dir))
+    local("chmod -R 777 %s"%out_path)
 
 def create_channeltx(bin_path, yaml_path, out_path, channel_name, crypto_type):
     bin = utils.get_bin_path(bin_path, "configtxgen",crypto_type)
@@ -42,7 +43,9 @@ def create_channeltx(bin_path, yaml_path, out_path, channel_name, crypto_type):
     param = ' -profile OrgsChannel -outputCreateChannelTx %s/%s -channelID %s'%(channel_dir, channeltx_name, channel_name)
     
     command = env + bin + param
-    return local(command)
+    local(command)
+    local("chmod -R 777 %s"%out_path)
+
 
 def update_anchor(bin_path, yaml_path, out_path, channel_name, org_id, orderer_address, domain_name, crypto_type):
 
@@ -61,7 +64,9 @@ def update_anchor(bin_path, yaml_path, out_path, channel_name, org_id, orderer_a
     tls = ' --tls --cafile %s'%order_tls_path
 
     command = env + bin + param + tls
-    return local(command)
+    local(command)
+    local("chmod -R 777 %s"%out_path)
+
 
 def create_anchor_tx(bin_path, yaml_path, out_path, channel_name, org_id, crypto_type):
     channel_dir = out_path + channel_name
@@ -70,7 +75,8 @@ def create_anchor_tx(bin_path, yaml_path, out_path, channel_name, org_id, crypto
 
     bin = utils.get_bin_path(bin_path, "configtxgen",crypto_type)
     command = env + bin + param
-    return local(command)
+    local(command)
+    local("chmod -R 777 %s"%out_path)
 
 def join_channel(bin_path, yaml_path, out_path, channel_name, peer_address, peer_id, org_id, domain_name, crypto_type):
     channel_block = channel_name + '.block'

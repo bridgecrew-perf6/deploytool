@@ -25,6 +25,8 @@ def generate_genesis_block(model, bin_path, cfg_path, out_path, crypto_type):
     local("%s %s -profile %s -outputBlock %s/genesis.block" % (env, tool, model, channel_path))
     with lcd(out_path):
         local("tar -zcvf channel-artifacts.tar.gz channel-artifacts")
+        local("chmod -R 777 channel-artifacts")
+
 
 
 ## Generates orderer Org certs using cryptogen tool
@@ -34,6 +36,7 @@ def generate_certs(bin_path, cfg_path, out_path, crypto_type):
     mm_path = out_path + "crypto-config"
 
     local("%s generate --config=%s --output='%s'" % (cryptotool, yamlfile, mm_path))
+    local("chmod -R 777 %s"%mm_path)
 
 
 def put_cryptoconfig(config_path, type, node_name, org_name):
@@ -150,3 +153,5 @@ def generate_certs_to_ca(bin_path, out_path, crypto_type, node_type, full_name, 
     else:
         local('sed "s/ORG_NAME/%s/g" %s > %s/msp/config.yaml' % (org_name, config_tpl_path, org_path))
         local('sed "s/ORG_NAME/%s/g" %s > %s/msp/config.yaml' % (org_name, config_tpl_path, org_user))
+
+    local("chmod -R 777 %s"%org_path)
