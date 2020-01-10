@@ -12,7 +12,7 @@ services:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE={{.defaultNetwork}}_default
       - FABRIC_LOGGING_SPEC=gossip=warning:msp=warning:grpc=warning:leveldbhelper=warning:comm.grpc.server=warning:{{.log}}
-      - CORE_CHAINCODE_LOGGING_LEVEL=DEBUG
+      - CORE_CHAINCODE_LOGGING_LEVEL={{.log}}
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_GOSSIP_USELEADERELECTION=true
       - CORE_PEER_GOSSIP_ORGLEADER=false
