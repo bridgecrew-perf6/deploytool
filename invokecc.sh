@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+CHANNEL_NAME="$1"
+CHAINCODE_NAME="$2"
+: ${CHANNEL_NAME:="mychannel"}
+: ${CHAINCODE_NAME:="mycc"}
 verifyResult() {
   if [ $1 -ne 0 ]; then
     echo "!!!!!!!!!!!!!!! FAIL !!!!!!!!!!!!!!!!"
@@ -7,6 +11,6 @@ verifyResult() {
   fi
 }
 echo "-------test chaincode (测试chaincode)-------"
-./deployFabricTool -r testcc -n mychannel -func invoke
+./deployFabricTool -r testcc -n $CHANNEL_NAME -ccname $CHAINCODE_NAME -func invoke
 verifyResult $?
 

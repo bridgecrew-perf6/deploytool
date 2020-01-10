@@ -2,7 +2,7 @@
 
 CHANNEL_NAME="$1"
 CHAINCODE_NAME="$2"
-: ${CHANNEL_NAME:="mychannel"}
+: ${CHANNEL_NAME:="mychannel1"}
 : ${CHAINCODE_NAME:="mycc"}
 verifyResult() {
   if [ $1 -ne 0 ]; then
