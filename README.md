@@ -237,6 +237,12 @@ docker exec manager bash -c 'cat 2-startNode.sh'
 docker exec manager bash -c './deployFabricTool -r runchaincode -n mychannel'
 ```
 
+#### 3.查看所有命令和参数
+
+```bash
+docker exec manager bash -c ./deployFabricTool
+```
+
 ## 特别说明：
 
 以上部署需要依赖外网环境
