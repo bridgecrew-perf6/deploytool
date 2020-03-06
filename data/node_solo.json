@@ -5,22 +5,21 @@
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
   "ccName":"mycc","ccVersion":"1.0","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
-  "ccPath":"chaincode",
-  "chan_counts":1,"mountPath": "/data", "caType": "2fabric-ca",
+  "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
+  "chan_counts":1,"mountPath": "/data", "caType": "1fabric-ca",
   "consensusType":"raft", "imagePre":"hyperledger","imageTag":"latest","log":"INFO",
   "batchTime":"2s", "batchSize":100, "batchPreferred":"512 KB", "useCouchdb":"false",
   "orderers":[
-    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["6050:7050","5443:9443"]}
   ],
   "peers": [
-    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["6051:7051","8443:9443"]}
   ],
   "cas": [
     {"ip":"10.0.2.15","certType":"orderer","orgId":"1","ports":["7054:7054","9543:9443"]},
-    {"ip":"10.0.2.15","certType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]},
+    {"ip":"10.0.2.15","certType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]}
   ],
-  "zookeepers": [
-  ],
-  "kafkas": [
+  "explorers": [
+    {"ip":"10.0.2.15","explorerIp":"192.168.0.185","peerId":"0","orgId":"1","imageTag":"latest","chList": "[\"mychannel\",\"2\"]"}
   ]
 }

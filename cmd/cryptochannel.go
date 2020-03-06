@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/peersafe/deployFabricTool/tpl"
 	"os"
-	"strings"
 	"sync"
 )
 
@@ -45,11 +44,51 @@ func CreateCert() error {
 	return nil
 }
 
+func makeExploreYaml() error {
+	for _, e := range GlobalConfig.Explorers {
+		e.Domain = GlobalConfig.Domain
+		e.Log = GlobalConfig.Log
+		e.MountPath = GlobalConfig.MountPath
+		e.CryptoType = GlobalConfig.CryptoType
+		e.CCName = GlobalConfig.CCName
+		ParentPath := ConfigDir() + e.NodeName + "/"
+		outFile := "block_fabric_explorer.yaml"
+		err := tpl.Handler(e, ExplorerTplPath(TplExplorer), ParentPath+outFile)
+		if err != nil {
+			return err
+		}
+		outFile = "client_sdk.yaml"
+		err = tpl.Handler(e, ExplorerTplPath(TplClient), ParentPath+outFile)
+		if err != nil {
+			return err
+		}
+		outFile = "registerApi.js"
+		err = tpl.Handler(e, ExplorerTplPath(TplRegister), ParentPath+outFile)
+		if err != nil {
+			return err
+		}
+		outFile = "mysql.sql"
+		err = tpl.Handler(e, ExplorerTplPath(outFile), ParentPath+"mysql_init/"+outFile)
+		if err != nil {
+			return err
+		}
+		outFile = "mysqld.cnf"
+		err = tpl.Handler(e, ExplorerTplPath(outFile), ParentPath+outFile)
+		if err != nil {
+			return err
+		}
+
+	}
+	return nil
+}
+
 func CreateYamlByJson(strType string) error {
 	if strType == "configtx" {
 		return tpl.Handler(GlobalConfig, TplPath(TplConfigtx), ConfigDir()+"configtx.yaml")
 	} else if strType == "crypto-config" {
 		return tpl.Handler(GlobalConfig, TplPath(TplCryptoConfig), ConfigDir()+"crypto-config.yaml")
+	} else if strType == TypeExplorer {
+		return makeExploreYaml()
 	} else if strType == "node" || strType == "client" {
 		for _, ca := range GlobalConfig.Cas {
 			CopyConfig(&ca)
@@ -68,7 +107,6 @@ func CreateYamlByJson(strType string) error {
 		for _, peer := range GlobalConfig.Peers {
 			CopyConfig(&peer)
 			outfile := ConfigDir() + peer.NodeName
-			peer.DefaultNetwork = strings.Replace(peer.NodeName, ".", "", -1)
 			if err := tpl.Handler(peer, TplPath(TplPeer), outfile+".yaml"); err != nil {
 				return err
 			}
@@ -174,33 +212,43 @@ func JoinChannel(channelName string) error {
 	return nil
 }
 
-func PutCryptoConfig() error {
+func PutCryptoConfig(stringType string) error {
 	var wg sync.WaitGroup
-	putCrypto := func(ip, sshuser, sshpwd, sshport, sshkey, cfg, nodeTy, nodeName, orgName string, w1 *sync.WaitGroup) {
+	putCrypto := func(ip, sshuser, sshpwd, sshport, sshkey, cfg, nodeTy, nodeName, orgName, certPeerName string, w1 *sync.WaitGroup) {
 		obj := NewFabCmd("apply_cert.py", ip, sshuser, sshpwd, sshport, sshkey)
-		err := obj.RunShow("put_cryptoconfig", cfg, nodeTy, nodeName, orgName)
+		err := obj.RunShow("put_cryptoconfig", cfg, nodeTy, nodeName, orgName, certPeerName)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
 		defer w1.Done()
 	}
-	for _, kafka := range GlobalConfig.Kafkas {
-		wg.Add(1)
-		go putCrypto(kafka.Ip, kafka.SshUserName, kafka.SshPwd, kafka.SshPort, kafka.SshKey, ConfigDir(), TypeKafka, kafka.NodeName, "", &wg)
-	}
-	for _, zk := range GlobalConfig.Zookeepers {
-		wg.Add(1)
-		go putCrypto(zk.Ip, zk.SshUserName, zk.SshPwd, zk.SshPort, zk.SshKey, ConfigDir(), TypeZookeeper, zk.NodeName, "", &wg)
-	}
-	for _, ord := range GlobalConfig.Orderers {
-		wg.Add(1)
-		orgName := fmt.Sprintf("ord%s.%s", ord.OrgId, GlobalConfig.Domain)
-		go putCrypto(ord.Ip, ord.SshUserName, ord.SshPwd, ord.SshPort, ord.SshKey, ConfigDir(), TypeOrder, ord.NodeName, orgName, &wg)
-	}
-	for _, peer := range GlobalConfig.Peers {
-		wg.Add(1)
-		orgName := fmt.Sprintf("org%s.%s", peer.OrgId, GlobalConfig.Domain)
-		go putCrypto(peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey, ConfigDir(), TypePeer, peer.NodeName, orgName, &wg)
+	if stringType == TypeExplorer {
+		for _, exp := range GlobalConfig.Explorers {
+			wg.Add(1)
+			orgName := fmt.Sprintf("org%s.%s", exp.OrgId, GlobalConfig.Domain)
+			certPeerName := fmt.Sprintf("peer%s.org%s.%s", exp.PeerId, exp.OrgId, GlobalConfig.Domain)
+			putCrypto(exp.Ip, exp.SshUserName, exp.SshPwd, exp.SshPort, exp.SshKey, ConfigDir(), TypeExplorer, exp.NodeName, orgName, certPeerName, &wg)
+		}
+	} else {
+
+		for _, kafka := range GlobalConfig.Kafkas {
+			wg.Add(1)
+			go putCrypto(kafka.Ip, kafka.SshUserName, kafka.SshPwd, kafka.SshPort, kafka.SshKey, ConfigDir(), TypeKafka, kafka.NodeName, "", "", &wg)
+		}
+		for _, zk := range GlobalConfig.Zookeepers {
+			wg.Add(1)
+			go putCrypto(zk.Ip, zk.SshUserName, zk.SshPwd, zk.SshPort, zk.SshKey, ConfigDir(), TypeZookeeper, zk.NodeName, "", "", &wg)
+		}
+		for _, ord := range GlobalConfig.Orderers {
+			wg.Add(1)
+			orgName := fmt.Sprintf("ord%s.%s", ord.OrgId, GlobalConfig.Domain)
+			go putCrypto(ord.Ip, ord.SshUserName, ord.SshPwd, ord.SshPort, ord.SshKey, ConfigDir(), TypeOrder, ord.NodeName, orgName, "", &wg)
+		}
+		for _, peer := range GlobalConfig.Peers {
+			wg.Add(1)
+			orgName := fmt.Sprintf("org%s.%s", peer.OrgId, GlobalConfig.Domain)
+			go putCrypto(peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey, ConfigDir(), TypePeer, peer.NodeName, orgName, "", &wg)
+		}
 	}
 	wg.Wait()
 	return nil

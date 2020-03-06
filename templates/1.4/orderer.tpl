@@ -26,19 +26,27 @@ services:
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric
     command: orderer
     volumes:
-      - ~/deployFabricTool/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-      - ~/deployFabricTool/crypto-config/ordererOrganizations/ord{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/msp:/var/hyperledger/orderer/msp
-      - ~/deployFabricTool/crypto-config/ordererOrganizations/ord{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/tls:/var/hyperledger/orderer/tls
+      - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ../crypto-config/ordererOrganizations/ord{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/msp:/var/hyperledger/orderer/msp
+      - ../crypto-config/ordererOrganizations/ord{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/tls:/var/hyperledger/orderer/tls
       - {{.mountPath}}/orderer{{.id}}.ord{{.orgId}}.{{.domain}}:/var/hyperledger/production
     logging:
       driver: "json-file"
       options:
         max-size: "200m"
         max-file: "50"
+    networks:
+      - outside
     ports:{{range $index,$value:= .ports}}
       - {{$value}}{{end}}
     {{if gt (len .extra_hosts) 0}}extra_hosts:{{range $index,$value:= .extra_hosts}}
       - "{{$value.domain}}:{{$value.ip}}"{{end}}{{end}}
+
+networks:
+  outside:
+    external:
+      name: fabric_network
+
 
 
        

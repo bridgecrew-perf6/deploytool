@@ -10,7 +10,7 @@ services:
       - GODEBUG=netdns=go
       - BCCSP_CRYPTO_TYPE={{.cryptoType}}
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE={{.defaultNetwork}}_default
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_network
       - FABRIC_LOGGING_SPEC=gossip=warning:msp=warning:grpc=warning:leveldbhelper=warning:comm.grpc.server=warning:{{.log}}
       - CORE_CHAINCODE_LOGGING_LEVEL={{.log}}
       - CORE_PEER_TLS_ENABLED=true
@@ -46,9 +46,11 @@ services:
     command: peer node start
     volumes:
         - /var/run/:/host/var/run/
-        - ~/deployFabricTool/crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/msp:/etc/hyperledger/fabric/msp
-        - ~/deployFabricTool/crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/tls:/etc/hyperledger/fabric/tls
+        - ../crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/tls:/etc/hyperledger/fabric/tls
         - {{.mountPath}}/peer{{.id}}.org{{.orgId}}.{{.domain}}:/var/hyperledger/production
+    networks:
+      - outside
     logging:
       driver: "json-file"
       options:
@@ -61,6 +63,7 @@ services:
   {{if eq .useCouchdb "true"}}
     depends_on:
       - couchdb
+
   couchdb:
     container_name: couchdb
     image: hyperledger/fabric-couchdb
@@ -68,5 +71,13 @@ services:
        - "5984:5984"
     volumes:
        - ./couchdb:/opt/couchdb/data
+    networks:
+      - outside
    {{end}}
+
+networks:
+  outside:
+    external:
+      name: fabric_network
+
 

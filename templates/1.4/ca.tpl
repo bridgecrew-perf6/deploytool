@@ -29,4 +29,14 @@ services:
           options:
             max-size: "200m"
             max-file: "50"
+        networks:
+          - outside
+
+networks:
+  outside:
+    external:
+      name: fabric_network
+
+
+
 

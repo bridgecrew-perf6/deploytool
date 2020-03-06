@@ -13,11 +13,11 @@ def start_jmeter(config_dir):
     with lcd(config_dir):
         local("tar -zcvf jmeterjmx.tar.gz jmeter.jmx")
         #remote yaml
-        run("rm -rf ~/deployFabricTool/%s"%dir_name)
-        run("mkdir -p ~/deployFabricTool/%s"%dir_name)
-        put("jmeterjmx.tar.gz", "~/deployFabricTool/%s"%dir_name)
+        run("rm -rf ~/fabricNetwork/%s"%dir_name)
+        run("mkdir -p ~/fabricNetwork/%s"%dir_name)
+        put("jmeterjmx.tar.gz", "~/fabricNetwork/%s"%dir_name)
         local("rm jmeterjmx.tar.gz")
-    with cd("~/deployFabricTool/%s"%dir_name):
+    with cd("~/fabricNetwork/%s"%dir_name):
         run("tar zxvfm jmeterjmx.tar.gz")
         run("rm jmeterjmx.tar.gz")
         run("screen -d -m ~/jmeter/apache-jmeter-3.2/bin/jmeter -n -t jmeter.jmx -l jmeter.jtl", pty=False)
@@ -30,8 +30,8 @@ def get_jmeter_log(config_dir, log_dir):
     log =  '%s/jmeter_send.txt'%dir
     if os.path.exists(file):
         local("rm -rf %s"%file)
-    get('~/deployFabricTool/jmeter_config/jmeter.jtl',file)
-    get('~/deployFabricTool/jmeter_config/jmeter.log',log)
+    get('~/fabricNetwork/jmeter_config/jmeter.jtl',file)
+    get('~/fabricNetwork/jmeter_config/jmeter.log',log)
     with lcd(dir):
         local("~/jmeter/apache-jmeter-3.2/bin/jmeter -g %s -e -o ./jmeterReport"%file)
         local("rm -rf jmeter.log")
@@ -43,9 +43,9 @@ def get_eventserver_log(yaml_name, config_dir, log_dir):
     file = '%s/%s_eventserver.log'%(dir,yaml_name)
     if os.path.exists(file):
         local("rm -rf %s"%file)
-    get('~/deployFabricTool/event_server/%s/eventserver.log'%yaml_name,'%s'%file)
+    get('~/fabricNetwork/event_server/%s/eventserver.log'%yaml_name,'%s'%file)
     #echo  empty log
-    run("cat /dev/null > ~/deployFabricTool/event_server/%s/eventserver.log"%yaml_name)
+    run("cat /dev/null > ~/fabricNetwork/event_server/%s/eventserver.log"%yaml_name)
 
 # remote
 def start_haproxy(config_dir):
@@ -53,14 +53,14 @@ def start_haproxy(config_dir):
     with lcd(config_dir):
         local("tar -zcvf haproxyconfig.tar.gz haproxy_config")
         #remote yaml
-        run("rm -rf ~/deployFabricTool/%s"%dir_name)
-        run("mkdir -p ~/deployFabricTool/")
-        put("haproxyconfig.tar.gz", "~/deployFabricTool/")
+        run("rm -rf ~/fabricNetwork/%s"%dir_name)
+        run("mkdir -p ~/fabricNetwork/")
+        put("haproxyconfig.tar.gz", "~/fabricNetwork/")
         local("rm haproxyconfig.tar.gz")
-    with cd("~/deployFabricTool"):
+    with cd("~/fabricNetwork"):
         run("tar zxvfm haproxyconfig.tar.gz")
         run("rm -rf haproxyconfig.tar.gz")
-    with cd("~/deployFabricTool/haproxy_config"):
+    with cd("~/fabricNetwork/haproxy_config"):
         run("docker-compose -f docker-compose.yaml down")
         run("docker-compose -f docker-compose.yaml up -d")
 

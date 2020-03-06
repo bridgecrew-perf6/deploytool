@@ -17,12 +17,12 @@ echo "-------make docker-compose.yaml (生成节点docker启动文件)-------"
 ./deployFabricTool -f node
 verifyResult $?
 
-if [ "$1" = "" ]; then
+./deployFabricTool -s ca
+verifyResult $?
+
+if [[ "$1" == "" ]]; then
     echo "-------make crypto-config.yaml (生成证书配置文件)-------"
     ./deployFabricTool -f crypto-config
-    verifyResult $?
-    echo "-------if ca exist, will start fabric-ca (通过fabric-ca生成证书)-------"
-    ./deployFabricTool -s ca
     verifyResult $?
     echo "-------make crypto-config dir (生成证书目录)-------"
     ./deployFabricTool -c crypto-config

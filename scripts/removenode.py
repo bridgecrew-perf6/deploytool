@@ -5,21 +5,21 @@ import utils
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-
 def remove_node(type, node_name):
     with settings(warn_only=True):
-        with cd("~/deployFabricTool/%s" % node_name):
-            if utils.check_remote_file_exist("%s.yaml" % node_name) == "true":
-                run("docker-compose -f %s.yaml down --volumes" % node_name)
-        if type == "peer" or type == "all":
-            run("unset GREP_OPTIONS && docker ps -a |grep 'dev\-%s'|awk '{print $1}'|xargs docker rm -f" % node_name)
-            run("unset GREP_OPTIONS && docker images |grep 'dev\-%s'|awk '{print $3}'|xargs docker rmi -f" % node_name)
-            # run("docker network prune -f")
-            # run("docker volume prune -f")
+        file_name = "~/fabricNetwork/yaml/%s.yaml" % node_name
+        if utils.check_remote_exist(file_name):
+            run("docker-compose -f %s down --volumes" % file_name)
+            if type == "peer":
+                if utils.check_container_exist("dev\-%s"%node_name):
+                    run("unset GREP_OPTIONS && docker ps -a |grep 'dev\-%s'|awk '{print $1}'|xargs docker rm -f" % node_name)
+                    run("unset GREP_OPTIONS && docker images |grep 'dev\-%s'|awk '{print $3}'|xargs docker rmi -f" % node_name)
+                    # run("docker network prune -f")
+                    # run("docker volume prune -f")
 
 def remove_data(image, mount_path, domain_name):
     with settings(warn_only=True):
-        del_cmd = "rm -rf /ledgerData/*%s && rm -rf /deployData/deployFabricTool" % domain_name
+        del_cmd = "rm -rf /ledgerData/*%s && rm -rf /deployData/fabricNetwork" % domain_name
         run("docker run -it --rm -v %s:/ledgerData -v  ~/:/deployData %s sh -c '%s'" % (mount_path, image, del_cmd))
 
 

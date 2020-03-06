@@ -6,8 +6,7 @@ verifyResult() {
     exit 1
   fi
 }
-echo "----clean all node data---清除所有网络信息"
-./deployFabricTool -d all
-./deployFabricTool -d explorer
-./deployFabricTool -rm all
+
+echo "----only up -d all node --"
+./deployFabricTool -s all
 verifyResult $?

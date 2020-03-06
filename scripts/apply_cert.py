@@ -28,7 +28,6 @@ def generate_genesis_block(model, bin_path, cfg_path, out_path, crypto_type):
         local("chmod -R 777 channel-artifacts")
 
 
-
 ## Generates orderer Org certs using cryptogen tool
 def generate_certs(bin_path, cfg_path, out_path, crypto_type):
     cryptotool = utils.get_bin_path(bin_path, "cryptogen", crypto_type)
@@ -36,11 +35,11 @@ def generate_certs(bin_path, cfg_path, out_path, crypto_type):
     mm_path = out_path + "crypto-config"
 
     local("%s generate --config=%s --output='%s'" % (cryptotool, yamlfile, mm_path))
-    local("chmod -R 777 %s"%mm_path)
+    local("chmod -R 777 %s" % mm_path)
 
 
-def put_cryptoconfig(config_path, type, node_name, org_name):
-    run("mkdir -p ~/deployFabricTool")
+def put_cryptoconfig(config_path, type, node_name, org_name, cert_peer_name):
+    run("mkdir -p ~/fabricNetwork/yaml")
     with lcd(config_path):
         if type == "orderer":
             local('tar -zcvf %s_crypto-config.tar.gz crypto-config/ordererOrganizations/%s/orderers/%s' % (
@@ -54,17 +53,26 @@ def put_cryptoconfig(config_path, type, node_name, org_name):
             local('tar -zcvf %s_crypto-config.tar.gz crypto-config/peerOrganizations/%s/peers/%s' % (
                 node_name, org_name, node_name))
             copy_file(config_path, "%s_crypto-config.tar.gz" % node_name)
-        # elif type == "api":
-        #     copy_file(config_path,"crypto-config.tar.gz")
+        elif type == "explorer":
+            peerTlsFile = "crypto-config/peerOrganizations/%s/peers/%s" % (org_name, cert_peer_name)
+            AdminDir = "crypto-config/peerOrganizations/%s/users/Admin@%s" % (org_name, org_name)
+            local('tar -zcvf %s_crypto-config.tar.gz %s %s ' % (node_name, peerTlsFile, AdminDir))
+            copy_file(config_path, "%s_crypto-config.tar.gz" % node_name)
+            local('tar -zcvf %s.tar.gz %s' % (node_name, node_name))
+            copy_file(config_path, "%s.tar.gz" % node_name)
+            with cd("~/fabricNetwork"):
+                run("rm -rf block_fabric_explorer")
+                run("mv %s block_fabric_explorer"%node_name)
+                run("mv block_fabric_explorer/block_fabric_explorer.yaml ~/fabricNetwork/yaml/")
 
 
 def copy_file(config_path, file_name):
-    remote_file = "~/deployFabricTool/%s" % file_name
-    if utils.check_remote_file_exist(remote_file) == "false":
-        put("%s%s" % (config_path, file_name), "~/deployFabricTool/")
-        with cd("~/deployFabricTool"):
+    remote_file = "~/fabricNetwork/%s" % file_name
+    if not utils.check_remote_exist(remote_file):
+        put("%s%s" % (config_path, file_name), "~/fabricNetwork/")
+        with cd("~/fabricNetwork"):
             run("tar zxfm %s" % file_name)
-            # run("rm %s"%file_name)
+            run("rm -rf %s"%file_name)
 
 
 def generate_certs_to_ca(bin_path, out_path, crypto_type, node_type, full_name, org_name, ca_url, tlsca_url, admin_name,
@@ -154,4 +162,4 @@ def generate_certs_to_ca(bin_path, out_path, crypto_type, node_type, full_name, 
         local('sed "s/ORG_NAME/%s/g" %s > %s/msp/config.yaml' % (org_name, config_tpl_path, org_path))
         local('sed "s/ORG_NAME/%s/g" %s > %s/msp/config.yaml' % (org_name, config_tpl_path, org_user))
 
-    local("chmod -R 777 %s"%org_path)
+    local("chmod -R 777 %s" % org_path)

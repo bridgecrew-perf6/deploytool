@@ -8,7 +8,7 @@ services:
     volumes:
         - ./schema:/opt/apiserver/schema
         - ./client_sdk.yaml:/opt/apiserver/client_sdk.yaml
-        - ~/deployFabricToolData/crypto-config/:/opt/apiserver/crypto-config
+        - ../crypto-config/:/opt/apiserver/crypto-config
         - /etc/localtime:/etc/localtime
     working_dir: /opt/apiserver
     logging:

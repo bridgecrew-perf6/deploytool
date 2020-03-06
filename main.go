@@ -10,7 +10,8 @@ import (
 
 var (
 	file        = flag.String("f", "", "configtx, crypto-config, node, client, jmeter, zabbix ' create yaml file '")
-	start       = flag.String("s", "", "peer, order, zookeeper, kafka, all ,api, jmeter,nmon, zabbix 'start node or api'")
+	start       = flag.String("s", "", "start peer, order, explorer, zookeeper, kafka, all ,api, jmeter,nmon, zabbix 'start node or api'")
+	stop        = flag.String("d", "", "stop peer , order, explorer ,kafka , zookeeper , all , api")
 	create      = flag.String("c", "", "crypto, genesisblock, channel, 'create source'")
 	getlog      = flag.String("g", "", "get jmeter or event or nmon logs")
 	logdir      = flag.String("gn", "", "log dir name eg: 50_50  loop 50*50")
@@ -22,7 +23,7 @@ var (
 	function    = flag.String("func", "invoke", "invoke or query")
 	run         = flag.String("r", "", "joinchannel,  updateanchor, installchaincode, runchaincode, checknode, upgradecc,testcc")
 	put         = flag.String("p", "", "put all (include crypto-config and channel-artifacts to remote)")
-	deleteobj   = flag.String("d", "", "delete peer or kafka or zookeeper or all or api")
+	removeData  = flag.String("rm", "", "remove mount data")
 	analyse     = flag.String("a", "", "event analyse")
 )
 
@@ -50,7 +51,7 @@ func main() {
 		} else if *start == "haproxy" {
 			err = cmd.StartHaproxy()
 		} else {
-			err = cmd.StartNode(*start)
+			err = cmd.HandleNode(*start, true)
 		}
 	} else if *create == "genesisblock" {
 		err = cmd.CreateGenesisBlock()
@@ -77,9 +78,11 @@ func main() {
 	} else if *getlog == "event" {
 		err = cmd.GetEventServerLog(*logdir)
 	} else if *put != "" {
-		err = cmd.PutCryptoConfig()
-	} else if *deleteobj != "" {
-		err = cmd.DeleteObj(*deleteobj)
+		err = cmd.PutCryptoConfig(*put)
+	} else if *stop != "" {
+		err = cmd.HandleNode(*stop, false)
+	} else if *removeData != "" {
+		err = cmd.RemoveData(*removeData)
 	} else if *analyse != "" {
 		err = cmd.EventAnalyse(*logdir)
 	} else {

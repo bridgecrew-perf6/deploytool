@@ -16,9 +16,13 @@ const (
 	TplPeer         = "peer.tpl"
 	TplCryptoConfig = "crypto-config.tpl"
 	TplConfigtx     = "configtx.tpl"
-	TplApiClient    = "apiclient.tpl"
-	TplApiDocker    = "apidocker.tpl"
-	TplEventClient  = "eventclient.tpl"
+	TplExplorer     = "block_fabric_explorer.tpl"
+	TplClient       = "client_sdk.tpl"
+	TplRegister     = "registerApi.tpl"
+
+	TplApiClient   = "apiclient.tpl"
+	TplApiDocker   = "apidocker.tpl"
+	TplEventClient = "eventclient.tpl"
 
 	TypePeer         = "peer"
 	TypeCa           = "ca"
@@ -26,6 +30,7 @@ const (
 	TypeKafka        = "kafka"
 	TypeZookeeper    = "zookeeper"
 	TypeApi          = "api"
+	TypeExplorer     = "explorer"
 	ZabbixServerIp   = "zabbix_server_ip"
 	ZabbixServerPort = "zabbix_server_port"
 	ZabbixAgentIp    = "zabbix_agent_ip"
@@ -68,31 +73,48 @@ type ConfigObj struct {
 	Orderers       []NodeObj      `json:"orderers"`
 	Peers          []NodeObj      `json:"peers"`
 	Cas            []NodeObj      `json:"cas"`
+	Explorers      []ExplorerObj  `json:"explorers"`
 	TPLExpand
 }
 
+type ExplorerObj struct {
+	TPLExpand
+	WebPort    string       `json:"webPort"`
+	ApiPort    string       `json:"apiPort"`
+	OrgId      string       `json:"orgId"`
+	PeerId     string       `json:"peerId"`
+	PeerPort   string       `json:"peerPort"`
+	PeerIp     string       `json:"peerIp"`
+	ExtHosts   []ExtraHosts `json:"extra_hosts"`
+	NodeType   string       `json:"nodeType"`
+	NodeName   string       `json:"nodeName"`
+	CCName     string       `json:"ccName"`
+	ChList     string       `json:"chList"`
+	ExplorerIp string       `json:"explorerIp"`
+}
+
 type TPLExpand struct {
-	SshUserName    string `json:"sshUserName"`
-	SshPwd         string `json:"sshPwd"`
-	SshKey         string `json:"sshKey"`
-	SshPort        string `json:"sshPort"`
-	Log            string `json:"log"`
-	UseCouchdb     string `json:"useCouchdb"`
-	Domain         string `json:"domain"`
-	ImageTag       string `json:"imageTag"`
-	ImagePre       string `json:"imagePre"`
-	MountPath      string `json:"mountPath"`
-	CryptoType     string `json:"cryptoType"`
-	DefaultNetwork string `json:"defaultNetwork"`
+	Ip          string `json:"ip"`
+	SshUserName string `json:"sshUserName"`
+	SshPwd      string `json:"sshPwd"`
+	SshKey      string `json:"sshKey"`
+	SshPort     string `json:"sshPort"`
+	Log         string `json:"log"`
+	UseCouchdb  string `json:"useCouchdb"`
+	Domain      string `json:"domain"`
+	ImageTag    string `json:"imageTag"`
+	ImagePre    string `json:"imagePre"`
+	MountPath   string `json:"mountPath"`
+	CryptoType  string `json:"cryptoType"`
 }
 
 type NodeObj struct {
-	Ip               string       `json:"ip"`
-	ApiIp            string       `json:"apiIp"`
-	Id               string       `json:"id"`
-	NodeType         string       `json:"nodeType"`
-	OrgId            string       `json:"orgId"`
-	Ports            []string     `json:"ports"`
+	ApiIp    string   `json:"apiIp"`
+	Id       string   `json:"id"`
+	NodeType string   `json:"nodeType"`
+	OrgId    string   `json:"orgId"`
+	Ports    []string `json:"ports"`
+	//ExternalPort当前节点外部可访问端口eg: peer 7051映射的端口
 	ExternalPort     string       `json:"externalPort"`
 	NodeName         string       `json:"nodeName"`
 	ImageName        string       `json:"imageName"`
@@ -122,6 +144,10 @@ func InputDir() string {
 
 func TplPath(name string) string {
 	return fmt.Sprintf("%s/templates/%s/%s", os.Getenv("PWD"), GlobalConfig.FabricVersion, name)
+}
+
+func ExplorerTplPath(name string) string {
+	return fmt.Sprintf("%s/templates/block_fabric_explorer/%s", os.Getenv("PWD"), name)
 }
 
 func BinPath() string {
@@ -250,6 +276,26 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		HostMapList[v.Ip] = obj.Zookeepers[i]
 	}
 
+	for i, v := range obj.Explorers {
+		for _, p := range obj.Peers {
+			if p.Id == v.PeerId && p.OrgId == v.OrgId {
+				obj.Explorers[i].PeerPort = p.ExternalPort
+				obj.Explorers[i].PeerIp = p.Ip
+				break
+			}
+		}
+		obj.Explorers[i].NodeType = TypeExplorer
+		obj.Explorers[i].NodeName = fmt.Sprintf("block_fabric_explorer_%d", i)
+		if obj.Explorers[i].ExplorerIp == "" {
+			obj.Explorers[i].ExplorerIp = obj.Explorers[i].Ip
+		}
+		if obj.Explorers[i].ApiPort == "" {
+			obj.Explorers[i].ApiPort = "8888"
+		}
+		if obj.Explorers[i].WebPort == "" {
+			obj.Explorers[i].WebPort = "3004"
+		}
+	}
 	if obj.ImagePre == "" {
 		obj.ImagePre = "peersafes"
 	}
@@ -266,7 +312,7 @@ func SetExtalHost(obj *ConfigObj) {
 	for i, v := range obj.Peers {
 		obj.Peers[i].ExtHosts = append(obj.Peers[i].ExtHosts, allOrdererHostIp...)
 		for _, item := range allPeerHostIp {
-			if item.Domain != v.NodeName {
+			if item.Domain != v.NodeName { //排除自己
 				obj.Peers[i].ExtHosts = append(obj.Peers[i].ExtHosts, item)
 			}
 		}
@@ -274,9 +320,15 @@ func SetExtalHost(obj *ConfigObj) {
 	for i, v := range obj.Orderers {
 		obj.Orderers[i].ExtHosts = []ExtraHosts{}
 		for _, item := range allOrdererHostIp {
-			if item.Domain != v.NodeName {
+			if item.Domain != v.NodeName { //排除自己
 				obj.Orderers[i].ExtHosts = append(obj.Orderers[i].ExtHosts, item)
 			}
+		}
+	}
+	for i := range obj.Explorers {
+		obj.Explorers[i].ExtHosts = []ExtraHosts{}
+		for _, item := range allPeerHostIp {
+			obj.Explorers[i].ExtHosts = append(obj.Explorers[i].ExtHosts, item)
 		}
 	}
 }

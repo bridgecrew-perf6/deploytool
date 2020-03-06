@@ -42,6 +42,9 @@ node.json 文件：节点服务器配置文件
     {"ip":"XXX","certType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]},
     {"ip":"XXX","certType":"peer","orgId":"2","ports":["9054:7054","9743:9443"]}
   ],
+   "explorers": [
+  {"ip":"xxx","peerId":"0","orgId":"1","imageTag":"latest","chList": "[\"mychannel\"]"}
+  ]
   "zookeepers": [
   ],
   "kafkas": [
@@ -106,6 +109,11 @@ orgId: 当前节点归属组织id
 ports： 当前节点端口映射数组列表， eg: ["8050:7050","10443:9443"] , 前面为外部访问端口
 peers: 对应peers节点数组， 和orderer解释一样
 certType: 表示ca对应的组织类型,eg: "orderer"、"peer"
+explorers: 相关介绍
+	ip: 要部署的机器ip
+	peerId,orgId：表示event连接的peer
+	imageTag： 为镜像标签
+	chList: 为channel数组
 ```
 
 ### 启动部署工具
@@ -176,7 +184,17 @@ docker exec manager bash -c ./0-checknode.sh
 docker exec manager bash -c ./invokecc.sh
 ```
 
+## 部署-浏览器
 
+```bash
+docker exec manager bash -c ./explorerstart.sh
+```
+
+## 关闭-浏览器
+
+```bash
+docker exec manager bash -c ./explorerdown.sh
+```
 
 ## 后台APi服务客户端所需证书目录
 
