@@ -1,7 +1,7 @@
-FROM peersafes/deploy-tool:baseimage
+FROM peersafes/deploy-base:latest
 
 # tool
-RUN rm -rf /opt/deployFabricTool
 ADD ./deployFabricTool.tar.gz  /opt
-ADD ./chaincodes.tar.gz  /opt/gopath/src
-RUN cp /opt/deployFabricTool/bin/1.4/telnet /usr/bin
+ADD ./chaincode.tar.gz  $GOPATH/src/github.com/hyperledger/fabric/examples/
+ADD ./goshim.tar.bz2 $GOPATH/src/
+WORKDIR /opt/deployFabricTool
