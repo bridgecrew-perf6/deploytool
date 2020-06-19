@@ -15,15 +15,15 @@ orderers:{{range $value:= .ordList}}
     domainName: {{$value.serverDomain}}
     useTLS:     true
     tlsPath:    {{$value.serverTlsPath}}{{end}}
-peers:{{range $value:= .peerList}}
-  peer{{$value.serverId}}:
+peers:{{range $index,$value:= .peerList}}
+  peer{{$index}}:
     host:         {{$value.serverHost}}
     domainName:   {{$value.serverDomain}}
     useTLS:       true
     tlsPath:      {{$value.serverTlsPath}}{{end}}
 
-eventPeers:{{range $value:= .eventPeerList}}
-  peer{{$value.serverId}}:
+eventPeers:{{range $index,$value:= .eventPeerList}}
+  peer{{$index}}:
     host:         {{$value.serverHost}}
     domainName:   {{$value.serverDomain}}
     useTLS:       true

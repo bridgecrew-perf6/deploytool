@@ -325,7 +325,7 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 				continue
 			}
 			peerObj.ServerHost = v.Ip + ":" + v.ExternalPort
-			peerObj.ServerDomain = v.Domain
+			peerObj.ServerDomain = v.NodeName
 			peerObj.ServerId = v.Id
 			peerObj.ServerTlsPath = fmt.Sprintf("./crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/server.crt", v.OrgId, v.Domain, v.Id, v.OrgId, v.Domain)
 			obj.Apiservers[i].EventPeerList = append(obj.Apiservers[i].EventPeerList, peerObj)

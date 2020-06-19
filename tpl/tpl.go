@@ -20,7 +20,7 @@ func Handler(data interface{}, tplFile, outFile string) error {
 	}
 	//转换为map[string]interface{}
 	ret, _ := json.Marshal(data)
-	fmt.Printf("-%s\n",ret)
+	//fmt.Printf("-%s\n",ret)
 	data = nil
 	if err := json.Unmarshal(ret, &data); err != nil {
 		return err
