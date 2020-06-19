@@ -34,6 +34,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	//fmt.Printf("%#v\n",cmd.GlobalConfig.Apiservers)
 	if *file != "" {
 		if *file == "jmeter" {
 			err = cmd.CreateJmeterConfig()

@@ -19,6 +19,9 @@
     {"ip":"10.0.2.15","certType":"orderer","orgId":"1","ports":["7054:7054","9543:9443"]},
     {"ip":"10.0.2.15","certType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]}
   ],
+  "apis": [
+    {"ip":"10.0.2.15","peerId":"0","orgId":"1","imageTag":"latest"}
+  ],
   "explorers": [
     {"ip":"10.0.2.15","explorerIp":"192.168.0.185","peerId":"0","orgId":"1","imageTag":"latest","chList": "[\"mychannel\",\"2\"]"}
   ]

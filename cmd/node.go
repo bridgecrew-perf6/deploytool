@@ -65,16 +65,41 @@ func operationExplorer(isStart bool) {
 	}
 	wg.Wait()
 }
+func operationApiserver(isStart bool) {
+	var wg sync.WaitGroup
+	for _, e := range GlobalConfig.Apiservers {
+		wg.Add(1)
+		go func(n ApiserverObj, w *sync.WaitGroup) {
+			defer w.Done()
+			var err error
+			if isStart {
+				obj := NewFabCmd("add_node.py", n.Ip, n.SshUserName, n.SshPwd, n.SshPort, n.SshKey)
+				err = obj.RunShow("start_node", "apiserver", ConfigDir())
+			} else {
+				obj := NewFabCmd("removenode.py", n.Ip, n.SshUserName, n.SshPwd, n.SshPort, n.SshKey)
+				err = obj.RunShow("remove_node", n.NodeType, "apiserver")
+			}
+			if err != nil {
+				fmt.Printf("handleAPiserver error: %s\n", err.Error())
+			}
+		}(e, &wg)
+	}
+	wg.Wait()
+}
 
 func HandleNode(stringType string, isStart bool) error {
 	if stringType == TypeExplorer {
 		operationExplorer(isStart)
+	}
+	if stringType == TypeApi {
+		operationApiserver(isStart)
 	}
 	if isStart {
 		if err := WriteHost(); err != nil {
 			return err
 		}
 	}
+
 	if stringType == "all" || stringType == TypeKafka {
 		ForeachNode(GlobalConfig.Kafkas, isStart)
 	}

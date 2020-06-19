@@ -1,12 +1,16 @@
 version: '2'
 
+networks:
+  outside:
+    external:
+      name: fabric_network
+
 services:
   apiserver:
-    container_name: apiserver{{.api_id}}
-    image: factoring/apiserver
+    container_name: apiserver
+    image: peersafes/fabric-poc-apiserver
     restart: always
     volumes:
-        - ./schema:/opt/apiserver/schema
         - ./client_sdk.yaml:/opt/apiserver/client_sdk.yaml
         - ../crypto-config/:/opt/apiserver/crypto-config
         - /etc/localtime:/etc/localtime
@@ -18,9 +22,6 @@ services:
         max-file: "10"
     command: ./apiserver
     ports:
-     - {{.api_id}}{{.api_id}}{{.api_id}}{{.api_id}}:5555
-    extra_hosts:
-       peer{{.peer_id}}.org{{.org_id}}.{{.peer_domain}}: {{.ip}}
-       orderer{{.peer_id}}.ord{{.org_id}}.{{.peer_domain}}: {{.order_address}}
-
-
+     - {{.apiPort}}:8888
+    networks:
+      - outside

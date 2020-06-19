@@ -53,6 +53,9 @@ def put_cryptoconfig(config_path, type, node_name, org_name, cert_peer_name):
             local('tar -zcvf %s_crypto-config.tar.gz crypto-config/peerOrganizations/%s/peers/%s' % (
                 node_name, org_name, node_name))
             copy_file(config_path, "%s_crypto-config.tar.gz" % node_name)
+        elif type == "api":
+            local('tar -zcvf %s_crypto-config.tar.gz crypto-config' %node_name)
+            copy_file(config_path, "%s_crypto-config.tar.gz" % node_name)
         elif type == "explorer":
             peerTlsFile = "crypto-config/peerOrganizations/%s/peers/%s" % (org_name, cert_peer_name)
             AdminDir = "crypto-config/peerOrganizations/%s/users/Admin@%s" % (org_name, org_name)

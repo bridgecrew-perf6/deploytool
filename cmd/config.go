@@ -74,7 +74,27 @@ type ConfigObj struct {
 	Peers          []NodeObj      `json:"peers"`
 	Cas            []NodeObj      `json:"cas"`
 	Explorers      []ExplorerObj  `json:"explorers"`
+	Apiservers     []ApiserverObj `json:"apis"`
 	TPLExpand
+}
+
+type ServerObj struct {
+	ServerId      string `json:"serverId"`
+	ServerHost    string `json:"serverHost"`
+	ServerDomain  string `json:"serverDomain"`
+	ServerTlsPath string `json:"serverTlsPath"`
+}
+
+type ApiserverObj struct {
+	TPLExpand
+	ApiPort       string      `json:"apiPort"`
+	OrgId         string      `json:"orgId"`
+	NodeType      string      `json:"nodeType"`
+	NodeName      string      `json:"nodeName"`
+	CCName        string      `json:"ccName"`
+	OrdererList   []ServerObj `json:"ordList"`
+	PeerList      []ServerObj `json:"peerList"`
+	EventPeerList []ServerObj `json:"eventPeerList"`
 }
 
 type ExplorerObj struct {
@@ -225,6 +245,7 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		}
 		obj.Peers[i].NodeName = fmt.Sprintf("peer%s.org%s.%s", v.Id, v.OrgId, obj.Domain)
 		obj.Peers[i].NodeType = TypePeer
+		obj.Peers[i].Domain = obj.Domain
 		allPeerHostIp = append(allPeerHostIp, ExtraHosts{obj.Peers[i].NodeName, v.Ip})
 		obj.Peers[i].ImageName = fmt.Sprintf("%s/fabric-peer:%s", obj.ImagePre, obj.ImageTag)
 		HostMapList[v.Ip] = obj.Peers[i]
@@ -247,6 +268,7 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		obj.Orderers[i].AdminPw = "adminpw"
 		obj.Orderers[i].CaUrl = ordererCaMap[v.OrgId]
 		obj.Orderers[i].NodeType = TypeOrder
+		obj.Orderers[i].Domain = obj.Domain
 		obj.Orderers[i].NodeName = fmt.Sprintf("orderer%s.ord%s.%s", v.Id, v.OrgId, obj.Domain)
 		allOrdererHostIp = append(allOrdererHostIp, ExtraHosts{obj.Orderers[i].NodeName, v.Ip})
 		obj.Orderers[i].ImageName = fmt.Sprintf("%s/fabric-orderer:%s", obj.ImagePre, obj.ImageTag)
@@ -275,7 +297,47 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		obj.Zookeepers[i].ImageName = fmt.Sprintf("%s/fabric-zookeeper:%s", obj.ImagePre, obj.ImageTag)
 		HostMapList[v.Ip] = obj.Zookeepers[i]
 	}
-
+	for i, _ := range obj.Apiservers {
+		var ordererObj ServerObj
+		var peerObj ServerObj
+		for _, v := range obj.Orderers {
+			if v.Id != "0" {
+				continue
+			}
+			ordererObj.ServerHost = v.Ip + ":" + v.ExternalPort
+			ordererObj.ServerDomain = v.NodeName
+			ordererObj.ServerId = v.Id
+			ordererObj.ServerTlsPath = fmt.Sprintf("./crypto-config/ordererOrganizations/ord%s.%s/orderers/orderer%s.ord%s.%s/tls/server.crt", v.OrgId, v.Domain, v.Id, v.OrgId, v.Domain)
+			obj.Apiservers[i].OrdererList = append(obj.Apiservers[i].OrdererList, ordererObj)
+		}
+		for _, v := range obj.Peers {
+			if v.Id != "0" {
+				continue
+			}
+			peerObj.ServerHost = v.Ip + ":" + v.ExternalPort
+			peerObj.ServerDomain = v.NodeName
+			peerObj.ServerId = v.Id
+			peerObj.ServerTlsPath = fmt.Sprintf("./crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/server.crt", v.OrgId, v.Domain, v.Id, v.OrgId, v.Domain)
+			obj.Apiservers[i].PeerList = append(obj.Apiservers[i].PeerList, peerObj)
+		}
+		for _, v := range obj.Peers {
+			if v.Id != "0" {
+				continue
+			}
+			peerObj.ServerHost = v.Ip + ":" + v.ExternalPort
+			peerObj.ServerDomain = v.Domain
+			peerObj.ServerId = v.Id
+			peerObj.ServerTlsPath = fmt.Sprintf("./crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/server.crt", v.OrgId, v.Domain, v.Id, v.OrgId, v.Domain)
+			obj.Apiservers[i].EventPeerList = append(obj.Apiservers[i].EventPeerList, peerObj)
+			break
+		}
+		obj.Apiservers[i].NodeType = TypeApi
+		obj.Apiservers[i].NodeName = "apiserver"
+		obj.Apiservers[i].CCName = obj.CCName
+		if obj.Apiservers[i].ApiPort == "" {
+			obj.Apiservers[i].ApiPort = "8888"
+		}
+	}
 	for i, v := range obj.Explorers {
 		for _, p := range obj.Peers {
 			if p.Id == v.PeerId && p.OrgId == v.OrgId {

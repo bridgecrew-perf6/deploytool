@@ -54,7 +54,12 @@ def start_node(node_name, config_dir):
     if node_name == "block_fabric_explorer":
         run("docker-compose -f ~/fabricNetwork/yaml/block_fabric_explorer.yaml up -d")
         return
-
+    if node_name == "apiserver":
+        local("tar -zcvf %s.tar.gz %s.yaml" % ("client_sdk", "client_sdk"))
+        run("mkdir -p ~/fabricNetwork/yaml/")
+        put("%s.tar.gz" % node_name, "~/fabricNetwork/yaml/")
+        local("rm %s.tar.gz" % node_name)
+        
     with lcd(config_dir):
         local("tar -zcvf %s.tar.gz %s.yaml" % (node_name, node_name))
         # remote yaml

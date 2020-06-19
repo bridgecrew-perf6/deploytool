@@ -89,6 +89,19 @@ func CreateYamlByJson(strType string) error {
 		return tpl.Handler(GlobalConfig, TplPath(TplCryptoConfig), ConfigDir()+"crypto-config.yaml")
 	} else if strType == TypeExplorer {
 		return makeExploreYaml()
+	} else if strType == TypeApi {
+		for _, api := range GlobalConfig.Apiservers {
+			api.Domain = GlobalConfig.Domain
+			api.CryptoType = GlobalConfig.CryptoType
+			outfile := ConfigDir() + "client_sdk"
+			if err := tpl.Handler(api, TplPath(TplApiClient), outfile+".yaml"); err != nil {
+				return err
+			}
+			outfile = ConfigDir() + api.NodeName
+			if err := tpl.Handler(api, TplPath(TplApiDocker), outfile+".yaml"); err != nil {
+				return err
+			}
+		}
 	} else if strType == "node" || strType == "client" {
 		for _, ca := range GlobalConfig.Cas {
 			CopyConfig(&ca)
@@ -230,7 +243,10 @@ func PutCryptoConfig(stringType string) error {
 			putCrypto(exp.Ip, exp.SshUserName, exp.SshPwd, exp.SshPort, exp.SshKey, ConfigDir(), TypeExplorer, exp.NodeName, orgName, certPeerName, &wg)
 		}
 	} else {
-
+		for _, api := range GlobalConfig.Apiservers {
+			wg.Add(1)
+			go putCrypto(api.Ip, api.SshUserName, api.SshPwd, api.SshPort, api.SshKey, ConfigDir(), TypeApi, api.NodeName, "", "", &wg)
+		}
 		for _, kafka := range GlobalConfig.Kafkas {
 			wg.Add(1)
 			go putCrypto(kafka.Ip, kafka.SshUserName, kafka.SshPwd, kafka.SshPort, kafka.SshKey, ConfigDir(), TypeKafka, kafka.NodeName, "", "", &wg)
