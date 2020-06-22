@@ -42,9 +42,13 @@ node.json 文件：节点服务器配置文件
     {"ip":"XXX","certType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]},
     {"ip":"XXX","certType":"peer","orgId":"2","ports":["9054:7054","9743:9443"]}
   ],
-   "explorers": [
-  {"ip":"xxx","peerId":"0","orgId":"1","imageTag":"latest","chList": "[\"mychannel\"]"}
-  ]
+  "apis": [
+    {"ip":"XXX","orgId":"1","imageTag":"latest","apiPort":"5984"}
+  ],
+  "explorers": [
+    {"ip":"XXX","explorerIp":"XXX","webPort":"7054","apiPort":"8080",
+      "peerId":"0","orgId":"1","imageTag":"onlyblock","chList": "[\"mychannel\"]"}
+  ],
   "zookeepers": [
   ],
   "kafkas": [
@@ -113,7 +117,14 @@ explorers: 相关介绍
 	ip: 要部署的机器ip
 	peerId,orgId：表示event连接的peer
 	imageTag： 为镜像标签
-	chList: 为channel数组
+	chList: 为channel数组,多个用逗号隔开
+	apiPort: 为后台服务端口，默认8888
+	webPort: 为前端页面端口，默认3004
+apis: 
+	ip： 要部署的机器ip
+	orgId: 表示客户端所属组织id
+	imageTag: 镜像标签,镜像名：fabric-poc-apiserver
+    apiPort: api对外端口
 ```
 
 ### 启动部署工具
@@ -184,6 +195,18 @@ docker exec manager bash -c ./0-checknode.sh
 docker exec manager bash -c ./invokecc.sh
 ```
 
+## 部署-apiserver
+
+```bash
+docker exec manager bash -c ./apistart.sh
+```
+
+## 关闭-apiserver
+
+```bash
+docker exec manager bash -c ./apidown.sh
+```
+
 ## 部署-浏览器
 
 ```bash
@@ -203,6 +226,15 @@ docker exec manager bash -c ./explorerdown.sh
 ```
 
 ## 重新部署-清理环境
+
+如果部署了apiserver和浏览器一定要先关闭apiserver和浏览器
+
+```bash
+docker exec manager bash -c ./apidown.sh
+docker exec manager bash -c ./explorerdown.sh
+```
+
+然后再清理fabric
 
 ```bash
 docker exec manager bash -c ./removenode.sh

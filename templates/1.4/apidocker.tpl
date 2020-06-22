@@ -25,3 +25,12 @@ services:
      - {{.apiPort}}:8888
     networks:
       - outside
+
+
+
+
+
+
+
+
+
