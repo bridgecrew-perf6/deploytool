@@ -65,7 +65,7 @@ func main() {
 	} else if *run == "joinchannel" {
 		err = cmd.JoinChannel(*channelname)
 	} else if *run == "installchaincode" {
-		err = cmd.InstallChaincode(*ccname, *ccversion, *ccpath)
+		err = cmd.InstallChaincode(*ccname, *ccversion, *channelname, *ccpath)
 	} else if *run == "runchaincode" {
 		err = cmd.RunChaincode(*ccname, *ccversion, *channelname, "instantiate")
 	} else if *run == "upgradecc" {

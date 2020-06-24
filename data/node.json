@@ -1,9 +1,9 @@
 {
-  "fabricVersion":"1.4","domain":"example.com","cryptoType":"FGM",
-  "sshUserName":"ubuntu","sshPwd":"","sshPort":"22","sshKey":"/etc/login.pem",
+  "fabricVersion":"2.0","domain":"example.com","cryptoType":"FGM",
+  "sshUserName":"vagrant","sshPwd":"","sshPort":"22","sshKey":"/etc/login.pem",
   "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
-  "ccName":"mycc","ccVersion":"1.0","ccInstallType":"path",
+  "ccName":"mycc","ccVersion":"1","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
   "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
   "chan_counts":1,"mountPath": "/data", "caType": "1fabric-ca",

@@ -22,7 +22,7 @@ def generate_genesis_block(model, bin_path, cfg_path, out_path, crypto_type):
     local("rm -rf %s" % channel_path)
     local("mkdir -p %s" % channel_path)
     env = "FABRIC_CFG_PATH=%s" % cfg_path
-    local("%s %s -profile %s -outputBlock %s/genesis.block" % (env, tool, model, channel_path))
+    local("%s %s -profile %s -channelID byfn-sys-channel -outputBlock %s/genesis.block" % (env, tool, model, channel_path))
     with lcd(out_path):
         local("tar -zcvf channel-artifacts.tar.gz channel-artifacts")
         local("chmod -R 777 channel-artifacts")

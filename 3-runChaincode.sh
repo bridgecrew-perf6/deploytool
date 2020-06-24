@@ -19,7 +19,7 @@ echo "-------peer join channel(节点加入通道)-------"
 verifyResult $?
 
 echo "-------install chaincode (安装智能合约)-------"
-./deployFabricTool -r installchaincode
+./deployFabricTool -r installchaincode -n mychannel
 verifyResult $?
 
 echo "-------instantiate chaincode (实例化智能合约)-------"
