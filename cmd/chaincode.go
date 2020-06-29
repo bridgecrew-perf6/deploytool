@@ -39,21 +39,28 @@ func InstallChaincode(ccname, ccversion, channelName, ccpath string) error {
 			obj := NewLocalFabCmd("chaincode.py")
 			err := obj.RunShow("install_chaincode", GlobalConfig.FabricVersion, binPath, configDir, peerAds, PeerId, OrgId, Pdn, ccname, ccversion, ccpath, GlobalConfig.CCInstallType, GlobalConfig.CryptoType)
 			if err != nil {
-				fmt.Printf(err.Error())
-			}
-			if GlobalConfig.FabricVersion == "2.0" {
-				if channelName == "" {
-					fmt.Printf("approve file channelName is empty")
-				} else {
-					err := obj.RunShow("approve_chaincode", binPath, configDir, peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain, channelName, ccname, ccversion, GlobalConfig.CryptoType)
-					if err != nil {
-						fmt.Printf(err.Error())
-					}
-				}
+				panic(err)
 			}
 		}(BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
 	}
 	wg.Wait()
+	if GlobalConfig.FabricVersion == "2.0" {
+		for _, peer := range GlobalConfig.Peers {
+			if peer.Id != "0" {
+				continue
+			}
+			peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
+			obj := NewLocalFabCmd("chaincode.py")
+			if channelName == "" {
+				panic("approve file channelName is empty")
+			} else {
+				err := obj.RunShow("approve_chaincode", BinPath(), ConfigDir(), peerAddress, ordererAddress, peer.Id, peer.OrgId, GlobalConfig.Domain, channelName, ccname, ccversion, GlobalConfig.CryptoType)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
 	return nil
 }
 
@@ -72,22 +79,47 @@ func RunChaincode(ccname, ccversion, channelName, opration string) error {
 		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ExternalPort)
 		break
 	}
+	cmdParas := ""
 	var wg sync.WaitGroup
 	for _, peer := range GlobalConfig.Peers {
-		wg.Add(1)
 		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
-		go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
-			defer wg.Done()
+		if GlobalConfig.FabricVersion == "1.4" {
+			wg.Add(1)
+			go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
+				defer wg.Done()
+				obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
+				initparam := fmt.Sprintf(`%s`, GlobalConfig.CCInit)
+				policy := fmt.Sprintf("%s", GlobalConfig.CCPolicy)
+				err := obj.RunShow("instantiate_chaincode", GlobalConfig.FabricVersion, BinPath(),
+					opration, ConfigDir(), peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain,
+					channelName, ccname, ccversion, initparam, policy, GlobalConfig.CryptoType, cmdParas)
+				if err != nil {
+					fmt.Println(err)
+				}
+			}(BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
+		} else if GlobalConfig.FabricVersion == "2.0" {
+			if peer.Id == "0" {
+				peerTlsCert := fmt.Sprintf("%s/crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/server.crt", ConfigDir(), peer.OrgId, peer.Domain, peer.Id, peer.OrgId, peer.Domain)
+				cmdParas = cmdParas + fmt.Sprintf("  --peerAddresses %s --tlsRootCertFiles %s", peerAddress, peerTlsCert)
+			}
+		}
+	}
+	wg.Wait()
+	if GlobalConfig.FabricVersion == "2.0" {
+		for _, peer := range GlobalConfig.Peers {
+			peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
 			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
 			initparam := fmt.Sprintf(`%s`, GlobalConfig.CCInit)
 			policy := fmt.Sprintf("%s", GlobalConfig.CCPolicy)
-			err := obj.RunShow("instantiate_chaincode", GlobalConfig.FabricVersion, BinPath(), opration, ConfigDir(), peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain, channelName, ccname, ccversion, initparam, policy, GlobalConfig.CryptoType)
+			err := obj.RunShow("instantiate_chaincode", GlobalConfig.FabricVersion, BinPath(), opration, ConfigDir(),
+				peerAddress, ordererAddress, peer.Id, peer.OrgId, GlobalConfig.Domain, channelName,
+				ccname, ccversion, initparam, policy, GlobalConfig.CryptoType, cmdParas)
 			if err != nil {
-				fmt.Println(err)
+				return err
 			}
-		}(BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
+			break
+		}
 	}
-	wg.Wait()
 	return nil
 }
 

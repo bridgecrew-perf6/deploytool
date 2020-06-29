@@ -20,7 +20,7 @@ node.json 文件：节点服务器配置文件
   "sshUserName":"peersafe","sshPwd":"dev1@peersafe","sshPort":"22","sshKey":"/etc/login.pem",
   "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
-  "ccName":"mycc","ccVersion":"1.0","ccInstallType":"path",
+  "ccName":"mycc","ccVersion":"1","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
   "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
   "chan_counts":1,"mountPath": "/data", "caType": "cryptogen",
@@ -81,7 +81,7 @@ sudo chmod 777 ~/deploy/node.json
 node.json 参数解释
 
 ```bash
-fabricVersion： fabric的版本，容器内bin目录下可执行文件和tpl模板文件对应的版本
+fabricVersion： fabric的版本，容器内bin目录下可执行文件和tpl模板文件对应的版本,支持"1.4"和"2.0"
 domain： 生成证书的后缀名，推荐用默认值
 cryptoType： 算法类型, "GM" 国密、"FGM" 非国密
 sshUserName： ssh默认登陆用户名，"每个机器也可配置自定义用户名"
@@ -91,7 +91,7 @@ sshPort: ssh默认登陆端口，"每个机器也可配置自定义密码"
 ccInit: 智能合约初始化参数
 ccPolicy： 智能合约背书策略
 ccName： 智能合约名称
-ccVersion： 智能合约版本， 升级时要修改
+ccVersion： 智能合约版本， 升级时要修改，必须为整数1，2，3..., 而且第一次必须从1开始
 ccPath： 智能合约源码路径或包绝对路径(容器内位置), 
  内置2个智能合约：
  	转账cc 'github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd'
@@ -103,7 +103,7 @@ chan_counts： 创建的业务通道个数，默认为1对应通道"mychannel" �
 mountPath: orderer和peer节点账本数据挂载的宿主机位置，默认"/data"eg:/data/peer0.org1.example.com
 consensusType: 共识方式，"raft"、"solo"、"kafka"  目前实现只raft
 imagePre： 镜像前缀,   eg：  "peersafes"、"hyperledger"
-imageTag: 镜像标签， eg: "1.4"、"1.4.3"、"1.4.3-gm" 
+imageTag: 镜像标签， eg: "1.4"、"1.4.3"、"1.4.3-gm"、"2.1.0" 
 log: orderer和peer日志级别， eg: "INFO"、"DEBUG"
 batchTime、batchSize、batchPreferred: 切块的条件
 orderers： 对应orderer节点数组

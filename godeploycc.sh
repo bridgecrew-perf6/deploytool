@@ -7,7 +7,7 @@ verifyResult() {
   fi
 }
 echo "----install chaincode (安装智能合约)----"
-./deployFabricTool -r installchaincode
+./deployFabricTool -r installchaincode -n mychannel
 verifyResult $?
 if [ "$1" == "" ]; then
   echo "-------instantiate chaincode (实例化智能合约)-------"

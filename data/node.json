@@ -3,7 +3,7 @@
   "sshUserName":"vagrant","sshPwd":"","sshPort":"22","sshKey":"/etc/login.pem",
   "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
-  "ccName":"mycc","ccVersion":"1","ccInstallType":"path",
+  "ccName":"mycc","ccVersion":"2","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
   "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
   "chan_counts":1,"mountPath": "/data", "caType": "1fabric-ca",
@@ -13,7 +13,10 @@
     {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["6050:7050","5443:9443"]}
   ],
   "peers": [
-    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["6051:7051","8443:9443"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
+    {"ip":"10.0.2.15","id":"0","orgId":"2","ports":["9051:7051","0443:9443"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"2","ports":["0051:7051","1443:9443"]}
   ],
   "cas": [
     {"ip":"10.0.2.15","certType":"orderer","orgId":"1","ports":["7054:7054","9543:9443"]},

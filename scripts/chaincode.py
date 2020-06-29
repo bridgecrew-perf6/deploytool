@@ -46,7 +46,7 @@ def approve_chaincode(bin_path, yaml_path, peer_address, order_address, peer_id,
     env = env + ' CORE_PEER_ADDRESS=%s ' % peer_address
     bin = utils.get_bin_path(bin_path, "peer", crypto_type)
 
-    param = ' lifecycle chaincode queryinstalled > %s/log.txt'% yaml_path
+    param = ' lifecycle chaincode queryinstalled | grep %s_%s > %s/log.txt' % (ccname, ccversion, yaml_path)
     command = env + bin + param
     local(command)
     curcmd = "sed -n '/Package/{s/^Package ID: //; s/, Label:.*$//; p;}' %s/log.txt" % yaml_path
@@ -86,9 +86,9 @@ def install_chaincode(fabric_version, bin_path, config_path, peer_address, peer_
     local(command)
 
 
-def instantiate_chaincode(fabric_version, bin_path, operation, yaml_path, peer_address, order_address, peer_id, org_id,
-                          domain_name,
-                          channel_name, ccname, ccversion, init_param, policy, crypto_type):
+def instantiate_chaincode(fabric_version, bin_path, operation, yaml_path, peer_address,
+                          order_address, peer_id, org_id, domain_name, channel_name, ccname,
+                          ccversion, init_param, policy, crypto_type, cmdparas):
     global param
     tls_root_file = yaml_path + "crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/ca.crt" % (
         org_id, domain_name, peer_id, org_id, domain_name)
@@ -107,8 +107,8 @@ def instantiate_chaincode(fabric_version, bin_path, operation, yaml_path, peer_a
         param = ' chaincode %s -o %s -C %s -n %s -v %s -c %s -P %s ' % (
             operation, order_address, channel_name, ccname, ccversion, init_param, policy)
     elif fabric_version == "2.0":
-        param = ' lifecycle chaincode %s -o %s --channelID %s --name %s --version %s --sequence %s  --init-required ' % (
-            "commit", order_address, channel_name, ccname, ccversion, ccversion)
+        param = ' lifecycle chaincode %s -o %s --channelID %s --name %s %s --version %s --sequence %s  --init-required ' % (
+            "commit", order_address, channel_name, ccname, cmdparas, ccversion, ccversion)
 
     tls = ' --tls --cafile %s' % order_tls_path
     command = env + bin + param + tls
