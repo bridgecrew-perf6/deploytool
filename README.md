@@ -95,7 +95,7 @@ ccVersion： 智能合约版本， 升级时要修改，必须为整数1，2，3
 ccPath： 智能合约源码路径或包绝对路径(容器内位置), 
  内置2个智能合约：
  	转账cc 'github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd'
-    写/读数据cc：'chaincodes'
+    poc写/读数据cc：'peersafe/fabric_poc/chaincode'
 ccInstallType：智能合约安装方式， "path" 源码路径方式 "pkg" 包安装方式
 testArgs： 执行调用智能合约的参数
 caType: 证书生成方式， "cryptogen","fabric-ca" 方式，默认为 cryptogen
