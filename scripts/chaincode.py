@@ -88,7 +88,7 @@ def install_chaincode(fabric_version, bin_path, config_path, peer_address, peer_
 
 def instantiate_chaincode(fabric_version, bin_path, operation, yaml_path, peer_address,
                           order_address, peer_id, org_id, domain_name, channel_name, ccname,
-                          ccversion, init_param, policy, crypto_type, cmdparas):
+                          ccversion, init_param, policy, crypto_type, connect_param):
     global param
     tls_root_file = yaml_path + "crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/ca.crt" % (
         org_id, domain_name, peer_id, org_id, domain_name)
@@ -108,7 +108,7 @@ def instantiate_chaincode(fabric_version, bin_path, operation, yaml_path, peer_a
             operation, order_address, channel_name, ccname, ccversion, init_param, policy)
     elif fabric_version == "2.0":
         param = ' lifecycle chaincode %s -o %s --channelID %s --name %s %s --version %s --sequence %s  --init-required ' % (
-            "commit", order_address, channel_name, ccname, cmdparas, ccversion, ccversion)
+            "commit", order_address, channel_name, ccname, connect_param, ccversion, ccversion)
 
     tls = ' --tls --cafile %s' % order_tls_path
     command = env + bin + param + tls
@@ -133,8 +133,10 @@ def test_query_tx(bin_path, yaml_path, peer_address, peer_id, org_id, domain_nam
     local(command)
 
 
-def test_chaincode(func, bin_path, yaml_path, peer_address, order_address, peer_id, org_id, domain_name, channel_name,
-                   ccname, args, crypto_type):
+def test_chaincode(fabric_version, func, bin_path, yaml_path, peer_address, order_address,
+                   peer_id, org_id, domain_name,channel_name,
+                   ccname, args, crypto_type, connect_param):
+    global param
     tls_root_file = yaml_path + "crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/ca.crt" % (
         org_id, domain_name, peer_id, org_id, domain_name)
     msp_path = yaml_path + "crypto-config/peerOrganizations/org%s.%s/users/Admin@org%s.%s/msp" % (
@@ -148,7 +150,12 @@ def test_chaincode(func, bin_path, yaml_path, peer_address, order_address, peer_
     env = env + ' CORE_PEER_TLS_ENABLED=true'
     env = env + ' CORE_PEER_ADDRESS=%s ' % peer_address
     bin = utils.get_bin_path(bin_path, "peer", crypto_type)
-    param = ' chaincode %s -o %s -C %s -n %s -c %s ' % (func, order_address, channel_name, ccname, args)
+    if fabric_version == "1.4":
+        param = ' chaincode %s -o %s -C %s -n %s -c %s ' % (func, order_address, channel_name, ccname, args)
+    elif fabric_version == "2.0":
+        param = ' chaincode %s -o %s -C %s -n %s %s -c %s ' % (
+        func, order_address, channel_name, ccname, connect_param, args)
+
     tls = ' --tls --cafile %s' % order_tls_path
 
     command = env + bin + param + tls

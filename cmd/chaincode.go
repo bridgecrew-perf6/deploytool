@@ -117,6 +117,11 @@ func RunChaincode(ccname, ccversion, channelName, opration string) error {
 			if err != nil {
 				return err
 			}
+			err = obj.RunShow("test_chaincode", "2.0", "invoke", BinPath(), ConfigDir(), peerAddress, ordererAddress, peer.Id, peer.OrgId,
+				GlobalConfig.Domain, channelName, ccname, initparam, GlobalConfig.CryptoType, cmdParas + " --isInit ")
+			if err != nil {
+				return err
+			}
 			break
 		}
 	}
@@ -145,7 +150,7 @@ func TestChaincode(ccname, channelName, function, testArgs string) error {
 		go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
 			defer wg.Done()
 			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
-			err := obj.RunShow("test_chaincode", function, BinPath(), ConfigDir(), peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain, channelName, ccname, testArgs, GlobalConfig.CryptoType)
+			err := obj.RunShow("test_chaincode", "1.4", function, BinPath(), ConfigDir(), peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain, channelName, ccname, testArgs, GlobalConfig.CryptoType, "")
 			if err != nil {
 				fmt.Println(err)
 			}
