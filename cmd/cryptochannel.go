@@ -93,12 +93,13 @@ func CreateYamlByJson(strType string) error {
 		for _, api := range GlobalConfig.Apiservers {
 			api.Domain = GlobalConfig.Domain
 			api.CryptoType = GlobalConfig.CryptoType
+			api.Log = GlobalConfig.Log
 			outfile := ConfigDir() + "client_sdk"
-			if err := tpl.Handler(api, TplPath(TplApiClient), outfile+".yaml"); err != nil {
+			if err := tpl.Handler(api, TplCommonPath(TplApiClient), outfile+".yaml"); err != nil {
 				return err
 			}
 			outfile = ConfigDir() + api.NodeName
-			if err := tpl.Handler(api, TplPath(TplApiDocker), outfile+".yaml"); err != nil {
+			if err := tpl.Handler(api, TplCommonPath(TplApiDocker), outfile+".yaml"); err != nil {
 				return err
 			}
 		}

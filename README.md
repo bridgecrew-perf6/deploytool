@@ -43,7 +43,7 @@ node.json 文件：节点服务器配置文件
     {"ip":"XXX","certType":"peer","orgId":"2","ports":["9054:7054","9743:9443"]}
   ],
   "apis": [
-    {"ip":"XXX","orgId":"1","imageTag":"latest","apiPort":"5984"}
+    {"ip":"XXX","orgId":"1","imageTag":"peersafes/fabric-poc-apiserver","apiPort":"5984"}
   ],
   "explorers": [
     {"ip":"XXX","explorerIp":"XXX","webPort":"7054","apiPort":"8080",
@@ -125,7 +125,7 @@ explorers: 相关介绍
 apis: 
 	ip： 要部署的机器ip
 	orgId: 表示客户端所属组织id
-	imageTag: 镜像标签,镜像名：fabric-poc-apiserver
+	image: 镜像
     apiPort: api对外端口
 ```
 

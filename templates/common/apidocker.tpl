@@ -8,7 +8,7 @@ networks:
 services:
   apiserver:
     container_name: apiserver
-    image: peersafes/fabric-poc-apiserver
+    image: {{.image}}
     restart: always
     volumes:
         - ./client_sdk.yaml:/opt/apiserver/client_sdk.yaml

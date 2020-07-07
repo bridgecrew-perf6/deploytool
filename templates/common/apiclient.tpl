@@ -36,7 +36,7 @@ channel:
     chaincodeName:       {{.ccName}}
 
 log:
-    logLevel: DEBUG
+    logLevel: {{.log}}
 
 
 

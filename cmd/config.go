@@ -88,6 +88,7 @@ type ServerObj struct {
 type ApiserverObj struct {
 	TPLExpand
 	ApiPort       string      `json:"apiPort"`
+	Image         string      `json:"image"`
 	OrgId         string      `json:"orgId"`
 	NodeType      string      `json:"nodeType"`
 	NodeName      string      `json:"nodeName"`
@@ -164,6 +165,10 @@ func InputDir() string {
 
 func TplPath(name string) string {
 	return fmt.Sprintf("%s/templates/%s/%s", os.Getenv("PWD"), GlobalConfig.FabricVersion, name)
+}
+
+func TplCommonPath(name string) string {
+	return fmt.Sprintf("%s/templates/common/%s", os.Getenv("PWD"), name)
 }
 
 func ExplorerTplPath(name string) string {
