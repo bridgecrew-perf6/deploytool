@@ -43,7 +43,7 @@ node.json 文件：节点服务器配置文件
     {"ip":"XXX","certType":"peer","orgId":"2","ports":["9054:7054","9743:9443"]}
   ],
   "apis": [
-    {"ip":"XXX","orgId":"1","imageTag":"peersafes/fabric-poc-apiserver","apiPort":"5984"}
+    {"ip":"XXX","orgId":"1","image":"peersafes/fabric-poc-apiserver","apiPort":"5984"}
   ],
   "explorers": [
     {"ip":"XXX","explorerIp":"XXX","webPort":"7054","apiPort":"8080",
