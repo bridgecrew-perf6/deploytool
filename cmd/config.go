@@ -302,7 +302,7 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		obj.Zookeepers[i].ImageName = fmt.Sprintf("%s/fabric-zookeeper:%s", obj.ImagePre, obj.ImageTag)
 		HostMapList[v.Ip] = obj.Zookeepers[i]
 	}
-	for i, _ := range obj.Apiservers {
+	for i, a := range obj.Apiservers {
 		var ordererObj ServerObj
 		var peerObj ServerObj
 		for _, v := range obj.Orderers {
@@ -339,6 +339,14 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		obj.Apiservers[i].NodeType = TypeApi
 		obj.Apiservers[i].NodeName = "apiserver"
 		obj.Apiservers[i].CCName = obj.CCName
+		ANode := NodeObj{}
+		ANode.Ip = a.Ip
+		ANode.SshUserName = a.SshUserName
+		ANode.SshPort = a.SshPort
+		ANode.SshKey = a.SshKey
+		ANode.SshPwd = a.SshPwd
+		ANode.ImageName = a.Image
+		HostMapList[a.Ip] = ANode
 		if obj.Apiservers[i].ApiPort == "" {
 			obj.Apiservers[i].ApiPort = "8888"
 		}
@@ -362,6 +370,14 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		if obj.Explorers[i].WebPort == "" {
 			obj.Explorers[i].WebPort = "3004"
 		}
+		ANode := NodeObj{}
+		ANode.Ip = v.Ip
+		ANode.SshUserName = v.SshUserName
+		ANode.SshPort = v.SshPort
+		ANode.SshKey = v.SshKey
+		ANode.SshPwd = v.SshPwd
+		ANode.ImageName = fmt.Sprintf("peersafes/fabric_explorer_web:%s", v.ImagePre)
+		HostMapList[v.Ip] = ANode
 	}
 	if obj.ImagePre == "" {
 		obj.ImagePre = "peersafes"
