@@ -48,9 +48,6 @@ def up_node(yaml_name):
 
 
 def start_node(node_name, config_dir):
-    if not utils.check_network_exist("fabric_network"):
-        run("docker network create fabric_network")
-
     if node_name == "block_fabric_explorer":
         run("docker-compose -f ~/fabricNetwork/yaml/block_fabric_explorer.yaml up -d")
         return
@@ -131,5 +128,8 @@ def start_event(peer_id, org_id, config_dir, clitype, api_id):
 
 
 def check_node():
+    if not utils.check_network_exist("fabric_network"):
+        run("docker network create fabric_network")
+
     # check container
     run("docker ps")
