@@ -9,14 +9,14 @@ func RemoveData(stringType string) error {
 	var wg sync.WaitGroup
 	for _, obj := range HostMapList {
 		wg.Add(1)
-		go func(n *NodeObj, w *sync.WaitGroup) {
+		go func(n NodeObj, w *sync.WaitGroup) {
 			defer w.Done()
 			cmd := NewFabCmd("removenode.py", n.Ip, n.SshUserName, n.SshPwd, n.SshPort, n.SshKey)
 			err := cmd.RunShow("remove_data", n.ImageName, GlobalConfig.MountPath, GlobalConfig.Domain)
 			if err != nil {
 				fmt.Println("remove_node err or")
 			}
-		}(&obj, &wg)
+		}(obj, &wg)
 	}
 	wg.Wait()
 	return nil
