@@ -105,7 +105,7 @@ chan_counts： 创建的业务通道个数，默认为1对应通道"mychannel" �
 mountPath: orderer和peer节点账本数据挂载的宿主机位置，默认"/data"eg:/data/peer0.org1.example.com
 consensusType: 共识方式，"raft"、"solo"、"kafka"  目前实现只raft
 imagePre： 镜像前缀,   eg：  "peersafes"、"hyperledger"
-imageTag: 镜像标签， eg: "1.4"、"1.4.3"、"1.4.3-gm"、"2.1.0" 
+imageTag: 镜像标签， eg: "1.4"、"1.4.3"、"1.4.3-gm"、"2.2.0" 
 log: orderer和peer日志级别， eg: "INFO"、"DEBUG"
 batchTime、batchSize、batchPreferred: 切块的条件
 orderers： 对应orderer节点数组
