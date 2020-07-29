@@ -77,7 +77,8 @@ def install_chaincode(fabric_version, bin_path, config_path, peer_address, peer_
     bin = utils.get_bin_path(bin_path, "peer", crypto_type)
     if fabric_version == "1.4":
         if ccinstalltype == "path":
-            param = ' chaincode install %s/%s_%s.pkg' % (config_path, ccname, ccversion)
+            param = ' chaincode install -n %s -v %s -p %s'%(ccname,ccversion,ccpath)
+            # param = ' chaincode install %s/%s_%s.pkg' % (config_path, ccname, ccversion)
         else:
             param = ' chaincode install  %s' % ccpath
     elif fabric_version == "2.0":

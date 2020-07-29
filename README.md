@@ -136,7 +136,7 @@ apis:
 chaincode映射路径要与node.json配置的ccpath相同
 
 ```bash
-docker run -it -d --name manager -v $PWD/config:/opt/deployFabricTool/config -v $PWD/node.json:/opt/deployFabricTool/data/node.json -v $PWD/chaincode:/go/src/github.com/peersafe/xxx/chaincode peersafes/deploy-tool:latest
+docker run -it -d --name manager -e GODEBUG=netdns=go -v $PWD/config:/opt/deployFabricTool/config -v $PWD/node.json:/opt/deployFabricTool/data/node.json -v $PWD/chaincode:/go/src/github.com/peersafe/xxx/chaincode peersafes/deploy-tool:latest
 ```
 
 如果报错，需要根据具体错误调整
