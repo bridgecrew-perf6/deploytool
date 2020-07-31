@@ -15,40 +15,40 @@ func InstallChaincode(ccname, ccversion, channelName, ccpath string) error {
 	if ccname == "" {
 		ccname = GlobalConfig.CCName
 	}
-	//for _, peer := range GlobalConfig.Peers {
-	//	//make cc pkg file even by chaincode path or pkg type
-	//	obj := NewLocalFabCmd("chaincode.py")
-	//	err := obj.RunShow("pkg_chaincode", GlobalConfig.FabricVersion, BinPath(), ConfigDir(), peer.OrgId, GlobalConfig.Domain, ccname, ccversion, ccpath, GlobalConfig.CCInstallType, GlobalConfig.CryptoType)
-	//	if err != nil {
-	//		return err
-	//	}
-	//	//only once
-	//	break
-	//}
-
-	//var wg sync.WaitGroup
-	//for _, peer := range GlobalConfig.Peers {
-	//	wg.Add(1)
-	//	peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
-	//	go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
-	//		defer wg.Done()
-	//		obj := NewLocalFabCmd("chaincode.py")
-	//		err := obj.RunShow("install_chaincode", GlobalConfig.FabricVersion, binPath, configDir, peerAds, PeerId, OrgId, Pdn, ccname, ccversion, ccpath, GlobalConfig.CCInstallType, GlobalConfig.CryptoType)
-	//		if err != nil {
-	//			panic(err)
-	//		}
-	//	}(BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
-	//}
-	//wg.Wait()
-
 	for _, peer := range GlobalConfig.Peers {
-		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
+		//make cc pkg file even by chaincode path or pkg type
 		obj := NewLocalFabCmd("chaincode.py")
-		err := obj.RunShow("install_chaincode", GlobalConfig.FabricVersion, BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain, ccname, ccversion, ccpath, GlobalConfig.CCInstallType, GlobalConfig.CryptoType)
+		err := obj.RunShow("pkg_chaincode", GlobalConfig.FabricVersion, BinPath(), ConfigDir(), peer.OrgId, GlobalConfig.Domain, ccname, ccversion, ccpath, GlobalConfig.CCInstallType, GlobalConfig.CryptoType)
 		if err != nil {
-			panic(err)
+			return err
 		}
+		//only once
+		break
 	}
+
+	var wg sync.WaitGroup
+	for _, peer := range GlobalConfig.Peers {
+		wg.Add(1)
+		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
+		go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
+			defer wg.Done()
+			obj := NewLocalFabCmd("chaincode.py")
+			err := obj.RunShow("install_chaincode", GlobalConfig.FabricVersion, binPath, configDir, peerAds, PeerId, OrgId, Pdn, ccname, ccversion, ccpath, GlobalConfig.CCInstallType, GlobalConfig.CryptoType)
+			if err != nil {
+				panic(err)
+			}
+		}(BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
+	}
+	wg.Wait()
+
+	//for _, peer := range GlobalConfig.Peers {
+	//	peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
+	//	obj := NewLocalFabCmd("chaincode.py")
+	//	err := obj.RunShow("install_chaincode", GlobalConfig.FabricVersion, BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain, ccname, ccversion, ccpath, GlobalConfig.CCInstallType, GlobalConfig.CryptoType)
+	//	if err != nil {
+	//		panic(err)
+	//	}
+	//}
 	ordererAddress := ""
 	for _, ord := range GlobalConfig.Orderers {
 		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ExternalPort)
