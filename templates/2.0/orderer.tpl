@@ -8,7 +8,10 @@ services:
     environment:
       - GODEBUG=netdns=go
       - BCCSP_CRYPTO_TYPE={{.cryptoType}}
+      - FABRIC_LOGGING_SPEC={{.log}}
+      {{if eq .log "info"}}
       - FABRIC_LOGGING_SPEC=orderer.common.cluster.step=info:orderer.consensus.etcdraft=info:{{.log}}
+      {{end}}
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
       - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
