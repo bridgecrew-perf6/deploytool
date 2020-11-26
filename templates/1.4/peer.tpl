@@ -11,7 +11,10 @@ services:
       - BCCSP_CRYPTO_TYPE={{.cryptoType}}
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_network
+      - FABRIC_LOGGING_SPEC={{.log}}
+      {{if eq .log "info"}}
       - FABRIC_LOGGING_SPEC=gossip=warning:msp=warning:grpc=warning:leveldbhelper=warning:comm.grpc.server=warning:{{.log}}
+      {{end}}
       - CORE_CHAINCODE_LOGGING_LEVEL={{.log}}
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_GOSSIP_USELEADERELECTION=true
