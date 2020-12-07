@@ -153,19 +153,40 @@ func TestChaincode(ccname, channelName, function, testArgs string) error {
 		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ExternalPort)
 		break
 	}
+	cmdParas := ""
 	var wg sync.WaitGroup
 	for _, peer := range GlobalConfig.Peers {
-		wg.Add(1)
 		peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
-		go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
-			defer wg.Done()
-			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
-			err := obj.RunShow("test_chaincode", "1.4", function, BinPath(), ConfigDir(), peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain, channelName, ccname, testArgs, GlobalConfig.CryptoType, "")
-			if err != nil {
-				fmt.Println(err)
+		if GlobalConfig.FabricVersion == "1.4" {
+			wg.Add(1)
+			go func(binPath, configDir, peerAds, PeerId, OrgId, Pdn string) {
+				defer wg.Done()
+				obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
+				err := obj.RunShow("test_chaincode", "1.4", function, BinPath(), ConfigDir(), peerAds, ordererAddress, PeerId, OrgId, GlobalConfig.Domain, channelName, ccname, testArgs, GlobalConfig.CryptoType, "")
+				if err != nil {
+					fmt.Println(err)
+				}
+			}(BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
+		} else if GlobalConfig.FabricVersion == "2.0" {
+			if peer.Id == "0" {
+				peerTlsCert := fmt.Sprintf("%s/crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/server.crt", ConfigDir(), peer.OrgId, peer.Domain, peer.Id, peer.OrgId, peer.Domain)
+				cmdParas = cmdParas + fmt.Sprintf("  --peerAddresses %s --tlsRootCertFiles %s", peerAddress, peerTlsCert)
 			}
-		}(BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
+		}
 	}
 	wg.Wait()
+	if GlobalConfig.FabricVersion == "2.0" {
+		for _, peer := range GlobalConfig.Peers {
+			peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
+			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
+			testparam := fmt.Sprintf(`%s`, GlobalConfig.TestArgs)
+			err := obj.RunShow("test_chaincode", "2.0", "invoke", BinPath(), ConfigDir(), peerAddress, ordererAddress, peer.Id, peer.OrgId,
+				GlobalConfig.Domain, channelName, ccname, testparam, GlobalConfig.CryptoType, cmdParas)
+			if err != nil {
+				return err
+			}
+			break
+		}
+	}
 	return nil
 }

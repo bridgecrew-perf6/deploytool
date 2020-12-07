@@ -439,9 +439,11 @@ func findExternalPort(list []string, destPort string) (string, error) {
 		if len(curLine) != 2 {
 			return "", fmt.Errorf("findExternalPort err %s", v)
 		}
-		if curLine[1] == destPort {
-			return curLine[0], nil
-		}
+		//只取第一组第一个
+		return curLine[0], nil
+		//if curLine[1] == destPort {
+		//	return curLine[0], nil
+		//}
 	}
 	return "", fmt.Errorf("findExternalPort err destPort %s not exist ", destPort)
 }

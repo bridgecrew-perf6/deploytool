@@ -8,7 +8,6 @@ services:
     environment:
       # base env
       - GODEBUG=netdns=go
-      - BCCSP_CRYPTO_TYPE={{.cryptoType}}
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_network
       - FABRIC_LOGGING_SPEC={{.log}}
@@ -23,13 +22,12 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
-      {{if eq .imagePre "peersafes"}}
-      - CORE_CHAINCODE_BUILDER=peersafes/fabric-ccenv:{{.imageTag}}
-      - CORE_CHAINCODE_GOLANG_RUNTIME=peersafes/fabric-baseos:{{.imageTag}}{{end}}
+      - CORE_CHAINCODE_BUILDER={{.imagePre}}/fabric-ccenv:{{.imageTag}}
+      - CORE_CHAINCODE_GOLANG_RUNTIME={{.imagePre}}/fabric-baseos:{{.imageTag}}
       # improve env
       - CORE_PEER_ID=peer{{.id}}.org{{.orgId}}.{{.domain}}
       #peer listen service
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:{{.externalPort}}
       #for same org peer connect
       - CORE_PEER_ADDRESS=peer{{.id}}.org{{.orgId}}.{{.domain}}:{{.externalPort}}
       #listen chaincode connect
@@ -38,7 +36,7 @@ services:
       - CORE_PEER_CHAINCODEADDRESS=peer{{.id}}.org{{.orgId}}.{{.domain}}:7052
       #connect peer when peer init{{if ne .bootStrapAddress ""}}
       - CORE_PEER_GOSSIP_BOOTSTRAP={{.bootStrapAddress}}{{else}}
-      - CORE_PEER_GOSSIP_BOOTSTRAP=127.0.0.1:7051{{end}}
+      - CORE_PEER_GOSSIP_BOOTSTRAP=127.0.0.1:{{.externalPort}}{{end}}
       #for other org peer connect
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer{{.id}}.org{{.orgId}}.{{.domain}}:{{.externalPort}}
       - CORE_OPERATIONS_LISTENADDRESS=0.0.0.0:9443
@@ -83,5 +81,6 @@ networks:
   outside:
     external:
       name: fabric_network
+
 
 
