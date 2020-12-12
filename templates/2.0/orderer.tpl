@@ -11,7 +11,6 @@ services:
       {{if eq .log "info"}}
       - FABRIC_LOGGING_SPEC=orderer.common.cluster.step=info:orderer.consensus.etcdraft=info:{{.log}}
       {{end}}
-      - ORDERER_GENERAL_LISTENPORT={{.externalPort}}
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
       - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
@@ -37,7 +36,7 @@ services:
       driver: "json-file"
       options:
         max-size: "200m"
-        max-file: "50"
+        max-file: "5"
     networks:
       - outside
     ports:{{range $index,$value:= .ports}}

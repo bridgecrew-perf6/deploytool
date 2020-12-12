@@ -5,17 +5,19 @@
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
   "ccName":"mycc","ccVersion":"1","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
-  "ccPath":"github.com/hyperledger/fabric-samples/chaincode/abstore/go",
+  "testArgs2":"'{\"Args\":[\"query\"\\,\"a\"]}'",
+  "ccPath":"github.com/chaincode/abstore",
   "chan_counts":1,"mountPath": "/data", "caType": "1fabric-ca",
-  "consensusType":"raft", "imagePre":"gmhyperledger","imageTag":"2.0.0-gm","log":"info",
-  "batchTime":"2s", "batchSize":500, "batchPreferred":"512 KB", "useCouchdb":"false",
+  "consensusType":"raft", "imagePre":"hyperledger","imageTag":"2.2.0","log":"info",
+  "batchTime":"1s", "batchSize":100, "batchPreferred":"1024 KB", "useCouchdb":"false",
   "orderers":[
     {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
-    {"ip":"10.0.2.15","id":"1","orgId":"1","ports":["6050:6050","6443:9443"]},
-    {"ip":"10.0.2.15","id":"2","orgId":"1","ports":["5050:5050","7443:9443"]}
+    {"ip":"10.0.2.15","id":"1","orgId":"1","ports":["6050:7050","6443:9443"]},
+    {"ip":"10.0.2.15","id":"2","orgId":"1","ports":["5050:7050","7443:9443"]}
   ],
   "peers": [
-    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]}
   ],
   "cas": [
     {"ip":"10.0.2.15","certType":"orderer","orgId":"1","ports":["7054:7054","9543:9443"]},

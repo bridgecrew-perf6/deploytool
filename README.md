@@ -10,48 +10,37 @@ node.json 文件：节点服务器配置文件
 
 ## 根据需求修改配置文件node.json
 
-下面为模板文件： 采用fabric1.4版本， etcdraft 共识类型，3个orderer，2个peer 节点
+下面为模板文件： 采用fabric2.0版本， etcdraft 共识类型，3个orderer，2个peer 节点
 
 *具体参数需根据实际数据进行调整*，主要关注“xxx” 这些参数修改，ip写内网ip
 
 ```json
 {
-  "fabricVersion":"1.4","domain":"example.com","cryptoType":"FGM",
-  "sshUserName":"peersafe","sshPwd":"dev1@peersafe","sshPort":"22","sshKey":"/etc/login.pem",
+  "fabricVersion":"2.0","domain":"example.com","cryptoType":"FGM",
+  "sshUserName":"vagrant","sshPwd":"","sshPort":"22","sshKey":"/etc/login.pem",
   "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
   "ccName":"mycc","ccVersion":"1","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
-  "ccPath":"github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd",
-  "chan_counts":1,"mountPath": "/data", "caType": "cryptogen",
-  "consensusType":"raft", "imagePre":"hyperledger","imageTag":"1.4.3","log":"INFO",
-  "batchTime":"2s", "batchSize":100, "batchPreferred":"512 KB", "useCouchdb":"false",
+  "testArgs2":"'{\"Args\":[\"query\"\\,\"a\"]}'",
+  "ccPath":"github.com/chaincode/abstore",
+  "chan_counts":1,"mountPath": "/data", "caType": "1fabric-ca",
+  "consensusType":"raft", "imagePre":"hyperledger","imageTag":"2.2.0","log":"info",
+  "batchTime":"1s", "batchSize":100, "batchPreferred":"1024 KB", "useCouchdb":"false",
   "orderers":[
-    {"ip":"XXX","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
-    {"ip":"XXX","id":"1","orgId":"1","ports":["8050:7050","6443:9443"]},
-    {"ip":"XXX","id":"2","orgId":"1","ports":["9050:7050","7443:9443"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"1","ports":["6050:7050","6443:9443"]},
+    {"ip":"10.0.2.15","id":"2","orgId":"1","ports":["5050:7050","7443:9443"]}
   ],
   "peers": [
-    {"ip":"XXX","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
-    {"ip":"XXX","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
-    {"ip":"XXX","id":"0","orgId":"2","ports":["9051:7051","10443:9443"]},
-    {"ip":"XXX","id":"1","orgId":"2","ports":["10051:7051","11443:9443"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
+    {"ip":"10.0.2.15","id":"0","orgId":"2","ports":["9051:7051","4443:9443"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"2","ports":["6051:7051","3443:9443"]}
   ],
   "cas": [
-    {"ip":"XXX","certType":"orderer","orgId":"1","ports":["7054:7054","9543:9443"]},
-    {"ip":"XXX","certType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]},
-    {"ip":"XXX","certType":"peer","orgId":"2","ports":["9054:7054","9743:9443"]}
-  ],
-  "apis": [
-    {"ip":"XXX","orgId":"1","image":"peersafes/fabric-poc-apiserver","apiPort":"5984"}
-  ],
-  "explorers": [
-    {"ip":"XXX","explorerIp":"XXX","webPort":"7054","apiPort":"8080",
-      "peerId":"0","orgId":"1","imageTag":"onlyblock","chList": "[\"mychannel\"]"}
-  ],
-  "zookeepers": [
-  ],
-  "kafkas": [
+    {"ip":"10.0.2.15","certType":"orderer","orgId":"1","ports":["7054:7054","9543:9443"]},
+    {"ip":"10.0.2.15","certType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]}
   ]
 }
 ```
@@ -93,11 +82,10 @@ ccPolicy： 智能合约背书策略
 ccName： 智能合约名称
 ccVersion： 智能合约版本， 升级时要修改，必须为整数1，2，3..., 而且第一次必须从1开始
 ccPath： 智能合约源码路径或包绝对路径(容器内位置), 
- 内置2个智能合约：
- 	转账cc 'github.com/hyperledger/fabric/examples/chaincode/go/example02/cmd'
-    poc写/读数据cc：'peersafe/fabric_poc/chaincode'
-    支持2.0fabric国密转账cc
-    'github.com/hyperledger/fabric/examples/chaincode/go/abstore'
+ 内置智能合约：
+    转账cc:'github.com/chaincode/abstore'
+    压测存证智能合约：'peersafe/chaincode/testcc'
+    cc: "SaveData",putstate(txid,args[0])
 ccInstallType：智能合约安装方式， "path" 源码路径方式 "pkg" 包安装方式
 testArgs： 执行调用智能合约的参数
 caType: 证书生成方式， "cryptogen","fabric-ca" 方式，默认为 cryptogen

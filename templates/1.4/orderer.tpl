@@ -37,7 +37,7 @@ services:
       driver: "json-file"
       options:
         max-size: "200m"
-        max-file: "50"
+        max-file: "5"
     networks:
       - outside
     ports:{{range $index,$value:= .ports}}

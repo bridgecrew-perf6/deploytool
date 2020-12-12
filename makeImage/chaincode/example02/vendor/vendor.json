@@ -1,0 +1,6 @@
+{
+	"comment": "",
+	"ignore": "test github.com/hyperledger/fabric",
+	"package": [],
+	"rootPath": "github.com/peersafe/deployFabricTool/makeImage/chaincode/example02"
+}
