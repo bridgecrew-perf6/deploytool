@@ -12,9 +12,8 @@ Organizations:{{range $key,$value:= .ordList}}
                 Rule: "OR('Orderer{{$key}}MSP.member')"
             Admins:
                 Type: Signature
-                Rule: "OR('Orderer{{$key}}MSP.admin')"
-        OrdererEndpoints:{{range $index,$orderer:= $.orderers}} {{if eq $orderer.orgId $key}} {{if eq $orderer.id "0"}}
-            - orderer0.ord{{$orderer.orgId}}.{{$.domain}}:{{$orderer.externalPort}}{{end}}{{end}}{{end}}{{end}}
+                Rule: "OR('Orderer{{$key}}MSP.admin')"{{end}}
+
     {{range $key,$value:= .orgList}}
     - &Org{{$key}}
         Name: Org{{$key}}MSP

@@ -27,16 +27,14 @@ services:
       # improve env
       - CORE_PEER_ID=peer{{.id}}.org{{.orgId}}.{{.domain}}
       #peer listen service
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:{{.externalPort}}
       #for same org peer connect
       - CORE_PEER_ADDRESS=peer{{.id}}.org{{.orgId}}.{{.domain}}:{{.externalPort}}
       #listen chaincode connect
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
       #chaincode connect to peer
       - CORE_PEER_CHAINCODEADDRESS=peer{{.id}}.org{{.orgId}}.{{.domain}}:7052
-      #connect peer when peer init{{if ne .bootStrapAddress ""}}
-      - CORE_PEER_GOSSIP_BOOTSTRAP={{.bootStrapAddress}}{{else}}
-      - CORE_PEER_GOSSIP_BOOTSTRAP=127.0.0.1:7051{{end}}
+      - CORE_PEER_GOSSIP_BOOTSTRAP=127.0.0.1:{{.externalPort}}
       #for other org peer connect
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer{{.id}}.org{{.orgId}}.{{.domain}}:{{.externalPort}}
       - CORE_OPERATIONS_LISTENADDRESS=0.0.0.0:9443
@@ -56,7 +54,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "200m"
+        max-size: "50m"
         max-file: "5"
     ports:{{range $index,$value:= .ports}}
       - {{$value}}{{end}}

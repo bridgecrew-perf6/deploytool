@@ -440,10 +440,10 @@ func findExternalPort(list []string, destPort string) (string, error) {
 			return "", fmt.Errorf("findExternalPort err %s", v)
 		}
 		////只取第一组第一个
-		//return curLine[0], nil
-		if curLine[1] == destPort {
-			return curLine[0], nil
-		}
+		return curLine[0], nil
+		//if curLine[1] == destPort {
+		//	return curLine[0], nil
+		//}
 	}
 	return "", fmt.Errorf("findExternalPort err destPort %s not exist ", destPort)
 }

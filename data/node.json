@@ -1,26 +1,21 @@
 {
-  "fabricVersion":"2.0","domain":"example.com","cryptoType":"FGM",
+  "fabricVersion":"2.0","domain":"irchain.net",
   "sshUserName":"vagrant","sshPwd":"","sshPort":"22","sshKey":"/etc/login.pem",
-  "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
-  "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
+  "ccInit":"'{\"Args\":[\"init\"]}'",
   "ccName":"mycc","ccVersion":"1","ccInstallType":"path",
-  "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
-  "testArgs2":"'{\"Args\":[\"query\"\\,\"a\"]}'",
-  "ccPath":"github.com/chaincode/abstore",
-  "chan_counts":1,"mountPath": "/data", "caType": "1fabric-ca",
-  "consensusType":"raft", "imagePre":"hyperledger","imageTag":"2.2.0","log":"info",
-  "batchTime":"1s", "batchSize":100, "batchPreferred":"1024 KB", "useCouchdb":"false",
+  "testArgs":"'{\"Args\":[\"saveData\"\\,\"key\"\\,\"value\"]}'",
+  "testArgs1":"'{\"Args\":[\"getDataByMsgSn\"\\,\"key\"]}'",
+  "ccPath":"github.com/peersafe/deployFabricTool/makeImage/chaincode/commoncc",
+  "chan_counts":1,"mountPath": "/data", "caType": "cryptogen",
+  "consensusType":"raft", "imagePre":"gmhyperledger","imageTag":"2.0.0-gm","log":"info",
+  "batchTime":"1s", "batchSize":100, "batchPreferred":"1024 KB",
   "orderers":[
-    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
-    {"ip":"10.0.2.15","id":"1","orgId":"1","ports":["6050:7050","6443:9443"]},
-    {"ip":"10.0.2.15","id":"2","orgId":"1","ports":["5050:7050","7443:9443"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7050:7050"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"1","ports":["6050:6050"]},
+    {"ip":"10.0.2.15","id":"2","orgId":"1","ports":["5050:5050"]}
   ],
   "peers": [
-    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
-    {"ip":"10.0.2.15","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]}
-  ],
-  "cas": [
-    {"ip":"10.0.2.15","certType":"orderer","orgId":"1","ports":["7054:7054","9543:9443"]},
-    {"ip":"10.0.2.15","certType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7051:7051"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"1","ports":["8051:8051"]}
   ]
 }
