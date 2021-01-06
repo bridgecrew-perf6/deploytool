@@ -132,4 +132,4 @@ def check_node():
         run("docker network create fabric_network")
 
     # check container
-    run("docker ps")
+    run("docker ps -a")

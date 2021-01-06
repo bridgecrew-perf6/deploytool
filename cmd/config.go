@@ -176,6 +176,9 @@ func ExplorerTplPath(name string) string {
 }
 
 func BinPath() string {
+	if strings.ToUpper(GlobalConfig.CryptoType) == "GM" {
+		return fmt.Sprintf("%s/bin/%s-gm/", os.Getenv("PWD"), GlobalConfig.FabricVersion)
+	}
 	return fmt.Sprintf("%s/bin/%s/", os.Getenv("PWD"), GlobalConfig.FabricVersion)
 }
 
@@ -439,11 +442,11 @@ func findExternalPort(list []string, destPort string) (string, error) {
 		if len(curLine) != 2 {
 			return "", fmt.Errorf("findExternalPort err %s", v)
 		}
-		//只取第一组第一个
-		return curLine[0], nil
-		//if curLine[1] == destPort {
-		//	return curLine[0], nil
-		//}
+		////只取第一组第一个
+		//return curLine[0], nil
+		if curLine[1] == destPort {
+			return curLine[0], nil
+		}
 	}
 	return "", fmt.Errorf("findExternalPort err destPort %s not exist ", destPort)
 }

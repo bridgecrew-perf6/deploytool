@@ -27,8 +27,8 @@ services:
         logging:
           driver: "json-file"
           options:
-            max-size: "200m"
-            max-file: "50"
+            max-size: "50m"
+            max-file: "5"
         networks:
           - outside
 

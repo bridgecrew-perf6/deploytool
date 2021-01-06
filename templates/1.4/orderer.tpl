@@ -7,9 +7,8 @@ services:
     restart: always
     environment:
       - GODEBUG=netdns=go
-      - BCCSP_CRYPTO_TYPE={{.cryptoType}}
       - FABRIC_LOGGING_SPEC={{.log}}
-      {{if eq .log "info"}}
+      {{if or (eq .log "info") (eq .log "INFO")}}
       - FABRIC_LOGGING_SPEC=orderer.common.cluster.step=info:orderer.consensus.etcdraft=info:{{.log}}
       {{end}}
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -36,8 +35,8 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "200m"
-        max-file: "50"
+        max-size: "50m"
+        max-file: "5"
     networks:
       - outside
     ports:{{range $index,$value:= .ports}}

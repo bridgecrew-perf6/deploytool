@@ -4,7 +4,6 @@ TARGET=deployFabricTool
 TARGET_TAR=$TARGET.tar.gz
 TARGET_PATH=$GOPATH/src/github.com/peersafe/$TARGET
 
-VERSION=fgm
 echo "##########################################"
 echo "----------build $TARGET image----------"
 echo "##########################################"
@@ -19,15 +18,9 @@ if [ -d ./$TARGET ]; then
 fi
 mkdir ./$TARGET
 
-if [ "$VERSION" == "gm" ]; then
-    echo "-------It's GM Verison----------------"
-else
-    echo "-------It's Not GM Verison--------------"
-fi
-
 echo "build $TARGET wait ...."
 cd $TARGET_PATH
-go build -tags "$VERSION" --ldflags "-extldflags -static"
+go build
 cd -
 
 if [ -f $TARGET_PATH/$TARGET ]; then
