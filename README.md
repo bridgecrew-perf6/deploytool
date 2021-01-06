@@ -247,6 +247,14 @@ docker exec manager bash -c ./deployFabricTool
 
 以上部署需要依赖外网环境
 
+国密和非国密版本必须满足以下条件：
+
+cryptoType： 算法类型, "GM" 国密、"FGM" 非国密
+
+ccPath： 智能合约源码路径或包绝对路径(容器内位置), （智能合约部署失败可能是国密非国密没有对应）
+
+镜像： 也要对应国密或非国密
+
 如果想要部署在内网环境机器，可以先用外网机器拉取所需镜像，在将镜像导入到内网服务器
 
 ```bash
@@ -257,5 +265,13 @@ docker pull peersafes/fabric-ccenv:XXX		#编译智能合约依赖镜像
 docker pull peersafes/fabric-baseos:XXX		#智能合约运行镜像
 ```
 
+目前测试过标签:
 
+国密： peersafes/fabric-xxxx:1.4-GM
+
+​			peersafes/fabric-xxxx:2.2.1-GM
+
+非国密： peersafes/fabric-xxxx:1.4
+
+​			    peersafes/fabric-xxxx:2.2.1
 
