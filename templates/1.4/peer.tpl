@@ -8,11 +8,10 @@ services:
     environment:
       # base env
       - GODEBUG=netdns=go
-      - BCCSP_CRYPTO_TYPE={{.cryptoType}}
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_network
       - FABRIC_LOGGING_SPEC={{.log}}
-      {{if eq .log "info"}}
+      {{if or (eq .log "info") (eq .log "INFO")}}
       - FABRIC_LOGGING_SPEC=gossip=warning:msp=warning:grpc=warning:leveldbhelper=warning:comm.grpc.server=warning:{{.log}}
       {{end}}
       - CORE_CHAINCODE_LOGGING_LEVEL={{.log}}
@@ -57,7 +56,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "200m"
+        max-size: "50m"
         max-file: "5"
     ports:{{range $index,$value:= .ports}}
       - {{$value}}{{end}}

@@ -10,22 +10,22 @@ node.json 文件：节点服务器配置文件
 
 ## 根据需求修改配置文件node.json
 
-下面为模板文件： 采用fabric2.0版本， etcdraft 共识类型，3个orderer，2个peer 节点
+下面为模板文件： 采用fabric2.2版本， etcdraft 共识类型，3个orderer，2个peer 节点
 
 *具体参数需根据实际数据进行调整*，主要关注“xxx” 这些参数修改，ip写内网ip
 
 ```json
 {
-  "fabricVersion":"2.0","domain":"example.com","cryptoType":"FGM",
+  "fabricVersion":"2.2","domain":"example.com","cryptoType":"GM",
   "sshUserName":"vagrant","sshPwd":"","sshPort":"22","sshKey":"/etc/login.pem",
   "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
   "ccName":"mycc","ccVersion":"1","ccInstallType":"path",
-  "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
+  "testArgs":"'{\"Args\":[\"SaveData\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
   "testArgs2":"'{\"Args\":[\"query\"\\,\"a\"]}'",
-  "ccPath":"github.com/chaincode/abstore",
+  "ccPath":"github.com/chaincode/testcc/gm",
   "chan_counts":1,"mountPath": "/data", "caType": "1fabric-ca",
-  "consensusType":"raft", "imagePre":"hyperledger","imageTag":"2.2.0","log":"info",
+  "consensusType":"raft", "imagePre":"peersafes","imageTag":"2.2.1-GM","log":"INFO",
   "batchTime":"1s", "batchSize":100, "batchPreferred":"1024 KB", "useCouchdb":"false",
   "orderers":[
     {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},
@@ -34,13 +34,11 @@ node.json 文件：节点服务器配置文件
   ],
   "peers": [
     {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7051:7051","8443:9443"]},
-    {"ip":"10.0.2.15","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]},
-    {"ip":"10.0.2.15","id":"0","orgId":"2","ports":["9051:7051","4443:9443"]},
-    {"ip":"10.0.2.15","id":"1","orgId":"2","ports":["6051:7051","3443:9443"]}
+    {"ip":"10.0.2.15","id":"1","orgId":"1","ports":["8051:7051","9443:9443"]}
   ],
   "cas": [
-    {"ip":"10.0.2.15","certType":"orderer","orgId":"1","ports":["7054:7054","9543:9443"]},
-    {"ip":"10.0.2.15","certType":"peer","orgId":"1","ports":["8054:7054","9643:9443"]}
+    {"ip":"10.0.2.15","certType":"orderer","orgId":"1","ports":["7054:7054"]},
+    {"ip":"10.0.2.15","certType":"peer","orgId":"1","ports":["8054:7054"]}
   ]
 }
 ```
@@ -70,7 +68,7 @@ sudo chmod 777 ~/deploy/node.json
 node.json 参数解释
 
 ```bash
-fabricVersion： fabric的版本，容器内bin目录下可执行文件和tpl模板文件对应的版本,支持"1.4"和"2.0"
+fabricVersion： fabric的版本，容器内bin目录下可执行文件和tpl模板文件对应的版本,支持"1.4"和"2.2"
 domain： 生成证书的后缀名，推荐用默认值
 cryptoType： 算法类型, "GM" 国密、"FGM" 非国密
 sshUserName： ssh默认登陆用户名，"每个机器也可配置自定义用户名"
@@ -83,38 +81,30 @@ ccName： 智能合约名称
 ccVersion： 智能合约版本， 升级时要修改，必须为整数1，2，3..., 而且第一次必须从1开始
 ccPath： 智能合约源码路径或包绝对路径(容器内位置), 
  内置智能合约：
-    转账cc:'github.com/chaincode/abstore'
-    压测存证智能合约：'peersafe/chaincode/testcc'
+    转账cc:
+    国密版：'github.com/chaincode/abstore/gm'
+    非国密版： 'github.com/chaincode/abstore/ecdsa'
+    压测存证智能合约：
+     国密版：'github.com/chaincode/testcc/gm'
+    非国密版： 'github.com/chaincode/testcc/ecdsa'
     cc: "SaveData",putstate(txid,args[0])
 ccInstallType：智能合约安装方式， "path" 源码路径方式 "pkg" 包安装方式
 testArgs： 执行调用智能合约的参数
 caType: 证书生成方式， "cryptogen","fabric-ca" 方式，默认为 cryptogen
 chan_counts： 创建的业务通道个数，默认为1对应通道"mychannel" 修改后为"mychannel2" ...
 mountPath: orderer和peer节点账本数据挂载的宿主机位置，默认"/data"eg:/data/peer0.org1.example.com
-consensusType: 共识方式，"raft"、"solo"、"kafka"  目前实现只raft
+consensusType: 共识方式，"raft"  目前raft
 imagePre： 镜像前缀,   eg：  "peersafes"、"hyperledger"
-imageTag: 镜像标签， eg: "1.4"、"1.4.3"、"1.4.3-gm"、"2.2.0" 
+imageTag: 镜像标签， eg: "1.4-GM"、"1.4.3"、"2.2.1"、"2.2.1-GM" 
 log: orderer和peer日志级别， eg: "INFO"、"DEBUG"
 batchTime、batchSize、batchPreferred: 切块的条件
 orderers： 对应orderer节点数组
 ip: 服务器ip
 id： 当前节点序列号
 orgId: 当前节点归属组织id
-ports： 当前节点端口映射数组列表， eg: ["8050:7050","10443:9443"] , 前面为外部访问端口
+ports： 当前节点端口映射数组列表， eg: ["8050:7050","10443:9443"] , 前面为外部访问端口, 第一组orderer节点必须为7050的对应，peer节点必须为7051对应
 peers: 对应peers节点数组， 和orderer解释一样
 certType: 表示ca对应的组织类型,eg: "orderer"、"peer"
-explorers: 相关介绍
-	ip: 要部署的机器ip
-	peerId,orgId：表示event连接的peer
-	imageTag： 为镜像标签
-	chList: 为channel数组,多个用逗号隔开
-	apiPort: 为后台服务端口，默认8888
-	webPort: 为前端页面端口，默认3004
-apis: 
-	ip： 要部署的机器ip
-	orgId: 表示客户端所属组织id
-	image: 镜像
-    apiPort: api对外端口
 ```
 
 ### 启动部署工具
@@ -185,30 +175,6 @@ docker exec manager bash -c ./0-checknode.sh
 docker exec manager bash -c ./invokecc.sh
 ```
 
-## 部署-apiserver
-
-```bash
-docker exec manager bash -c ./apistart.sh
-```
-
-## 关闭-apiserver
-
-```bash
-docker exec manager bash -c ./apidown.sh
-```
-
-## 部署-浏览器
-
-```bash
-docker exec manager bash -c ./explorerstart.sh
-```
-
-## 关闭-浏览器
-
-```bash
-docker exec manager bash -c ./explorerdown.sh
-```
-
 ## 后台APi服务客户端所需证书目录
 
 ```bash
@@ -216,15 +182,6 @@ docker exec manager bash -c ./explorerdown.sh
 ```
 
 ## 重新部署-清理环境
-
-如果部署了apiserver和浏览器一定要先关闭apiserver和浏览器
-
-```bash
-docker exec manager bash -c ./apidown.sh
-docker exec manager bash -c ./explorerdown.sh
-```
-
-然后再清理fabric
 
 ```bash
 docker exec manager bash -c ./removenode.sh

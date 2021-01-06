@@ -1,14 +1,14 @@
 {
-  "fabricVersion":"2.0","domain":"example.com","cryptoType":"FGM",
+  "fabricVersion":"2.2","domain":"example.com","cryptoType":"GM",
   "sshUserName":"vagrant","sshPwd":"","sshPort":"22","sshKey":"/etc/login.pem",
   "ccInit":"'{\"Args\":[\"init\"\\,\"a\"\\,\"100\"\\,\"b\"\\,\"200\"]}'",
   "ccPolicy":"\"OR  ('Org1MSP.member'\\,'Org2MSP.member')\"",
   "ccName":"mycc","ccVersion":"1","ccInstallType":"path",
-  "testArgs":"'{\"Args\":[\"invoke\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
+  "testArgs":"'{\"Args\":[\"SaveData\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
   "testArgs2":"'{\"Args\":[\"query\"\\,\"a\"]}'",
-  "ccPath":"github.com/chaincode/abstore",
+  "ccPath":"github.com/peersafe/deployFabricTool/makeImage/chaincode/testcc/gm",
   "chan_counts":1,"mountPath": "/data", "caType": "1fabric-ca",
-  "consensusType":"raft", "imagePre":"hyperledger","imageTag":"2.2.0","log":"info",
+  "consensusType":"raft", "imagePre":"peersafes","imageTag":"2.2.1-GM","log":"INFO",
   "batchTime":"1s", "batchSize":100, "batchPreferred":"1024 KB", "useCouchdb":"false",
   "orderers":[
     {"ip":"10.0.2.15","id":"0","orgId":"1","ports":["7050:7050","5443:9443"]},

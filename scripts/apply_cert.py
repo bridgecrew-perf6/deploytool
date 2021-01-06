@@ -74,6 +74,7 @@ def copy_file(config_path, file_name):
     if not utils.check_remote_exist(remote_file):
         put("%s%s" % (config_path, file_name), "~/fabricNetwork/")
         with cd("~/fabricNetwork"):
+            run("sync")
             run("tar zxfm %s" % file_name)
             run("rm -rf %s"%file_name)
 

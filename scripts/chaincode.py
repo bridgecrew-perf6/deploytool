@@ -23,7 +23,7 @@ def pkg_chaincode(fabric_version, bin_path, config_path, org_id, domain_name, cc
         if ccinstalltype == "path":
             param = ' chaincode package -n %s -p %s -v %s %s/%s_%s.pkg' % (
                 ccname, ccpath, ccversion, config_path, ccname, ccversion)
-    elif fabric_version == "2.0":
+    else:
         param = ' lifecycle chaincode package %s/%s.tar.gz --path %s --lang golang --label %s_%s' % (
             config_path, ccname, ccpath, ccname, ccversion)
     command = env + bin + param
@@ -81,7 +81,7 @@ def install_chaincode(fabric_version, bin_path, config_path, peer_address, peer_
             param = ' chaincode install %s/%s_%s.pkg' % (config_path, ccname, ccversion)
         else:
             param = ' chaincode install  %s' % ccpath
-    elif fabric_version == "2.0":
+    else:
         param = ' lifecycle chaincode install %s/%s.tar.gz' % (config_path, ccname)
     command = env + bin + param
     local(command)
@@ -107,7 +107,7 @@ def instantiate_chaincode(fabric_version, bin_path, operation, yaml_path, peer_a
     if fabric_version == "1.4":
         param = ' chaincode %s -o %s -C %s -n %s -v %s -c %s -P %s ' % (
             operation, order_address, channel_name, ccname, ccversion, init_param, policy)
-    elif fabric_version == "2.0":
+    else:
         param = ' lifecycle chaincode %s -o %s --channelID %s --name %s %s --version %s --sequence %s  --init-required ' % (
             "commit", order_address, channel_name, ccname, connect_param, ccversion, ccversion)
 
@@ -153,7 +153,7 @@ def test_chaincode(fabric_version, func, bin_path, yaml_path, peer_address, orde
     bin = utils.get_bin_path(bin_path, "peer", crypto_type)
     if fabric_version == "1.4":
         param = ' chaincode %s -o %s -C %s -n %s -c %s ' % (func, order_address, channel_name, ccname, args)
-    elif fabric_version == "2.0":
+    else:
         param = ' chaincode %s -o %s -C %s -n %s %s -c %s ' % (
         func, order_address, channel_name, ccname, connect_param, args)
 

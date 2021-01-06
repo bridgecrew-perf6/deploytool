@@ -40,6 +40,13 @@ def check_container_exist(name):
     else:
         return False
 
+def check_image_exist(name):
+    containers = run('unset GREP_OPTIONS && docker images |grep "%s" | wc -l' % name)
+    if containers != "0":
+        return True
+    else:
+        return False
+
 def check_network_exist(name):
     networks = run('unset GREP_OPTIONS && docker network ls |grep "%s" | wc -l' % name)
     if networks != "0":

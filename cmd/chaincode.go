@@ -54,7 +54,7 @@ func InstallChaincode(ccname, ccversion, channelName, ccpath string) error {
 		ordererAddress = fmt.Sprintf("orderer%s.ord%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ExternalPort)
 		break
 	}
-	if GlobalConfig.FabricVersion == "2.0" {
+	if GlobalConfig.FabricVersion != "1.4" {
 		for _, peer := range GlobalConfig.Peers {
 			if peer.Id != "0" {
 				continue
@@ -107,7 +107,7 @@ func RunChaincode(ccname, ccversion, channelName, opration string) error {
 					fmt.Println(err)
 				}
 			}(BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
-		} else if GlobalConfig.FabricVersion == "2.0" {
+		} else {
 			if peer.Id == "0" {
 				peerTlsCert := fmt.Sprintf("%s/crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/server.crt", ConfigDir(), peer.OrgId, peer.Domain, peer.Id, peer.OrgId, peer.Domain)
 				cmdParas = cmdParas + fmt.Sprintf("  --peerAddresses %s --tlsRootCertFiles %s", peerAddress, peerTlsCert)
@@ -115,7 +115,7 @@ func RunChaincode(ccname, ccversion, channelName, opration string) error {
 		}
 	}
 	wg.Wait()
-	if GlobalConfig.FabricVersion == "2.0" {
+	if GlobalConfig.FabricVersion != "1.4" {
 		for _, peer := range GlobalConfig.Peers {
 			peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
 			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
@@ -167,7 +167,7 @@ func TestChaincode(ccname, channelName, function, testArgs string) error {
 					fmt.Println(err)
 				}
 			}(BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
-		} else if GlobalConfig.FabricVersion == "2.0" {
+		} else {
 			if peer.Id == "0" {
 				peerTlsCert := fmt.Sprintf("%s/crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/server.crt", ConfigDir(), peer.OrgId, peer.Domain, peer.Id, peer.OrgId, peer.Domain)
 				cmdParas = cmdParas + fmt.Sprintf("  --peerAddresses %s --tlsRootCertFiles %s", peerAddress, peerTlsCert)
@@ -175,7 +175,7 @@ func TestChaincode(ccname, channelName, function, testArgs string) error {
 		}
 	}
 	wg.Wait()
-	if GlobalConfig.FabricVersion == "2.0" {
+	if GlobalConfig.FabricVersion != "1.4" {
 		for _, peer := range GlobalConfig.Peers {
 			peerAddress := fmt.Sprintf("peer%s.org%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
 			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)

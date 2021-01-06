@@ -176,6 +176,9 @@ func ExplorerTplPath(name string) string {
 }
 
 func BinPath() string {
+	if strings.ToUpper(GlobalConfig.CryptoType) == "GM" {
+		return fmt.Sprintf("%s/bin/%s-gm/", os.Getenv("PWD"), GlobalConfig.FabricVersion)
+	}
 	return fmt.Sprintf("%s/bin/%s/", os.Getenv("PWD"), GlobalConfig.FabricVersion)
 }
 
