@@ -30,8 +30,8 @@ eventPeers:{{range $index,$value:= .eventPeerList}}
     tlsPath:      {{$value.serverTlsPath}}{{end}}
 
 channel:
-    mspConfigPath: ./crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/users/Admin@org{{.orgId}}.{{.domain}}/msp
-    localMspId:          Org{{.orgId}}MSP
+    mspConfigPath: ./crypto-config/peerOrganizations/{{.orgId}}.{{.domain}}/users/Admin@{{.orgId}}.{{.domain}}/msp
+    localMspId:          {{.orgId}}
     channelId:           mychannel
     chaincodeName:       {{.ccName}}
 

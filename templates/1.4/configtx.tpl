@@ -2,7 +2,7 @@ Organizations:{{range $key,$value:= .ordList}}
     - &OrdererOrg{{$key}}
         Name: OrdererOrg{{$key}}
         ID: Orderer{{$key}}MSP
-        MSPDir: crypto-config/ordererOrganizations/ord{{$key}}.{{$.domain}}/msp
+        MSPDir: crypto-config/ordererOrganizations/{{$key}}.{{$.domain}}/msp
         Policies:
             Readers:
                 Type: Signature
@@ -17,7 +17,7 @@ Organizations:{{range $key,$value:= .ordList}}
     - &Org{{$key}}
         Name: Org{{$key}}MSP
         ID: Org{{$key}}MSP
-        MSPDir: crypto-config/peerOrganizations/org{{$key}}.{{$.domain}}/msp
+        MSPDir: crypto-config/peerOrganizations/{{$key}}.{{$.domain}}/msp
         Policies:
              Readers:
                  Type: Signature
@@ -161,8 +161,8 @@ Profiles:
                 Consenters:{{range $index,$orderer:= .orderers}}
                 - Host: orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}
                   Port: {{$orderer.externalPort}}
-                  ClientTLSCert: crypto-config/ordererOrganizations/ord{{$orderer.orgId}}.{{$.domain}}/orderers/orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}/tls/server.crt
-                  ServerTLSCert: crypto-config/ordererOrganizations/ord{{$orderer.orgId}}.{{$.domain}}/orderers/orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}/tls/server.crt{{end}}
+                  ClientTLSCert: crypto-config/ordererOrganizations/{{$orderer.orgId}}.{{$.domain}}/orderers/orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}/tls/server.crt
+                  ServerTLSCert: crypto-config/ordererOrganizations/{{$orderer.orgId}}.{{$.domain}}/orderers/orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}/tls/server.crt{{end}}
             Addresses:{{range $index,$orderer:= .orderers}}
                 - orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}:{{$orderer.externalPort}}{{end}}
             Organizations:{{range $key,$value:= .ordList}}

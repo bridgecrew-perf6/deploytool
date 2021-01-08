@@ -14,7 +14,7 @@ services:
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
       - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
-      - ORDERER_GENERAL_LOCALMSPID=Orderer{{.orgId}}MSP
+      - ORDERER_GENERAL_LOCALMSPID={{.orgId}}
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       - ORDERER_OPERATIONS_LISTENADDRESS=0.0.0.0:9443
       # enabled TLS
@@ -29,8 +29,8 @@ services:
     command: orderer
     volumes:
       - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-      - ../crypto-config/ordererOrganizations/ord{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/msp:/var/hyperledger/orderer/msp
-      - ../crypto-config/ordererOrganizations/ord{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/tls:/var/hyperledger/orderer/tls
+      - ../crypto-config/ordererOrganizations/{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/msp:/var/hyperledger/orderer/msp
+      - ../crypto-config/ordererOrganizations/{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/tls:/var/hyperledger/orderer/tls
       - {{.mountPath}}/orderer{{.id}}.ord{{.orgId}}.{{.domain}}:/var/hyperledger/production
     logging:
       driver: "json-file"

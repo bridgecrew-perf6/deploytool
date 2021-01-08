@@ -40,7 +40,7 @@ services:
       #for other org peer connect
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer{{.id}}.org{{.orgId}}.{{.domain}}:{{.externalPort}}
       - CORE_OPERATIONS_LISTENADDRESS=0.0.0.0:9443
-      - CORE_PEER_LOCALMSPID=Org{{.orgId}}MSP
+      - CORE_PEER_LOCALMSPID={{.orgId}}
       {{if eq .useCouchdb "true"}}
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb:5984{{end}}
@@ -48,8 +48,8 @@ services:
     command: peer node start
     volumes:
         - /var/run/:/host/var/run/
-        - ../crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/msp:/etc/hyperledger/fabric/msp
-        - ../crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/tls:/etc/hyperledger/fabric/tls
+        - ../crypto-config/peerOrganizations/{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/tls:/etc/hyperledger/fabric/tls
         - {{.mountPath}}/peer{{.id}}.org{{.orgId}}.{{.domain}}:/var/hyperledger/production
     networks:
       - outside

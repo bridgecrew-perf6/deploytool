@@ -1,38 +1,38 @@
 Organizations:{{range $key,$value:= .ordList}}
     - &OrdererOrg{{$key}}
-        Name: OrdererOrg{{$key}}
-        ID: Orderer{{$key}}MSP
-        MSPDir: crypto-config/ordererOrganizations/ord{{$key}}.{{$.domain}}/msp
+        Name: {{$key}}
+        ID: {{$key}}
+        MSPDir: crypto-config/ordererOrganizations/{{$key}}.{{$.domain}}/msp
         Policies:
             Readers:
                 Type: Signature
-                Rule: "OR('Orderer{{$key}}MSP.member')"
+                Rule: "OR('{{$key}}.member')"
             Writers:
                 Type: Signature
-                Rule: "OR('Orderer{{$key}}MSP.member')"
+                Rule: "OR('{{$key}}.member')"
             Admins:
                 Type: Signature
-                Rule: "OR('Orderer{{$key}}MSP.admin')"{{end}}
+                Rule: "OR('{{$key}}.admin')"{{end}}
     {{range $key,$value:= .orgList}}
     - &Org{{$key}}
-        Name: Org{{$key}}MSP
-        ID: Org{{$key}}MSP
-        MSPDir: crypto-config/peerOrganizations/org{{$key}}.{{$.domain}}/msp
+        Name: {{$key}}
+        ID: {{$key}}
+        MSPDir: crypto-config/peerOrganizations/{{$key}}.{{$.domain}}/msp
         Policies:
              Readers:
                  Type: Signature
-                 Rule: "OR('Org{{$key}}MSP.admin', 'Org{{$key}}MSP.peer', 'Org{{$key}}MSP.client')"
+                 Rule: "OR('{{$key}}.admin', '{{$key}}.peer', '{{$key}}.client')"
              Writers:
                  Type: Signature
-                 Rule: "OR('Org{{$key}}MSP.admin', 'Org{{$key}}MSP.client')"
+                 Rule: "OR('{{$key}}.admin', '{{$key}}.client')"
              Admins:
                  Type: Signature
-                 Rule: "OR('Org{{$key}}MSP.admin')"
+                 Rule: "OR('{{$key}}.admin')"
              Endorsement:
                  Type: Signature
-                 Rule: "OR('Org{{$key}}MSP.peer')"
+                 Rule: "OR('{{$key}}.peer')"
         AnchorPeers:{{range $index,$peer:= $.peers}} {{if eq $peer.orgId $key}} {{if eq $peer.id "0"}}
-            - Host: peer0.org{{$peer.orgId}}.{{$.domain}}
+            - Host: peer0.{{$peer.orgId}}.{{$.domain}}
               Port: {{$peer.externalPort}}{{end}}{{end}}{{end}}{{end}}
 
 Capabilities:
@@ -120,12 +120,12 @@ Profiles:
             OrdererType: etcdraft
             EtcdRaft:
                 Consenters:{{range $index,$orderer:= .orderers}}
-                - Host: orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}
+                - Host: orderer{{$orderer.id}}.{{$orderer.orgId}}.{{$.domain}}
                   Port: {{$orderer.externalPort}}
-                  ClientTLSCert: crypto-config/ordererOrganizations/ord{{$orderer.orgId}}.{{$.domain}}/orderers/orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}/tls/server.crt
-                  ServerTLSCert: crypto-config/ordererOrganizations/ord{{$orderer.orgId}}.{{$.domain}}/orderers/orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}/tls/server.crt{{end}}
+                  ClientTLSCert: crypto-config/ordererOrganizations/{{$orderer.orgId}}.{{$.domain}}/orderers/orderer{{$orderer.id}}.{{$orderer.orgId}}.{{$.domain}}/tls/server.crt
+                  ServerTLSCert: crypto-config/ordererOrganizations/{{$orderer.orgId}}.{{$.domain}}/orderers/orderer{{$orderer.id}}.{{$orderer.orgId}}.{{$.domain}}/tls/server.crt{{end}}
             Addresses:{{range $index,$orderer:= .orderers}}
-                - orderer{{$orderer.id}}.ord{{$orderer.orgId}}.{{$.domain}}:{{$orderer.externalPort}}{{end}}
+                - orderer{{$orderer.id}}.{{$orderer.orgId}}.{{$.domain}}:{{$orderer.externalPort}}{{end}}
             Organizations:{{range $key,$value:= .ordList}}
             - *OrdererOrg{{$key}}{{end}}
             Capabilities:

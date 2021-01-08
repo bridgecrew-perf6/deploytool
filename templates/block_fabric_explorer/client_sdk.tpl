@@ -11,11 +11,11 @@ crypto:
 eventPeer:
   host: peer{{.peerId}}.org{{.orgId}}.{{.domain}}:{{.peerPort}}
   useTLS: true
-  tlsPath: ./crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.peerId}}.org{{.orgId}}.{{.domain}}/tls/server.crt
-  clientCert: ./crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.peerId}}.org{{.orgId}}.{{.domain}}/msp/signcerts
-  clientKey: ./crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.peerId}}.org{{.orgId}}.{{.domain}}/msp/keystore
+  tlsPath: ./crypto-config/peerOrganizations/{{.orgId}}.{{.domain}}/peers/peer{{.peerId}}.org{{.orgId}}.{{.domain}}/tls/server.crt
+  clientCert: ./crypto-config/peerOrganizations/{{.orgId}}.{{.domain}}/peers/peer{{.peerId}}.org{{.orgId}}.{{.domain}}/msp/signcerts
+  clientKey: ./crypto-config/peerOrganizations/{{.orgId}}.{{.domain}}/peers/peer{{.peerId}}.org{{.orgId}}.{{.domain}}/msp/keystore
 channels:
-  mspConfigPath:    ./crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/users/Admin@org{{.orgId}}.{{.domain}}/msp
+  mspConfigPath:    ./crypto-config/peerOrganizations/{{.orgId}}.{{.domain}}/users/Admin@{{.orgId}}.{{.domain}}/msp
   localMspId:       Org{{.orgId}}MSP
   channelIds:       {{.chList}}
   chaincodeName:    {{.ccName}}

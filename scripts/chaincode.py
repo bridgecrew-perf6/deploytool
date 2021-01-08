@@ -13,10 +13,10 @@ sys.setdefaultencoding('utf8')
 def pkg_chaincode(fabric_version, bin_path, config_path, org_id, domain_name, ccname, ccversion, ccpath, ccinstalltype,
                   crypto_type):
     global param
-    msp_path = config_path + "crypto-config/peerOrganizations/org%s.%s/users/Admin@org%s.%s/msp" % (
+    msp_path = config_path + "crypto-config/peerOrganizations/%s.%s/users/Admin@%s.%s/msp" % (
         org_id, domain_name, org_id, domain_name)
     env = ' FABRIC_CFG_PATH=%s ' % config_path
-    env = env + ' CORE_PEER_LOCALMSPID=Org%sMSP' % org_id
+    env = env + ' CORE_PEER_LOCALMSPID=%s' % org_id
     env = env + ' CORE_PEER_MSPCONFIGPATH=%s' % msp_path
     bin = utils.get_bin_path(bin_path, "peer", crypto_type)
     if fabric_version == "1.4":
@@ -30,16 +30,14 @@ def pkg_chaincode(fabric_version, bin_path, config_path, org_id, domain_name, cc
     local(command)
 
 
-def approve_chaincode(bin_path, yaml_path, peer_address, order_address, peer_id, org_id, domain_name,
+def approve_chaincode(bin_path, yaml_path, peer_address, order_address,order_tls_path, peer_id, org_id, domain_name,
                       channel_name, ccname, ccversion, crypto_type):
-    tls_root_file = yaml_path + "crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/ca.crt" % (
+    tls_root_file = yaml_path + "crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/ca.crt" % (
         org_id, domain_name, peer_id, org_id, domain_name)
-    msp_path = yaml_path + "crypto-config/peerOrganizations/org%s.%s/users/Admin@org%s.%s/msp" % (
+    msp_path = yaml_path + "crypto-config/peerOrganizations/%s.%s/users/Admin@%s.%s/msp" % (
         org_id, domain_name, org_id, domain_name)
-    order_tls_path = yaml_path + "crypto-config/ordererOrganizations/ord1.%s/orderers/orderer0.ord1.%s/msp/tlscacerts/tlsca.ord1.%s-cert.pem" % (
-        domain_name, domain_name, domain_name)
     env = ' FABRIC_CFG_PATH=%s ' % yaml_path
-    env = env + ' CORE_PEER_LOCALMSPID=Org%sMSP' % org_id
+    env = env + ' CORE_PEER_LOCALMSPID=%s' % org_id
     env = env + ' CORE_PEER_TLS_ROOTCERT_FILE=%s' % tls_root_file
     env = env + ' CORE_PEER_MSPCONFIGPATH=%s' % msp_path
     env = env + ' CORE_PEER_TLS_ENABLED=true'
@@ -64,12 +62,12 @@ def install_chaincode(fabric_version, bin_path, config_path, peer_address, peer_
                       ccversion, ccpath,
                       ccinstalltype, crypto_type):
     global param
-    tls_root_file = config_path + "crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/ca.crt" % (
+    tls_root_file = config_path + "crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/ca.crt" % (
         org_id, domain_name, peer_id, org_id, domain_name)
-    msp_path = config_path + "crypto-config/peerOrganizations/org%s.%s/users/Admin@org%s.%s/msp" % (
+    msp_path = config_path + "crypto-config/peerOrganizations/%s.%s/users/Admin@%s.%s/msp" % (
         org_id, domain_name, org_id, domain_name)
     env = ' FABRIC_CFG_PATH=%s ' % config_path
-    env = env + ' CORE_PEER_LOCALMSPID=Org%sMSP' % org_id
+    env = env + ' CORE_PEER_LOCALMSPID=%s' % org_id
     env = env + ' CORE_PEER_TLS_ROOTCERT_FILE=%s' % tls_root_file
     env = env + ' CORE_PEER_MSPCONFIGPATH=%s' % msp_path
     env = env + ' CORE_PEER_TLS_ENABLED=true'
@@ -88,17 +86,15 @@ def install_chaincode(fabric_version, bin_path, config_path, peer_address, peer_
 
 
 def instantiate_chaincode(fabric_version, bin_path, operation, yaml_path, peer_address,
-                          order_address, peer_id, org_id, domain_name, channel_name, ccname,
+                          order_address,order_tls_path, peer_id, org_id, domain_name, channel_name, ccname,
                           ccversion, init_param, policy, crypto_type, connect_param):
     global param
-    tls_root_file = yaml_path + "crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/ca.crt" % (
+    tls_root_file = yaml_path + "crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/ca.crt" % (
         org_id, domain_name, peer_id, org_id, domain_name)
-    msp_path = yaml_path + "crypto-config/peerOrganizations/org%s.%s/users/Admin@org%s.%s/msp" % (
+    msp_path = yaml_path + "crypto-config/peerOrganizations/%s.%s/users/Admin@%s.%s/msp" % (
         org_id, domain_name, org_id, domain_name)
-    order_tls_path = yaml_path + "crypto-config/ordererOrganizations/ord1.%s/orderers/orderer0.ord1.%s/msp/tlscacerts/tlsca.ord1.%s-cert.pem" % (
-        domain_name, domain_name, domain_name)
     env = ' FABRIC_CFG_PATH=%s ' % yaml_path
-    env = env + ' CORE_PEER_LOCALMSPID=Org%sMSP' % org_id
+    env = env + ' CORE_PEER_LOCALMSPID=%s' % org_id
     env = env + ' CORE_PEER_TLS_ROOTCERT_FILE=%s' % tls_root_file
     env = env + ' CORE_PEER_MSPCONFIGPATH=%s' % msp_path
     env = env + ' CORE_PEER_TLS_ENABLED=true'
@@ -118,12 +114,12 @@ def instantiate_chaincode(fabric_version, bin_path, operation, yaml_path, peer_a
 
 def test_query_tx(bin_path, yaml_path, peer_address, peer_id, org_id, domain_name, channel_name, ccname, tx_args,
                   crypto_type):
-    tls_root_file = yaml_path + "crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/ca.crt" % (
+    tls_root_file = yaml_path + "crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/ca.crt" % (
         org_id, domain_name, peer_id, org_id, domain_name)
-    msp_path = yaml_path + "crypto-config/peerOrganizations/org%s.%s/users/Admin@org%s.%s/msp" % (
+    msp_path = yaml_path + "crypto-config/peerOrganizations/%s.%s/users/Admin@%s.%s/msp" % (
         org_id, domain_name, org_id, domain_name)
     env = ' FABRIC_CFG_PATH=%s ' % yaml_path
-    env = env + ' CORE_PEER_LOCALMSPID=Org%sMSP' % org_id
+    env = env + ' CORE_PEER_LOCALMSPID=%s' % org_id
     env = env + ' CORE_PEER_TLS_ROOTCERT_FILE=%s' % tls_root_file
     env = env + ' CORE_PEER_MSPCONFIGPATH=%s' % msp_path
     env = env + ' CORE_PEER_TLS_ENABLED=true'
@@ -134,18 +130,16 @@ def test_query_tx(bin_path, yaml_path, peer_address, peer_id, org_id, domain_nam
     local(command)
 
 
-def test_chaincode(fabric_version, func, bin_path, yaml_path, peer_address, order_address,
+def test_chaincode(fabric_version, func, bin_path, yaml_path, peer_address, order_address,order_tls_path,
                    peer_id, org_id, domain_name,channel_name,
                    ccname, args, crypto_type, connect_param):
     global param
-    tls_root_file = yaml_path + "crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/ca.crt" % (
+    tls_root_file = yaml_path + "crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/ca.crt" % (
         org_id, domain_name, peer_id, org_id, domain_name)
-    msp_path = yaml_path + "crypto-config/peerOrganizations/org%s.%s/users/Admin@org%s.%s/msp" % (
+    msp_path = yaml_path + "crypto-config/peerOrganizations/%s.%s/users/Admin@%s.%s/msp" % (
         org_id, domain_name, org_id, domain_name)
-    order_tls_path = yaml_path + "crypto-config/ordererOrganizations/ord1.%s/orderers/orderer0.ord1.%s/msp/tlscacerts/tlsca.ord1.%s-cert.pem" % (
-        domain_name, domain_name, domain_name)
     env = ' FABRIC_CFG_PATH=%s ' % yaml_path
-    env = env + ' CORE_PEER_LOCALMSPID=Org%sMSP' % org_id
+    env = env + ' CORE_PEER_LOCALMSPID=%s' % org_id
     env = env + ' CORE_PEER_TLS_ROOTCERT_FILE=%s' % tls_root_file
     env = env + ' CORE_PEER_MSPCONFIGPATH=%s' % msp_path
     env = env + ' CORE_PEER_TLS_ENABLED=true'

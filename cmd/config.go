@@ -9,16 +9,18 @@ import (
 )
 
 const (
-	TplZookeeper    = "zookeeper.tpl"
-	TplKafka        = "kafka.tpl"
-	TplOrderer      = "orderer.tpl"
-	TplCa           = "ca.tpl"
-	TplPeer         = "peer.tpl"
-	TplCryptoConfig = "crypto-config.tpl"
-	TplConfigtx     = "configtx.tpl"
-	TplExplorer     = "block_fabric_explorer.tpl"
-	TplClient       = "client_sdk.tpl"
-	TplRegister     = "registerApi.tpl"
+	TplZookeeper           = "zookeeper.tpl"
+	TplKafka               = "kafka.tpl"
+	TplOrderer             = "orderer.tpl"
+	TplCa                  = "ca.tpl"
+	TplPeer                = "peer.tpl"
+	TplOrdererCryptoConfig = "crypto-config-orderer.tpl"
+	TplPeerCryptoConfig    = "crypto-config-peer.tpl"
+	TplCryptoConfig        = "crypto-config.tpl"
+	TplConfigtx            = "configtx.tpl"
+	TplExplorer            = "block_fabric_explorer.tpl"
+	TplClient              = "client_sdk.tpl"
+	TplRegister            = "registerApi.tpl"
 
 	TplApiClient   = "apiclient.tpl"
 	TplApiDocker   = "apidocker.tpl"
@@ -148,6 +150,12 @@ type NodeObj struct {
 	TPLExpand
 }
 
+type OrgObj struct {
+	OrgId      string `json:"orgId"`
+	NodeCounts int    `json:"nodeCounts"`
+	Domain     string    `json:"domain"`
+}
+
 var allPeerHostIp, allOrdererHostIp []ExtraHosts
 
 type ExtraHosts struct {
@@ -223,12 +231,12 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 		}
 		if v.CertType == TypeOrder {
 			ordererCaMap[v.OrgId] = fmt.Sprintf("%s:%s", v.Ip, extPort)
-			obj.Cas[i].NodeName = fmt.Sprintf("ca.ord%s.%s", v.OrgId, obj.Domain)
-			obj.Cas[i].AdminName = fmt.Sprintf("Admin@ord%s.%s", v.OrgId, obj.Domain)
+			obj.Cas[i].NodeName = fmt.Sprintf("ca.%s.%s", v.OrgId, obj.Domain)
+			obj.Cas[i].AdminName = fmt.Sprintf("Admin@%s.%s", v.OrgId, obj.Domain)
 		} else if v.CertType == TypePeer {
 			peerCaMap[v.OrgId] = fmt.Sprintf("%s:%s", v.Ip, extPort)
-			obj.Cas[i].NodeName = fmt.Sprintf("ca.org%s.%s", v.OrgId, obj.Domain)
-			obj.Cas[i].AdminName = fmt.Sprintf("Admin@org%s.%s", v.OrgId, obj.Domain)
+			obj.Cas[i].NodeName = fmt.Sprintf("ca.%s.%s", v.OrgId, obj.Domain)
+			obj.Cas[i].AdminName = fmt.Sprintf("Admin@%s.%s", v.OrgId, obj.Domain)
 		}
 		obj.Cas[i].NodeType = TypeCa
 		obj.Cas[i].AdminPw = "adminpw"
@@ -243,15 +251,15 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 			return &obj, err
 		}
 		obj.Peers[i].ExternalPort = extPort
-		obj.Peers[i].AdminName = fmt.Sprintf("Admin@org%s.%s", v.OrgId, obj.Domain)
+		obj.Peers[i].AdminName = fmt.Sprintf("Admin@%s.%s", v.OrgId, obj.Domain)
 		obj.Peers[i].AdminPw = "adminpw"
 		obj.Peers[i].CaUrl = peerCaMap[v.OrgId]
 		if v.Id == "0" {
-			otherPeerBootStrapMap[v.OrgId] = fmt.Sprintf("peer%s.org%s.%s:%s", v.Id, v.OrgId, obj.Domain, extPort)
+			otherPeerBootStrapMap[v.OrgId] = fmt.Sprintf("peer%s.%s.%s:%s", v.Id, v.OrgId, obj.Domain, extPort)
 		} else if peer0BootStrapMap[v.OrgId] == "" {
-			peer0BootStrapMap[v.OrgId] = fmt.Sprintf("peer%s.org%s.%s:%s", v.Id, v.OrgId, obj.Domain, extPort)
+			peer0BootStrapMap[v.OrgId] = fmt.Sprintf("peer%s.%s.%s:%s", v.Id, v.OrgId, obj.Domain, extPort)
 		}
-		obj.Peers[i].NodeName = fmt.Sprintf("peer%s.org%s.%s", v.Id, v.OrgId, obj.Domain)
+		obj.Peers[i].NodeName = fmt.Sprintf("peer%s.%s.%s", v.Id, v.OrgId, obj.Domain)
 		obj.Peers[i].NodeType = TypePeer
 		obj.Peers[i].Domain = obj.Domain
 		allPeerHostIp = append(allPeerHostIp, ExtraHosts{obj.Peers[i].NodeName, v.Ip})
@@ -272,12 +280,12 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 			return &obj, err
 		}
 		obj.Orderers[i].ExternalPort = extPort
-		obj.Orderers[i].AdminName = fmt.Sprintf("Admin@ord%s.%s", v.OrgId, obj.Domain)
+		obj.Orderers[i].AdminName = fmt.Sprintf("Admin@%s.%s", v.OrgId, obj.Domain)
 		obj.Orderers[i].AdminPw = "adminpw"
 		obj.Orderers[i].CaUrl = ordererCaMap[v.OrgId]
 		obj.Orderers[i].NodeType = TypeOrder
 		obj.Orderers[i].Domain = obj.Domain
-		obj.Orderers[i].NodeName = fmt.Sprintf("orderer%s.ord%s.%s", v.Id, v.OrgId, obj.Domain)
+		obj.Orderers[i].NodeName = fmt.Sprintf("orderer%s.%s.%s", v.Id, v.OrgId, obj.Domain)
 		allOrdererHostIp = append(allOrdererHostIp, ExtraHosts{obj.Orderers[i].NodeName, v.Ip})
 		obj.Orderers[i].ImageName = fmt.Sprintf("%s/fabric-orderer:%s", obj.ImagePre, obj.ImageTag)
 		HostMapList[v.Ip] = obj.Orderers[i]
@@ -315,7 +323,7 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 			ordererObj.ServerHost = v.Ip + ":" + v.ExternalPort
 			ordererObj.ServerDomain = v.NodeName
 			ordererObj.ServerId = v.Id
-			ordererObj.ServerTlsPath = fmt.Sprintf("./crypto-config/ordererOrganizations/ord%s.%s/orderers/orderer%s.ord%s.%s/tls/server.crt", v.OrgId, v.Domain, v.Id, v.OrgId, v.Domain)
+			ordererObj.ServerTlsPath = fmt.Sprintf("./crypto-config/ordererOrganizations/%s.%s/orderers/orderer%s.%s.%s/tls/server.crt", v.OrgId, v.Domain, v.Id, v.OrgId, v.Domain)
 			obj.Apiservers[i].OrdererList = append(obj.Apiservers[i].OrdererList, ordererObj)
 		}
 		for _, v := range obj.Peers {
@@ -325,7 +333,7 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 			peerObj.ServerHost = v.Ip + ":" + v.ExternalPort
 			peerObj.ServerDomain = v.NodeName
 			peerObj.ServerId = v.Id
-			peerObj.ServerTlsPath = fmt.Sprintf("./crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/server.crt", v.OrgId, v.Domain, v.Id, v.OrgId, v.Domain)
+			peerObj.ServerTlsPath = fmt.Sprintf("./crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/server.crt", v.OrgId, v.Domain, v.Id, v.OrgId, v.Domain)
 			obj.Apiservers[i].PeerList = append(obj.Apiservers[i].PeerList, peerObj)
 		}
 		for _, v := range obj.Peers {
@@ -335,7 +343,7 @@ func ParseJson(jsonfile string) (*ConfigObj, error) {
 			peerObj.ServerHost = v.Ip + ":" + v.ExternalPort
 			peerObj.ServerDomain = v.NodeName
 			peerObj.ServerId = v.Id
-			peerObj.ServerTlsPath = fmt.Sprintf("./crypto-config/peerOrganizations/org%s.%s/peers/peer%s.org%s.%s/tls/server.crt", v.OrgId, v.Domain, v.Id, v.OrgId, v.Domain)
+			peerObj.ServerTlsPath = fmt.Sprintf("./crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/server.crt", v.OrgId, v.Domain, v.Id, v.OrgId, v.Domain)
 			obj.Apiservers[i].EventPeerList = append(obj.Apiservers[i].EventPeerList, peerObj)
 			break
 		}

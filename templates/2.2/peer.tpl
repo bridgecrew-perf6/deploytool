@@ -1,10 +1,10 @@
 version: '2'
 
 services:
-  peer{{.id}}.org{{.orgId}}.{{.domain}}:
+  peer{{.id}}.{{.orgId}}.{{.domain}}:
     image: {{.imagePre}}/fabric-peer:{{.imageTag}}
     restart: always
-    container_name: peer{{.id}}.org{{.orgId}}.{{.domain}}
+    container_name: peer{{.id}}.{{.orgId}}.{{.domain}}
     environment:
       # base env
       - GODEBUG=netdns=go
@@ -25,26 +25,26 @@ services:
       - CORE_CHAINCODE_BUILDER={{.imagePre}}/fabric-ccenv:{{.imageTag}}
       - CORE_CHAINCODE_GOLANG_RUNTIME={{.imagePre}}/fabric-baseos:{{.imageTag}}
       # improve env
-      - CORE_PEER_ID=peer{{.id}}.org{{.orgId}}.{{.domain}}
+      - CORE_PEER_ID=peer{{.id}}.{{.orgId}}.{{.domain}}
       #peer listen service
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
       #for same org peer connect
-      - CORE_PEER_ADDRESS=peer{{.id}}.org{{.orgId}}.{{.domain}}:{{.externalPort}}
+      - CORE_PEER_ADDRESS=peer{{.id}}.{{.orgId}}.{{.domain}}:{{.externalPort}}
       #listen chaincode connect
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
       #chaincode connect to peer
-      - CORE_PEER_CHAINCODEADDRESS=peer{{.id}}.org{{.orgId}}.{{.domain}}:7052
+      - CORE_PEER_CHAINCODEADDRESS=peer{{.id}}.{{.orgId}}.{{.domain}}:7052
       #for other org peer connect
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer{{.id}}.org{{.orgId}}.{{.domain}}:{{.externalPort}}
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer{{.id}}.{{.orgId}}.{{.domain}}:{{.externalPort}}
       - CORE_OPERATIONS_LISTENADDRESS=0.0.0.0:9443
-      - CORE_PEER_LOCALMSPID=Org{{.orgId}}MSP
+      - CORE_PEER_LOCALMSPID={{.orgId}}
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     volumes:
         - /var/run/:/host/var/run/
-        - ../crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/msp:/etc/hyperledger/fabric/msp
-        - ../crypto-config/peerOrganizations/org{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/tls:/etc/hyperledger/fabric/tls
-        - {{.mountPath}}/peer{{.id}}.org{{.orgId}}.{{.domain}}:/var/hyperledger/production
+        - ../crypto-config/peerOrganizations/{{.orgId}}.{{.domain}}/peers/peer{{.id}}.{{.orgId}}.{{.domain}}/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/{{.orgId}}.{{.domain}}/peers/peer{{.id}}.{{.orgId}}.{{.domain}}/tls:/etc/hyperledger/fabric/tls
+        - {{.mountPath}}/peer{{.id}}.{{.orgId}}.{{.domain}}:/var/hyperledger/production
     networks:
       - outside
     logging:

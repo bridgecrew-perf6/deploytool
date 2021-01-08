@@ -31,10 +31,9 @@ def generate_genesis_block(model, bin_path, cfg_path, out_path, crypto_type):
 ## Generates orderer Org certs using cryptogen tool
 def generate_certs(bin_path, cfg_path, out_path, crypto_type):
     cryptotool = utils.get_bin_path(bin_path, "cryptogen", crypto_type)
-    yamlfile = cfg_path + "crypto-config.yaml"
     mm_path = out_path + "crypto-config"
 
-    local("%s generate --config=%s --output='%s'" % (cryptotool, yamlfile, mm_path))
+    local("%s generate --config=%s --output='%s'" % (cryptotool, cfg_path, mm_path))
     local("chmod -R 777 %s" % mm_path)
 
 

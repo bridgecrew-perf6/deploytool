@@ -21,14 +21,14 @@ func CreateCert() error {
 	if GlobalConfig.CaType == "fabric-ca" {
 		fmt.Println("-----Apply cert by Fabric-ca---")
 		for _, v := range GlobalConfig.Peers {
-			orgName := fmt.Sprintf("org%s.%s", v.OrgId, GlobalConfig.Domain)
+			orgName := fmt.Sprintf("%s.%s", v.OrgId, GlobalConfig.Domain)
 			err := obj.RunShow("generate_certs_to_ca", BinPath(), ConfigDir(), GlobalConfig.CryptoType, v.NodeType, v.NodeName, orgName, v.CaUrl, v.CaUrl, v.AdminName, v.AdminPw)
 			if err != nil {
 				return err
 			}
 		}
 		for _, v := range GlobalConfig.Orderers {
-			orgName := fmt.Sprintf("ord%s.%s", v.OrgId, GlobalConfig.Domain)
+			orgName := fmt.Sprintf("%s.%s", v.OrgId, GlobalConfig.Domain)
 			err := obj.RunShow("generate_certs_to_ca", BinPath(), ConfigDir(), GlobalConfig.CryptoType, v.NodeType, v.NodeName, orgName, v.CaUrl, v.CaUrl, v.AdminName, v.AdminPw)
 			if err != nil {
 				return err
@@ -36,9 +36,17 @@ func CreateCert() error {
 		}
 	} else {
 		fmt.Println("-----Apply cert by Cryptogen---")
-		err := obj.RunShow("generate_certs", BinPath(), ConfigDir(), ConfigDir(), GlobalConfig.CryptoType)
-		if err != nil {
-			return err
+		for name, _ := range GlobalConfig.OrdList {
+			configFile := ConfigDir() + name + "-crypto-config-orderer.yaml"
+			if err := obj.RunShow("generate_certs", BinPath(), configFile, ConfigDir(), GlobalConfig.CryptoType); err != nil {
+				return err
+			}
+		}
+		for name, _ := range GlobalConfig.OrgList {
+			configFile := ConfigDir() + name + "-crypto-config-peer.yaml"
+			if err := obj.RunShow("generate_certs", BinPath(), configFile, ConfigDir(), GlobalConfig.CryptoType); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -86,7 +94,20 @@ func CreateYamlByJson(strType string) error {
 	if strType == "configtx" {
 		return tpl.Handler(GlobalConfig, TplPath(TplConfigtx), ConfigDir()+"configtx.yaml")
 	} else if strType == "crypto-config" {
-		return tpl.Handler(GlobalConfig, TplPath(TplCryptoConfig), ConfigDir()+"crypto-config.yaml")
+		for name, counts := range GlobalConfig.OrdList {
+			outFile := ConfigDir() + name + "-crypto-config-orderer.yaml"
+			orgObj := OrgObj{name, counts, GlobalConfig.Domain}
+			if err := tpl.Handler(orgObj, TplPath(TplOrdererCryptoConfig), outFile); err != nil {
+				return err
+			}
+		}
+		for name, counts := range GlobalConfig.OrgList {
+			outFile := ConfigDir() + name + "-crypto-config-peer.yaml"
+			orgObj := OrgObj{name, counts, GlobalConfig.Domain}
+			if err := tpl.Handler(orgObj, TplPath(TplPeerCryptoConfig), outFile); err != nil {
+				return err
+			}
+		}
 	} else if strType == TypeExplorer {
 		return makeExploreYaml()
 	} else if strType == TypeApi {
@@ -168,11 +189,19 @@ func CreateChannel(channelName string) error {
 	}
 	obj := NewLocalFabCmd("create_channel.py")
 	ordererAddress := ""
+	order_tls_path := ""
 	for _, ord := range GlobalConfig.Orderers {
 		ordererAddress = fmt.Sprintf("%s:%s", ord.NodeName, ord.ExternalPort)
+		dirPath := fmt.Sprintf("%s.%s", ord.OrgId, GlobalConfig.Domain)
+		order_tls_path = ConfigDir() + fmt.Sprintf("crypto-config/ordererOrganizations/%s/orderers/orderer0.%s/msp/tlscacerts/tlsca.%s-cert.pem", dirPath, dirPath, dirPath)
 		break
 	}
-	err := obj.RunShow("create_channel", BinPath(), ConfigDir(), ChannelPath(), channelName, ordererAddress, GlobalConfig.Domain, GlobalConfig.CryptoType)
+	OrgId := ""
+	for _, peer := range GlobalConfig.Peers {
+		OrgId = peer.OrgId
+		break
+	}
+	err := obj.RunShow("create_channel", BinPath(), ConfigDir(), ChannelPath(), channelName, OrgId, ordererAddress, order_tls_path, GlobalConfig.Domain, GlobalConfig.CryptoType)
 	if err != nil {
 		return err
 	}
@@ -184,15 +213,17 @@ func UpdateAnchor(channelName string) error {
 		return fmt.Errorf("channel name is nil")
 	}
 	ordererAddress := ""
+	order_tls_path := ""
 	for _, ord := range GlobalConfig.Orderers {
 		ordererAddress = fmt.Sprintf("%s:%s", ord.NodeName, ord.ExternalPort)
-		break
+		dirPath := fmt.Sprintf("%s.%s", ord.OrgId, GlobalConfig.Domain)
+		order_tls_path = ConfigDir() + fmt.Sprintf("crypto-config/ordererOrganizations/%s/orderers/orderer0.%s/msp/tlscacerts/tlsca.%s-cert.pem", dirPath, dirPath, dirPath)
 	}
 	for _, peer := range GlobalConfig.Peers {
 		if peer.Id == "0" {
 			obj := NewFabCmd("create_channel.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
 			mspid := peer.OrgId
-			err := obj.RunShow("update_anchor", BinPath(), ConfigDir(), ChannelPath(), channelName, mspid, ordererAddress, GlobalConfig.Domain, GlobalConfig.CryptoType)
+			err := obj.RunShow("update_anchor", BinPath(), ConfigDir(), ChannelPath(), channelName, mspid, ordererAddress, order_tls_path,GlobalConfig.Domain, GlobalConfig.CryptoType)
 			if err != nil {
 				return err
 			}
@@ -239,8 +270,8 @@ func PutCryptoConfig(stringType string) error {
 	if stringType == TypeExplorer {
 		for _, exp := range GlobalConfig.Explorers {
 			wg.Add(1)
-			orgName := fmt.Sprintf("org%s.%s", exp.OrgId, GlobalConfig.Domain)
-			certPeerName := fmt.Sprintf("peer%s.org%s.%s", exp.PeerId, exp.OrgId, GlobalConfig.Domain)
+			orgName := fmt.Sprintf("%s.%s", exp.OrgId, GlobalConfig.Domain)
+			certPeerName := fmt.Sprintf("peer%s.%s.%s", exp.PeerId, exp.OrgId, GlobalConfig.Domain)
 			putCrypto(exp.Ip, exp.SshUserName, exp.SshPwd, exp.SshPort, exp.SshKey, ConfigDir(), TypeExplorer, exp.NodeName, orgName, certPeerName, &wg)
 		}
 	} else {
@@ -258,12 +289,12 @@ func PutCryptoConfig(stringType string) error {
 		}
 		for _, ord := range GlobalConfig.Orderers {
 			wg.Add(1)
-			orgName := fmt.Sprintf("ord%s.%s", ord.OrgId, GlobalConfig.Domain)
+			orgName := fmt.Sprintf("%s.%s", ord.OrgId, GlobalConfig.Domain)
 			go putCrypto(ord.Ip, ord.SshUserName, ord.SshPwd, ord.SshPort, ord.SshKey, ConfigDir(), TypeOrder, ord.NodeName, orgName, "", &wg)
 		}
 		for _, peer := range GlobalConfig.Peers {
 			wg.Add(1)
-			orgName := fmt.Sprintf("org%s.%s", peer.OrgId, GlobalConfig.Domain)
+			orgName := fmt.Sprintf("%s.%s", peer.OrgId, GlobalConfig.Domain)
 			go putCrypto(peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey, ConfigDir(), TypePeer, peer.NodeName, orgName, "", &wg)
 		}
 	}
