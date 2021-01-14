@@ -38,6 +38,11 @@ services:
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer{{.id}}.{{.orgId}}.{{.domain}}:{{.externalPort}}
       - CORE_OPERATIONS_LISTENADDRESS=0.0.0.0:9443
       - CORE_PEER_LOCALMSPID={{.orgId}}
+      #connect peer when peer init
+      {{if ne .bootStrapAddress ""}}
+      - CORE_PEER_GOSSIP_BOOTSTRAP={{.bootStrapAddress}}{{else}}
+      - CORE_PEER_GOSSIP_BOOTSTRAP=127.0.0.1:{{.externalPort}}{{end}}
+     # - CORE_PEER_GOSSIP_BOOTSTRAP=127.0.0.1:{{.externalPort}}
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     volumes:

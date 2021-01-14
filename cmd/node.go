@@ -87,6 +87,22 @@ func operationApiserver(isStart bool) {
 	wg.Wait()
 }
 
+func RunAddNode(nodename string) error {
+	if nodename == "" {
+		return fmt.Errorf("nodename is empty")
+	}
+	for _, peer := range GlobalConfig.Peers {
+		if peer.NodeName == nodename {
+			//启动节点
+			obj := NewFabCmd("add_node.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
+			if err := obj.RunShow("start_node", peer.NodeName, ConfigDir()); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func HandleNode(stringType string, isStart bool) error {
 	if stringType == TypeExplorer {
 		operationExplorer(isStart)

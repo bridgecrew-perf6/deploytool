@@ -33,9 +33,8 @@ def generate_certs(bin_path, cfg_path, out_path, crypto_type):
     cryptotool = utils.get_bin_path(bin_path, "cryptogen", crypto_type)
     mm_path = out_path + "crypto-config"
 
-    local("%s generate --config=%s --output='%s'" % (cryptotool, cfg_path, mm_path))
+    local("%s extend --config=%s --input='%s'" % (cryptotool, cfg_path, mm_path))
     local("chmod -R 777 %s" % mm_path)
-
 
 def put_cryptoconfig(config_path, type, node_name, org_name, cert_peer_name):
     run("mkdir -p ~/fabricNetwork/yaml")

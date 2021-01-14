@@ -7,6 +7,31 @@ import (
 	"sync"
 )
 
+func AddOrgNodeCertById(orgid string) error {
+	if orgid == "" {
+		return fmt.Errorf("orgid is empty")
+	}
+	if err := WriteHost(); err != nil {
+		return err
+	}
+	for name, counts := range GlobalConfig.OrgList {
+		if name == orgid {
+			//生成组织配置文件
+			outFile := ConfigDir() + name + "-crypto-config-peer.yaml"
+			orgObj := OrgObj{name, counts, GlobalConfig.Domain}
+			if err := tpl.Handler(orgObj, TplPath(TplPeerCryptoConfig), outFile); err != nil {
+				return err
+			}
+			//根据配置文件生成证书
+			obj := NewLocalFabCmd("apply_cert.py")
+			if err := obj.RunShow("generate_certs", BinPath(), outFile, ConfigDir(), GlobalConfig.CryptoType); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func CreateCert() error {
 	obj := NewLocalFabCmd("apply_cert.py")
 	if err := os.RemoveAll(ConfigDir() + "/crypto-config"); err != nil {
@@ -86,6 +111,22 @@ func makeExploreYaml() error {
 			return err
 		}
 
+	}
+	return nil
+}
+
+func CreatePeerYaml(nodename string) error {
+	if nodename == "" {
+		return fmt.Errorf("nodename is empty")
+	}
+	for _, peer := range GlobalConfig.Peers {
+		if peer.NodeName == nodename {
+			CopyConfig(&peer)
+			outfile := ConfigDir() + peer.NodeName
+			if err := tpl.Handler(peer, TplPath(TplPeer), outfile+".yaml"); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
@@ -223,7 +264,7 @@ func UpdateAnchor(channelName string) error {
 		if peer.Id == "0" {
 			obj := NewFabCmd("create_channel.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
 			mspid := peer.OrgId
-			err := obj.RunShow("update_anchor", BinPath(), ConfigDir(), ChannelPath(), channelName, mspid, ordererAddress, order_tls_path,GlobalConfig.Domain, GlobalConfig.CryptoType)
+			err := obj.RunShow("update_anchor", BinPath(), ConfigDir(), ChannelPath(), channelName, mspid, ordererAddress, order_tls_path, GlobalConfig.Domain, GlobalConfig.CryptoType)
 			if err != nil {
 				return err
 			}
@@ -242,16 +283,37 @@ func CopyConfig(obj *NodeObj) {
 	obj.CryptoType = GlobalConfig.CryptoType
 }
 
-func JoinChannel(channelName string) error {
+func JoinChannel(channelName,nodeName string) error {
 	if channelName == "" {
 		return fmt.Errorf("channel name is nil")
 	}
 	for _, peer := range GlobalConfig.Peers {
+		if nodeName != "" && peer.NodeName != nodeName {
+			continue
+		}
 		peerAddress := fmt.Sprintf("%s:%s", peer.NodeName, peer.ExternalPort)
 		obj := NewLocalFabCmd("create_channel.py")
 		err := obj.RunShow("join_channel", BinPath(), ConfigDir(), ChannelPath(), channelName, peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain, GlobalConfig.CryptoType)
 		if err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+//指定节点传输证书文件
+func PutNodeCrypto(nodename string) error {
+	if nodename == "" {
+		return fmt.Errorf("nodename is empty")
+	}
+	for _, peer := range GlobalConfig.Peers {
+		if peer.NodeName == nodename {
+			orgName := fmt.Sprintf("%s.%s", peer.OrgId, GlobalConfig.Domain)
+			obj := NewFabCmd("apply_cert.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
+			err := obj.RunShow("put_cryptoconfig", ConfigDir(), TypePeer, peer.NodeName, orgName, "")
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 	}
 	return nil
