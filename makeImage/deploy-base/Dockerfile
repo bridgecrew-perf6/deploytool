@@ -2,6 +2,7 @@ FROM golang:1.11.5-alpine3.9
 ENV TZ "Asia/Shanghai"
 #RUN echo "https://mirror.tuna.tsinghua.edu.cn/alpine/v3.9/main" > /etc/apk/repositories
 RUN apk add --update --no-cache  \
+    jq \
     g++ \
     gcc \
     busybox-extras \
