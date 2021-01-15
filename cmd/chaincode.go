@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-func InstallCCToNewNode(ccname, ccversion, ccpath, nodename string) error {
+func InstallCCToNewNode(ccname, ccversion, ccpath, channelName, nodename string) error {
 	if ccpath == "" {
 		ccpath = GlobalConfig.CCPath
 	}
@@ -28,10 +28,35 @@ func InstallCCToNewNode(ccname, ccversion, ccpath, nodename string) error {
 			}
 		}
 	}
+	ordererAddress := ""
+	order_tls_path := ""
+	for _, ord := range GlobalConfig.Orderers {
+		dirPath := fmt.Sprintf("%s.%s", ord.OrgId, GlobalConfig.Domain)
+		order_tls_path = ConfigDir() + fmt.Sprintf("crypto-config/ordererOrganizations/%s/orderers/orderer0.%s/msp/tlscacerts/tlsca.%s-cert.pem", dirPath, dirPath, dirPath)
+		ordererAddress = fmt.Sprintf("orderer%s.%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ExternalPort)
+		break
+	}
+	if GlobalConfig.FabricVersion != "1.4" {
+		for _, peer := range GlobalConfig.Peers {
+			if peer.Id != "0" {
+				continue
+			}
+			peerAddress := fmt.Sprintf("peer%s.%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
+			obj := NewLocalFabCmd("chaincode.py")
+			if channelName == "" {
+				panic("approve file channelName is empty")
+			} else {
+				err := obj.RunShow("approve_chaincode", BinPath(), ConfigDir(), peerAddress, ordererAddress, order_tls_path, peer.Id, peer.OrgId, GlobalConfig.Domain, channelName, ccname, ccversion, GlobalConfig.CryptoType)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
 	return nil
 }
 
-func InstallChaincode(ccname, ccversion, channelName, ccpath string) error {
+func InstallChaincode(ccname, ccversion, channelName, ccpath, nodename string) error {
 	if ccpath == "" {
 		ccpath = GlobalConfig.CCPath
 	}

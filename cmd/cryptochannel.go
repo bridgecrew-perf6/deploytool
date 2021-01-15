@@ -249,7 +249,7 @@ func CreateChannel(channelName string) error {
 	return nil
 }
 
-func UpdateAnchor(channelName string) error {
+func UpdateAnchor(channelName, orgId string) error {
 	if channelName == "" {
 		return fmt.Errorf("channel name is nil")
 	}
@@ -261,6 +261,9 @@ func UpdateAnchor(channelName string) error {
 		order_tls_path = ConfigDir() + fmt.Sprintf("crypto-config/ordererOrganizations/%s/orderers/orderer0.%s/msp/tlscacerts/tlsca.%s-cert.pem", dirPath, dirPath, dirPath)
 	}
 	for _, peer := range GlobalConfig.Peers {
+		if orgId != "" && peer.OrgId != orgId {
+			continue
+		}
 		if peer.Id == "0" {
 			obj := NewFabCmd("create_channel.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
 			mspid := peer.OrgId
@@ -283,7 +286,7 @@ func CopyConfig(obj *NodeObj) {
 	obj.CryptoType = GlobalConfig.CryptoType
 }
 
-func JoinChannel(channelName,nodeName string) error {
+func JoinChannel(channelName, nodeName string) error {
 	if channelName == "" {
 		return fmt.Errorf("channel name is nil")
 	}

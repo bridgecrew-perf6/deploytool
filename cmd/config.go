@@ -18,6 +18,7 @@ const (
 	TplPeerCryptoConfig    = "crypto-config-peer.tpl"
 	TplCryptoConfig        = "crypto-config.tpl"
 	TplConfigtx            = "configtx.tpl"
+	TplConfigtxOrg         = "configtx-org.tpl"
 	TplExplorer            = "block_fabric_explorer.tpl"
 	TplClient              = "client_sdk.tpl"
 	TplRegister            = "registerApi.tpl"
@@ -150,10 +151,17 @@ type NodeObj struct {
 	TPLExpand
 }
 
+type ConfigOrgInfo struct {
+	MspID       string `json:"msp_id"`
+	MspPath     string `json:"msp_path"`
+	PeerAddress string `json:"peer_address"`
+	PeerPort    string `json:"peer_port"`
+}
+
 type OrgObj struct {
 	OrgId      string `json:"orgId"`
 	NodeCounts int    `json:"nodeCounts"`
-	Domain     string    `json:"domain"`
+	Domain     string `json:"domain"`
 }
 
 var allPeerHostIp, allOrdererHostIp []ExtraHosts
@@ -165,6 +173,10 @@ type ExtraHosts struct {
 
 func ConfigDir() string {
 	return os.Getenv("PWD") + "/config/"
+}
+
+func UpdateConfigDir() string {
+	return os.Getenv("PWD") + "/config/updateconfig/"
 }
 
 func InputDir() string {

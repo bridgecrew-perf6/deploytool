@@ -10,7 +10,6 @@ def get_bin_path(path, type, crypto_type):
         return ' BCCSP_CRYPTO_TYPE=GM %s/%s ' % (path, type)
     return ' %s/%s ' % (path, type)
 
-
 def kill_process(name):
     # kill the jmeter processes for unified order project
     with settings(warn_only=True):

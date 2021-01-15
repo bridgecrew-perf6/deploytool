@@ -5,4 +5,4 @@ PeerOrgs:
     Template:
       Count: {{.nodeCounts}}
     Users:
-      Count: 2
+      Count: 1

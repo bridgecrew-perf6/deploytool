@@ -11,14 +11,13 @@
   "consensusType":"raft", "imagePre":"peersafes","imageTag":"2.2.1-GM","log":"INFO",
   "batchTime":"1s", "batchSize":100, "batchPreferred":"1024 KB", "useCouchdb":"false",
   "orderers":[
-    {"ip":"10.0.2.15","id":"0","orgId":"ord","ports":["7050:7050"]},
-    {"ip":"10.0.2.15","id":"1","orgId":"ord","ports":["6050:7050"]},
-    {"ip":"10.0.2.15","id":"2","orgId":"ord","ports":["5050:7050"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"ord","ports":["7050:7050"]}
   ],
   "peers": [
     {"ip":"10.0.2.15","id":"0","orgId":"test","ports":["7051:7051"]},
-    {"ip":"10.0.2.15","id":"1","orgId":"test","ports":["8051:7051"]},
-    {"ip":"10.0.2.15","id":"2","orgId":"test","ports":["9051:7051"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"test2","ports":["8051:7051"]},
+    {"ip":"10.0.2.15","id":"0","orgId":"test3","ports":["9051:7051"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"test3","ports":["6051:7051"]}
   ],
   "cas": [
     {"ip":"10.0.2.15","certType":"orderer","orgId":"1","ports":["7054:7054"]},
