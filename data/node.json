@@ -6,16 +6,19 @@
   "ccName":"mycc","ccVersion":"1","ccInstallType":"path",
   "testArgs":"'{\"Args\":[\"SaveData\"\\,\"a\"\\,\"b\"\\,\"1\"]}'",
   "testArgs2":"'{\"Args\":[\"query\"\\,\"a\"]}'",
-  "ccPath":"github.com/peersafe/deployFabricTool/makeImage/chaincode/testcc/gm",
+  "ccPath":"github.com/peersafe/deployFabricTool/makeImage/chaincode/commoncc",
   "chan_counts":1,"mountPath": "/data", "caType": "1fabric-ca",
-  "consensusType":"raft", "imagePre":"peersafes","imageTag":"2.2.1-GM","log":"INFO",
+  "consensusType":"raft", "imagePre":"gmhyperledger","imageTag":"2.2.1-gm","log":"INFO",
   "batchTime":"1s", "batchSize":100, "batchPreferred":"1024 KB", "useCouchdb":"false",
   "orderers":[
-    {"ip":"10.0.2.15","id":"0","orgId":"ord","ports":["7050:7050"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"ord","ports":["7050:7050"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"ord","ports":["8050:7050"]},
+    {"ip":"10.0.2.15","id":"2","orgId":"ord","ports":["9050:7050"]}
   ],
   "peers": [
     {"ip":"10.0.2.15","id":"0","orgId":"test","ports":["7051:7051"]},
-    {"ip":"10.0.2.15","id":"1","orgId":"test","ports":["6051:7051"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"test2","ports":["6051:7051"]},
+    {"ip":"10.0.2.15","id":"0","orgId":"test3","ports":["8051:7051"]}
   ],
   "cas": [
     {"ip":"10.0.2.15","certType":"orderer","orgId":"1","ports":["7054:7054"]},
