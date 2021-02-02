@@ -87,6 +87,31 @@ func operationApiserver(isStart bool) {
 	wg.Wait()
 }
 
+func RunRmNode(nodename string) error {
+	if nodename == "" {
+		return fmt.Errorf("nodename is empty")
+	}
+	for _, peer := range GlobalConfig.Peers {
+		if peer.NodeName == nodename {
+			//删除节点
+			obj := NewFabCmd("removenode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
+			if err := obj.RunShow("remove_node", peer.NodeType, peer.NodeName); err != nil {
+				return err
+			}
+		}
+	}
+	for _, orderer := range GlobalConfig.Orderers {
+		if orderer.NodeName == nodename {
+			//删除节点
+			obj := NewFabCmd("removenode.py", orderer.Ip, orderer.SshUserName, orderer.SshPwd, orderer.SshPort, orderer.SshKey)
+			if err := obj.RunShow("remove_node", orderer.NodeType, orderer.NodeName); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func RunAddNode(nodename string) error {
 	if nodename == "" {
 		return fmt.Errorf("nodename is empty")

@@ -75,3 +75,52 @@ func AddOrgToConfigBlock(orgid, channelName string) error {
 	}
 	return nil
 }
+
+//从配置块删除组织
+func RmOrgFromConfigBlock(orgid, channelName string) error {
+	if orgid == "" {
+		return fmt.Errorf("orgid is empty")
+	}
+	if channelName == "" {
+		return fmt.Errorf("channelName is empty")
+	}
+	ordererAddress := ""
+	order_tls_path := ""
+	for _, ord := range GlobalConfig.Orderers {
+		ordererAddress = fmt.Sprintf("%s:%s", ord.NodeName, ord.ExternalPort)
+		dirPath := fmt.Sprintf("%s.%s", ord.OrgId, GlobalConfig.Domain)
+		order_tls_path = ConfigDir() + fmt.Sprintf("crypto-config/ordererOrganizations/%s/orderers/orderer0.%s/msp/tlscacerts/tlsca.%s-cert.pem", dirPath, dirPath, dirPath)
+		break
+	}
+	type OrgInfo struct {
+		OrgId string `json:"orgid"`
+	}
+	var OrgInfoList []*OrgInfo
+	var info OrgInfo
+	info.OrgId = orgid
+	OrgInfoList = append(OrgInfoList,&info)
+	//check orgid exist
+	isExist := false
+	for _, peer := range GlobalConfig.Peers {
+		if peer.OrgId == orgid {
+			isExist = true
+			break
+		}
+	}
+	if !isExist {
+		return fmt.Errorf("the orgid: %s ,not exist node.json file", orgid)
+	}
+	str_value, _ := json.Marshal(OrgInfoList)
+	orgListStr := strings.Replace(string(str_value), ",", `\,`, -1)
+	cmd := NewLocalFabCmd("remove_org.py")
+	OperationOrgId := ""
+	for _, peer := range GlobalConfig.Peers {
+		OperationOrgId = peer.OrgId
+		break
+	}
+	err := cmd.RunShow("delete_org_new", BinPath(), ConfigDir(), OperationOrgId, orgListStr, ordererAddress, order_tls_path, GlobalConfig.Domain, channelName)
+	if err != nil {
+		return err
+	}
+	return nil
+}

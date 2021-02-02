@@ -23,7 +23,7 @@ var (
 	function    = flag.String("func", "invoke", "invoke or query")
 	run         = flag.String("r", "", "joinchannel,  updateanchor, installchaincode, runchaincode, "+
 		"createpeeryaml, addorgnodecert,putnodecrypto,runaddnode,installcctonewnode,"+
-		"addorgtoconfigblock,createneworgconfigtxfile,runcctonewnode,checknode, upgradecc,testcc")
+		"addorgtoconfigblock,createneworgconfigtxfile,runcctonewnode,rmorgfromconfigblock,checknode, upgradecc,testcc")
 	put        = flag.String("p", "", "put all (include crypto-config and channel-artifacts to remote)")
 	removeData = flag.String("rm", "", "remove mount data")
 	analyse    = flag.String("a", "", "event analyse")
@@ -106,6 +106,10 @@ func main() {
 		err = cmd.CreateNewOrgConfigTxFile(*orgid)
 	} else if *run == "addorgtoconfigblock" {
 		err = cmd.AddOrgToConfigBlock(*orgid, *channelname)
+	} else if *run == "rmorgfromconfigblock" {
+		err = cmd.RmOrgFromConfigBlock(*orgid, *channelname)
+	} else if *run == "rmnode" {
+		err = cmd.RunRmNode(*nodename)
 	} else {
 		fmt.Println("Both data and file are nil.")
 		flag.Usage()
