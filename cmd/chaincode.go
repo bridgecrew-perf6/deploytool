@@ -86,7 +86,7 @@ func InstallChaincode(ccname, ccversion, channelName, ccpath, nodename string) e
 			obj := NewLocalFabCmd("chaincode.py")
 			err := obj.RunShow("install_chaincode", GlobalConfig.FabricVersion, binPath, configDir, peerAds, PeerId, OrgId, Pdn, ccname, ccversion, ccpath, GlobalConfig.CCInstallType, GlobalConfig.CryptoType)
 			if err != nil {
-				panic(err)
+				fmt.Println(err)
 			}
 		}(BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
 	}
@@ -166,7 +166,7 @@ func RunChaincode(ccname, ccversion, channelName, opration string) error {
 			}(BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
 		} else {
 			if peer.Id == "0" {
-				peerTlsCert := fmt.Sprintf("%s/crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/server.crt", ConfigDir(), peer.OrgId, peer.Domain, peer.Id, peer.OrgId, peer.Domain)
+				peerTlsCert := fmt.Sprintf("%s/crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/ca.crt", ConfigDir(), peer.OrgId, peer.Domain, peer.Id, peer.OrgId, peer.Domain)
 				cmdParas = cmdParas + fmt.Sprintf("  --peerAddresses %s --tlsRootCertFiles %s", peerAddress, peerTlsCert)
 			}
 		}
@@ -217,7 +217,7 @@ func RunCCToNewNode(ccname, ccversion, channelName string) error {
 	for _, peer := range GlobalConfig.Peers {
 		peerAddress := fmt.Sprintf("peer%s.%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
 		if peer.Id == "0" {
-			peerTlsCert := fmt.Sprintf("%s/crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/server.crt", ConfigDir(), peer.OrgId, peer.Domain, peer.Id, peer.OrgId, peer.Domain)
+			peerTlsCert := fmt.Sprintf("%s/crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/ca.crt", ConfigDir(), peer.OrgId, peer.Domain, peer.Id, peer.OrgId, peer.Domain)
 			cmdParas = cmdParas + fmt.Sprintf("  --peerAddresses %s --tlsRootCertFiles %s", peerAddress, peerTlsCert)
 		}
 	}
@@ -278,7 +278,7 @@ func TestChaincode(ccname, channelName, function, testArgs string) error {
 			}(BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain)
 		} else {
 			//if peer.Id == "0" {
-			peerTlsCert := fmt.Sprintf("%s/crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/server.crt", ConfigDir(), peer.OrgId, peer.Domain, peer.Id, peer.OrgId, peer.Domain)
+			peerTlsCert := fmt.Sprintf("%s/crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/ca.crt", ConfigDir(), peer.OrgId, peer.Domain, peer.Id, peer.OrgId, peer.Domain)
 			cmdParas = cmdParas + fmt.Sprintf("  --peerAddresses %s --tlsRootCertFiles %s", peerAddress, peerTlsCert)
 			//}
 		}
