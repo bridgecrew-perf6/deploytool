@@ -308,7 +308,7 @@ docker exec manager bash -c './newnodejoinchann.sh basechannel peer1.test.irchai
 
 #### 4. 新节点部署智能合约
 
-脚本后参数1： 通道名， 参数2：合约名  参数3：当前智能合约版本 参数3：节点名
+脚本后参数1： 通道名， 参数2：合约名  参数3：当前智能合约版本(升级后这个版本要变化)  参数3：节点名
 
 ```bash
 docker exec manager bash -c './newnodeinstallcc.sh basechannel basecc 1 peer1.test.irchain.net'
