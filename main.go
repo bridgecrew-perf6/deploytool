@@ -22,7 +22,7 @@ var (
 	testArgs    = flag.String("args", "", "test chaincode args")
 	function    = flag.String("func", "invoke", "invoke or query")
 	run         = flag.String("r", "", "joinchannel,  updateanchor, installchaincode, runchaincode, "+
-		"createpeeryaml, addorgnodecert,putnodecrypto,runaddnode,installcctonewnode,"+
+		"createnodeyaml, addorgnodecert,putnodecrypto,runaddnode,installcctonewnode,"+
 		"addorgtoconfigblock,createneworgconfigtxfile,runcctonewnode,rmorgfromconfigblock,checknode, upgradecc,testcc")
 	put        = flag.String("p", "", "put all (include crypto-config and channel-artifacts to remote)")
 	removeData = flag.String("rm", "", "remove mount data")
@@ -94,8 +94,8 @@ func main() {
 		err = cmd.AddOrgNodeCertById(*orgid)
 	} else if *run == "putnodecrypto" {
 		err = cmd.PutNodeCrypto(*nodename)
-	} else if *run == "createpeeryaml" {
-		err = cmd.CreatePeerYaml(*nodename)
+	} else if *run == "createnodeyaml" {
+		err = cmd.CreateNodeYaml(*nodename)
 	} else if *run == "runaddnode" {
 		err = cmd.RunAddNode(*nodename)
 	} else if *run == "installcctonewnode" {
@@ -108,8 +108,16 @@ func main() {
 		err = cmd.AddOrgToConfigBlock(*orgid, *channelname)
 	} else if *run == "rmorgfromconfigblock" {
 		err = cmd.RmOrgFromConfigBlock(*orgid, *channelname)
+	} else if *run == "addordertoconfigblock" {
+		err = cmd.HandleOrderToConfigBlock(*nodename, *channelname, "add")
+	} else if *run == "rmorderfromconfigblock" {
+		err = cmd.HandleOrderToConfigBlock(*nodename, *channelname, "del")
 	} else if *run == "rmnode" {
 		err = cmd.RunRmNode(*nodename)
+	} else if *run == "updatenodedomain" {
+		err = cmd.UpdateNodeDomain(*nodename)
+	} else if *run == "updategenesisblock" {
+		err = cmd.UpdateGenesisBlock()
 	} else {
 		fmt.Println("Both data and file are nil.")
 		flag.Usage()

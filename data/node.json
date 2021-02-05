@@ -11,7 +11,10 @@
   "consensusType":"raft", "imagePre":"gmhyperledger","imageTag":"2.2.1-gm","log":"INFO",
   "batchTime":"1s", "batchSize":100, "batchPreferred":"1024 KB", "useCouchdb":"false",
   "orderers":[
-    {"ip":"10.0.2.15","id":"0","orgId":"ord","ports":["7050:7050"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"ord","ports":["6050:7050"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"ord","ports":["7050:7050"]},
+    {"ip":"10.0.2.15","id":"2","orgId":"ord","ports":["8050:7050"]},
+    {"ip":"10.0.2.15","id":"3","orgId":"ord","ports":["9050:7050"]}
   ],
   "peers": [
     {"ip":"10.0.2.15","id":"0","orgId":"test","ports":["7051:7051"]},

@@ -43,6 +43,7 @@ def put_cryptoconfig(config_path, type, node_name, org_name, cert_peer_name):
             local('tar -zcvf %s_crypto-config.tar.gz crypto-config/ordererOrganizations/%s/orderers/%s' % (
                 node_name, org_name, node_name))
             copy_file(config_path, "%s_crypto-config.tar.gz" % node_name)
+            local("tar -zcvf channel-artifacts.tar.gz channel-artifacts")
             copy_file(config_path, "channel-artifacts.tar.gz")
             # copy_file(config_path,"kafkaTLSclient.tar.gz")
         elif type == "kafka":

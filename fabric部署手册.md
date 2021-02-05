@@ -337,7 +337,7 @@ docker exec manager bash -c './neworgconfigupdate.sh test3 basechannel'
 
 参照 上一节： 《新增已存在组织peer节点》
 
-#### 5.删除原有Peer组织
+### 删除原有Peer组织
 
 执行如下命令：参数 -orgid （要删除组织id)     -n （通道名）
 
@@ -345,12 +345,123 @@ docker exec manager bash -c './neworgconfigupdate.sh test3 basechannel'
 docker exec manager bash -c './deployFabricTool -r rmorgfromconfigblock -orgid test2 -n mychannel'
 ```
 
-#### 5.删除原有Peer节点
+### 删除原有Peer节点
 
-执行如下命令：参数 -nodename （要删除节点名)     
+执行如下命令：参数 -nodename （要删除节点名)   注意该命令不会删除挂载账本目录
 
 ```bash
 docker exec manager bash -c './deployFabricTool -r rmnode -nodename peer0.test2.example.com'
+```
+
+### 添加新Orderer节点
+
+#### 1.修改node.json文件在orderers里面添加正确节点信息
+
+```json
+//新增 orderer3.ord.example.com 节点，注意按照json格式上一行结尾加逗号
+{"ip":"10.0.2.15","id":"3","orgId":"ord","ports":["9050:7050"]}
+```
+
+#### 2.更新原有orderer节点的域名列表
+
+PS:  添加新orderer节点前需要在原有节点的域名映射列表里面增加新orderer节点连接方式
+
+脚本后参数1： 操作方法名， 参数2：节点名    
+
+```bash
+docker exec manager bash -c './deployFabricTool -r updatenodedomain -nodename orderer0.ord.example.com'
+```
+
+```bash
+docker exec manager bash -c './deployFabricTool -r updatenodedomain -nodename orderer1.ord.example.com'
+```
+
+```bash
+docker exec manager bash -c './deployFabricTool -r updatenodedomain -nodename orderer2.ord.example.com'
+```
+
+#### 3.生成新orderer节点证书
+
+脚本后参数1： 操作方法名， 参数2：节点所在组织名（orderer节点的都是ord)
+
+```bash
+docker exec manager bash -c './deployFabricTool -r addorgnodecert -orgid ord'
+```
+
+#### 3.添加新节点到系统通道
+
+PS: 更新业务通道前，必须先更新系统通道
+
+脚本后参数1： 操作方法名， 参数2：节点名    ， 参数3： 通道名
+
+```bash
+docker exec manager bash -c './deployFabricTool -r addordertoconfigblock -nodename orderer3.ord.example.com -n byfn-sys-channel'
+```
+
+#### 4.添加新节点到业务通道
+
+PS: 更新业务通道前，必须先更新系统通道
+
+脚本后参数1： 操作命， 参数2：节点名    ， 参数3： 通道名
+
+```bash
+docker exec manager bash -c './deployFabricTool -r addordertoconfigblock -nodename orderer3.ord.example.com -n mychannel'
+```
+
+#### 5.更新新orderer节点启动依赖的创世区块
+
+PS: 必须用最新的系统通道配置块，作为新orderer节点的创世块
+
+```bash
+docker exec manager bash -c './deployFabricTool -r updategenesisblock'
+```
+
+#### 6.生成orderer节点yaml文件并启动
+
+脚本后参数1： 组织名， 参数2：节点名
+
+```bash
+docker exec manager bash -c './newordereradd.sh ord orderer3.ord.example.com'
+```
+
+#### 7. 确认新orderer节点加入通道成功
+
+PS: 等待一段时间，新orderer节点需要同步之前的区块
+
+```bash
+docker logs -f orderer3.ord.example.com --tail 1000 2>&1 | grep Writing
+```
+
+PS： 执行上面命令如果新orderer节点最后写的区块号为当前网络最新区块号，则说明新orderer加入集群成功。
+
+### 删除Orderer节点
+
+#### 1.删除orderer节点从系统通道
+
+PS: 更新业务通道前，必须先更新系统通道
+
+脚本后参数1： 操作方法名， 参数2：节点名    ， 参数3： 通道名
+
+```bash
+docker exec manager bash -c './deployFabricTool -r rmorderfromconfigblock -nodename orderer3.ord.example.com -n byfn-sys-channel'
+```
+
+#### 2.删除orderer节点从业务通道
+
+PS: 更新业务通道前，必须先更新系统通道
+
+脚本后参数1： 操作命， 参数2：节点名    ， 参数3： 通道名
+
+```bash
+docker exec manager bash -c './deployFabricTool -r rmorderfromconfigblock -nodename orderer3.ord.example.com -n mychannel'
+```
+
+#### 3.删除orderer节点容器
+
+执行如下命令：参数 -nodename （要删除节点名)   注意该命令不会删除挂载账本目录
+
+```bash
+docker exec manager bash -c './deployFabricTool -r rmnode -nodename orderer3.ord.example.com'
 ```
 
 ## 后台客户端所需证书目录

@@ -72,3 +72,11 @@ def chmod_all(path, mode):
 
 def rm_local(path):
     local("rm -rf %s" % path)
+
+def safe_local(cmd):
+    result = local(cmd, capture=True)
+    index = result.rfind('\n')
+    if index != -1:
+        result = result[index+1:]
+
+    return result

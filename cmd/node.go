@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/peersafe/deployFabricTool/tpl"
 	"sync"
 )
 
@@ -125,6 +126,15 @@ func RunAddNode(nodename string) error {
 			}
 		}
 	}
+	for _, order := range GlobalConfig.Orderers {
+		if order.NodeName == nodename {
+			//启动节点
+			obj := NewFabCmd("add_node.py", order.Ip, order.SshUserName, order.SshPwd, order.SshPort, order.SshKey)
+			if err := obj.RunShow("start_node", order.NodeName, ConfigDir()); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
@@ -212,5 +222,46 @@ func CheckNode(stringType string) error {
 		}
 	}
 
+	return nil
+}
+
+func UpdateNodeDomain(nodeName string) error {
+	for _, peer := range GlobalConfig.Peers {
+		if peer.NodeName == nodeName {
+			CopyConfig(&peer)
+			outfile := ConfigDir() + peer.NodeName
+			if err := tpl.Handler(peer, TplPath(TplPeer), outfile+".yaml"); err != nil {
+				return err
+			}
+		}
+	}
+	for _, order := range GlobalConfig.Orderers {
+		if order.NodeName == nodeName {
+			CopyConfig(&order)
+			outfile := ConfigDir() + order.NodeName
+			if err := tpl.Handler(order, TplPath(TplOrderer), outfile+".yaml"); err != nil {
+				return err
+			}
+		}
+	}
+
+	for _, peer := range GlobalConfig.Peers {
+		if peer.NodeName == nodeName {
+			//启动节点
+			obj := NewFabCmd("add_node.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
+			if err := obj.RunShow("start_node", peer.NodeName, ConfigDir()); err != nil {
+				return err
+			}
+		}
+	}
+	for _, order := range GlobalConfig.Orderers {
+		if order.NodeName == nodeName {
+			//启动节点
+			obj := NewFabCmd("add_node.py", order.Ip, order.SshUserName, order.SshPwd, order.SshPort, order.SshKey)
+			if err := obj.RunShow("start_node", order.NodeName, ConfigDir()); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }

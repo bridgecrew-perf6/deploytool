@@ -2,18 +2,14 @@
 
 ORG_ID="$1"
 NODE_NAME="$2"
-: ${ORG_ID:="test"}
-: ${NODE_NAME:="peer3.test.example.com"}
+: ${ORG_ID:="ord"}
+: ${NODE_NAME:="orderer3.ord.example.com"}
 verifyResult() {
   if [ $1 -ne 0 ]; then
     echo "!!!!!!!!!!!!!!! FAIL !!!!!!!!!!!!!!!!"
     exit 1
   fi
 }
-
-echo "-------增加组织内节点证书-------"
-./deployFabricTool -r addorgnodecert -orgid $ORG_ID
-verifyResult $?
 
 echo "-------证书传递到远程服务器-------"
 ./deployFabricTool -r putnodecrypto -nodename $NODE_NAME

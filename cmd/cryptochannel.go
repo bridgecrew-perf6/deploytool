@@ -29,6 +29,21 @@ func AddOrgNodeCertById(orgid string) error {
 			}
 		}
 	}
+	for name, counts := range GlobalConfig.OrdList {
+		if name == orgid {
+			//生成组织配置文件
+			outFile := ConfigDir() + name + "-crypto-config-orderer.yaml"
+			orgObj := OrgObj{name, counts, GlobalConfig.Domain}
+			if err := tpl.Handler(orgObj, TplPath(TplOrdererCryptoConfig), outFile); err != nil {
+				return err
+			}
+			//根据配置文件生成证书
+			obj := NewLocalFabCmd("apply_cert.py")
+			if err := obj.RunShow("generate_certs", BinPath(), outFile, ConfigDir(), GlobalConfig.CryptoType); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
@@ -115,7 +130,7 @@ func makeExploreYaml() error {
 	return nil
 }
 
-func CreatePeerYaml(nodename string) error {
+func CreateNodeYaml(nodename string) error {
 	if nodename == "" {
 		return fmt.Errorf("nodename is empty")
 	}
@@ -124,6 +139,15 @@ func CreatePeerYaml(nodename string) error {
 			CopyConfig(&peer)
 			outfile := ConfigDir() + peer.NodeName
 			if err := tpl.Handler(peer, TplPath(TplPeer), outfile+".yaml"); err != nil {
+				return err
+			}
+		}
+	}
+	for _, order := range GlobalConfig.Orderers {
+		if order.NodeName == nodename {
+			CopyConfig(&order)
+			outfile := ConfigDir() + order.NodeName
+			if err := tpl.Handler(order, TplPath(TplOrderer), outfile+".yaml"); err != nil {
 				return err
 			}
 		}
@@ -314,6 +338,16 @@ func PutNodeCrypto(nodename string) error {
 			orgName := fmt.Sprintf("%s.%s", peer.OrgId, GlobalConfig.Domain)
 			obj := NewFabCmd("apply_cert.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
 			err := obj.RunShow("put_cryptoconfig", ConfigDir(), TypePeer, peer.NodeName, orgName, "")
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+		}
+	}
+	for _, order := range GlobalConfig.Orderers {
+		if order.NodeName == nodename {
+			orgName := fmt.Sprintf("%s.%s", order.OrgId, GlobalConfig.Domain)
+			obj := NewFabCmd("apply_cert.py", order.Ip, order.SshUserName, order.SshPwd, order.SshPort, order.SshKey)
+			err := obj.RunShow("put_cryptoconfig", ConfigDir(), TypeOrder, order.NodeName, orgName, "")
 			if err != nil {
 				fmt.Println(err.Error())
 			}
