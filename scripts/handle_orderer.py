@@ -55,8 +55,8 @@ def handle_orderer(bin_path, yaml_path, new_node_name, new_node_port, org_id, or
     # elseif baseimage=alpine
     cert_str = ""
     with open(new_orderer_tls_file, 'rb') as file:   # 将文件路径和文件名改成自己需要的
-        for line in file.readlines():  #  去除每一行之后的换行符
-            cert_str += line.strip()
+        for line in file.readlines():
+            cert_str += line
     new_orderer_tls_str = base64.b64encode(cert_str)
    #end
     new_cert_struct = '{"client_tls_cert":"%s","host":"%s","port":%s,"server_tls_cert":"%s"}' % (

@@ -167,7 +167,7 @@ ccPath： 智能合约源码路径或包绝对路径(容器内位置),
     已内置智能合约：存证类:'github.com/chaincode/commoncc'
 testArgs： 执行测试智能合约的参数
 chan_counts： 创建的业务通道个数，默认为1对应通道"mychannel" 修改后为"mychannel2" ...
-mountPath: orderer和peer节点账本数据挂载的宿主机位置，默认"/data"eg:/data/peer0.org1.example.com
+mountPath: orderer和peer节点账本数据挂载的宿主机位置，默认"/data"eg:/data/peer0.org1.irchain.net
 imagePre： 镜像前缀,   eg：  "gmhyperledger"
 imageTag: 镜像标签， eg: "2.0.0-gm" 
 log: orderer和peer日志级别， eg: "INFO"
@@ -275,7 +275,7 @@ docker exec manager bash -c './invokecc.sh basechannel basecc'
 参数1： 操作方法名， 参数2：节点名称
 
 ```bash
-docker exec manager bash -c './deployFabricTool -r chanlist -nodename peer0.test.example.com'
+docker exec manager bash -c './deployFabricTool -r chanlist -nodename peer0.test.irchain.net'
 ```
 
 ### 新增已存在组织peer节点
@@ -286,7 +286,7 @@ docker exec manager bash -c './deployFabricTool -r chanlist -nodename peer0.test
 
 ```json
 {"ip":"10.0.2.15","id":"0","orgId":"test","ports":["7051:7051"]},
-//新增 peer1.test.example.com 节点
+//新增 peer1.test.irchain.net 节点
 {"ip":"10.0.2.15","id":"1","orgId":"test","ports":["6051:7051"]} 
 ```
 
@@ -295,7 +295,7 @@ docker exec manager bash -c './deployFabricTool -r chanlist -nodename peer0.test
 脚本后参数1： 组织名， 参数2：节点名
 
 ```bash
-docker exec manager bash -c './newnodeadd.sh test peer1.test.example.com'
+docker exec manager bash -c './newnodeadd.sh test peer1.test.irchain.net'
 ```
 
 #### 3. 新节点加入通道
@@ -303,15 +303,15 @@ docker exec manager bash -c './newnodeadd.sh test peer1.test.example.com'
 脚本后参数1： 通道名， 参数2：节点名
 
 ```bash
-docker exec manager bash -c './newnodejoinchann.sh basechannel peer1.test.example.com'
+docker exec manager bash -c './newnodejoinchann.sh basechannel peer1.test.irchain.net'
 ```
 
 #### 4. 新节点部署智能合约
 
-脚本后参数1： 通道名， 参数2：合约名 参数3：节点名
+脚本后参数1： 通道名， 参数2：合约名  参数3：当前智能合约版本 参数3：节点名
 
 ```bash
-docker exec manager bash -c './newnodeinstallcc.sh basechannel basecc peer1.test.example.com'
+docker exec manager bash -c './newnodeinstallcc.sh basechannel basecc 1 peer1.test.irchain.net'
 ```
 
 ### 添加Peer组织
@@ -321,7 +321,7 @@ docker exec manager bash -c './newnodeinstallcc.sh basechannel basecc peer1.test
 修改node.json文件在peers里面添加正确节点信息
 
 ```json
-//新增 peer0.test3.example.com 节点
+//新增 peer0.test3.irchain.net 节点
 {"ip":"10.0.2.15","id":"0","orgId":"test3","ports":["7051:7051"]},
 ```
 
@@ -358,7 +358,7 @@ docker exec manager bash -c './deployFabricTool -r rmorgfromconfigblock -orgid t
 执行如下命令：参数 -nodename （要删除节点名)   注意该命令不会删除挂载账本目录
 
 ```bash
-docker exec manager bash -c './deployFabricTool -r rmnode -nodename peer0.test2.example.com'
+docker exec manager bash -c './deployFabricTool -r rmnode -nodename peer0.test2.irchain.net'
 ```
 
 ### 添加新Orderer节点
@@ -366,7 +366,7 @@ docker exec manager bash -c './deployFabricTool -r rmnode -nodename peer0.test2.
 #### 1.修改node.json文件在orderers里面添加正确节点信息
 
 ```json
-//新增 orderer3.ord.xxx.xxx 节点，注意按照json格式上一行结尾加逗号
+//新增 orderer3.ord.irchain.net 节点，注意按照json格式上一行结尾加逗号
 {"ip":"10.0.2.15","id":"3","orgId":"ord","ports":["9050:7050"]}
 ```
 
@@ -377,15 +377,15 @@ PS:  添加新orderer节点前需要在原有节点的域名映射列表里面�
 脚本后参数1： 操作方法名， 参数2：节点名    
 
 ```bash
-docker exec manager bash -c './deployFabricTool -r updatenodedomain -nodename orderer0.ord.xxx.xxx'
+docker exec manager bash -c './deployFabricTool -r updatenodedomain -nodename orderer0.ord.irchain.net'
 ```
 
 ```bash
-docker exec manager bash -c './deployFabricTool -r updatenodedomain -nodename orderer1.ord.xxx.xxx'
+docker exec manager bash -c './deployFabricTool -r updatenodedomain -nodename orderer1.ord.irchain.net'
 ```
 
 ```bash
-docker exec manager bash -c './deployFabricTool -r updatenodedomain -nodename orderer2.ord.xxx.xxx'
+docker exec manager bash -c './deployFabricTool -r updatenodedomain -nodename orderer2.ord.irchain.net'
 ```
 
 #### 3.生成新orderer节点证书
@@ -403,7 +403,7 @@ PS: 更新业务通道前，必须先更新系统通道
 脚本后参数1： 操作方法名， 参数2：节点名    ， 参数3： 通道名
 
 ```bash
-docker exec manager bash -c './deployFabricTool -r addordertoconfigblock -nodename orderer3.ord.xxx.xxx -n byfn-sys-channel'
+docker exec manager bash -c './deployFabricTool -r addordertoconfigblock -nodename orderer3.ord.irchain.net -n byfn-sys-channel'
 ```
 
 #### 4.添加新节点到业务通道
@@ -413,7 +413,7 @@ PS: 更新业务通道前，必须先更新系统通道
 脚本后参数1： 操作命， 参数2：节点名    ， 参数3： 通道名
 
 ```bash
-docker exec manager bash -c './deployFabricTool -r addordertoconfigblock -nodename orderer3.ord.xxx.xxx -n mychannel'
+docker exec manager bash -c './deployFabricTool -r addordertoconfigblock -nodename orderer3.ord.irchain.net -n basechannel'
 ```
 
 #### 5.更新新orderer节点启动依赖的创世区块
@@ -429,7 +429,7 @@ docker exec manager bash -c './deployFabricTool -r updategenesisblock'
 脚本后参数1： 组织名， 参数2：节点名
 
 ```bash
-docker exec manager bash -c './newordereradd.sh ord orderer3.ord.xxx.xxx'
+docker exec manager bash -c './newordereradd.sh ord orderer3.ord.irchain.net'
 ```
 
 #### 7. 确认新orderer节点加入通道成功
@@ -437,7 +437,7 @@ docker exec manager bash -c './newordereradd.sh ord orderer3.ord.xxx.xxx'
 PS: 等待一段时间，新orderer节点需要同步之前的区块
 
 ```bash
-docker logs -f orderer3.ord.xxx.xxx --tail 1000 2>&1 | grep Writing
+docker logs -f orderer3.ord.irchain.net --tail 1000 2>&1
 ```
 
 PS： 执行上面命令如果新orderer节点最后写的区块号为当前网络最新区块号，则说明新orderer加入集群成功。
@@ -451,7 +451,7 @@ PS: 更新业务通道前，必须先更新系统通道
 脚本后参数1： 操作方法名， 参数2：节点名    ， 参数3： 通道名
 
 ```bash
-docker exec manager bash -c './deployFabricTool -r rmorderfromconfigblock -nodename orderer3.ord.xxx.xxx -n byfn-sys-channel'
+docker exec manager bash -c './deployFabricTool -r rmorderfromconfigblock -nodename orderer3.ord.irchain.net -n byfn-sys-channel'
 ```
 
 #### 2.删除orderer节点从业务通道
@@ -461,7 +461,7 @@ PS: 更新业务通道前，必须先更新系统通道
 脚本后参数1： 操作命， 参数2：节点名    ， 参数3： 通道名
 
 ```bash
-docker exec manager bash -c './deployFabricTool -r rmorderfromconfigblock -nodename orderer3.ord.xxx.xxx -n mychannel'
+docker exec manager bash -c './deployFabricTool -r rmorderfromconfigblock -nodename orderer3.ord.irchain.net -n basechannel'
 ```
 
 #### 3.删除orderer节点容器
@@ -469,7 +469,7 @@ docker exec manager bash -c './deployFabricTool -r rmorderfromconfigblock -noden
 执行如下命令：参数 -nodename （要删除节点名)   注意该命令不会删除挂载账本目录
 
 ```bash
-docker exec manager bash -c './deployFabricTool -r rmnode -nodename orderer3.ord.xxx.xxx'
+docker exec manager bash -c './deployFabricTool -r rmnode -nodename orderer3.ord.irchain.net'
 ```
 
 ## 后台客户端所需证书目录
