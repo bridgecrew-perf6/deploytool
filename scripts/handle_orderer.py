@@ -3,6 +3,7 @@
 
 import os
 import sys
+import base64
 from fabric.api import local, task
 
 import utils
@@ -20,7 +21,7 @@ def handle_orderer(bin_path, yaml_path, new_node_name, new_node_port, org_id, or
     msp_path = yaml_path + "crypto-config/ordererOrganizations/%s.%s/users/Admin@%s.%s/msp" % (
         org_id, domain_name, org_id, domain_name)
     update_config_dir = yaml_path + "updateconfig/"
-    local('mkdir -p %s'%update_config_dir)
+    local('mkdir -p %s' % update_config_dir)
 
     env = 'FABRIC_CFG_PATH=%s ' % yaml_path
     env = env + ' CORE_PEER_LOCALMSPID=%s ' % org_id
@@ -48,16 +49,24 @@ def handle_orderer(bin_path, yaml_path, new_node_name, new_node_port, org_id, or
 
     new_orderer_tls_file = yaml_path + "crypto-config/ordererOrganizations/%s.%s/orderers/%s/tls/server.crt" % (
         org_id, domain_name, new_node_name)
-    command = 'base64 %s -w 0' % new_orderer_tls_file
-    new_orderer_tls_str = utils.safe_local(command)
+    # if baseimage=ubuntu
+    # command = 'base64 %s -w 0' % new_orderer_tls_file
+    #new_orderer_tls_str = utils.safe_local(command)
+    # elseif baseimage=alpine
+    cert_str = ""
+    with open(new_orderer_tls_file, 'rb') as file:   # 将文件路径和文件名改成自己需要的
+        for line in file.readlines():  #  去除每一行之后的换行符
+            cert_str += line.strip()
+    new_orderer_tls_str = base64.b64encode(cert_str)
+   #end
     new_cert_struct = '{"client_tls_cert":"%s","host":"%s","port":%s,"server_tls_cert":"%s"}' % (
         new_orderer_tls_str, new_node_name, new_node_port, new_orderer_tls_str)
 
     command = ' jq \'.channel_group.groups.Orderer.values.ConsensusType.value.metadata.consenters %s [%s]\' %s/config.json > %s/temp.json' % (
-    OPERATION, new_cert_struct, update_config_dir, update_config_dir)
+        OPERATION, new_cert_struct, update_config_dir, update_config_dir)
     local(command)
     command = ' jq \'.channel_group.values.OrdererAddresses.value.addresses %s ["%s:%s"]\' %s/temp.json > %s/update_config.json' % (
-    OPERATION, new_node_name, new_node_port, update_config_dir, update_config_dir)
+        OPERATION, new_node_name, new_node_port, update_config_dir, update_config_dir)
     local(command)
 
     # Compute a config update, based on the differences between config.json and modified_config.json, write it as a transaction to org3_update_in_envelope.pb
@@ -103,9 +112,8 @@ def handle_orderer(bin_path, yaml_path, new_node_name, new_node_port, org_id, or
     local(command)
 
 
-
 @task
-def update_genesis_block(bin_path, yaml_path, org_id, orderer_address, orderer_tls_path,domain_name):
+def update_genesis_block(bin_path, yaml_path, org_id, orderer_address, orderer_tls_path, domain_name):
     msp_path = yaml_path + "crypto-config/ordererOrganizations/%s.%s/users/Admin@%s.%s/msp" % (
         org_id, domain_name, org_id, domain_name)
     update_config_dir = yaml_path + "channel-artifacts/"
@@ -120,4 +128,3 @@ def update_genesis_block(bin_path, yaml_path, org_id, orderer_address, orderer_t
     tls = ' --tls --cafile %s' % orderer_tls_path
     command = env + bin + param + tls
     local(command)
-

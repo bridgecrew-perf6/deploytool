@@ -22,8 +22,9 @@ var (
 	testArgs    = flag.String("args", "", "test chaincode args")
 	function    = flag.String("func", "invoke", "invoke or query")
 	run         = flag.String("r", "", "joinchannel,  updateanchor, installchaincode, runchaincode, "+
-		"createnodeyaml, addorgnodecert,putnodecrypto,runaddnode,installcctonewnode,"+
-		"addorgtoconfigblock,createneworgconfigtxfile,runcctonewnode,rmorgfromconfigblock,checknode, upgradecc,testcc")
+		"createnodeyaml, addorgnodecert,putnodecrypto,runaddnode,installcctonewnode,chanlist"+
+		"addorgtoconfigblock,createneworgconfigtxfile,runcctonewnode,rmorgfromconfigblock" +
+		",checknode, upgradecc,testcc,updatenodedomain,updategenesisblock,rmorderfromconfigblock,addordertoconfigblock")
 	put        = flag.String("p", "", "put all (include crypto-config and channel-artifacts to remote)")
 	removeData = flag.String("rm", "", "remove mount data")
 	analyse    = flag.String("a", "", "event analyse")
@@ -114,6 +115,8 @@ func main() {
 		err = cmd.HandleOrderToConfigBlock(*nodename, *channelname, "del")
 	} else if *run == "rmnode" {
 		err = cmd.RunRmNode(*nodename)
+	} else if *run == "chanlist" {
+		err = cmd.ChanList(*nodename)
 	} else if *run == "updatenodedomain" {
 		err = cmd.UpdateNodeDomain(*nodename)
 	} else if *run == "updategenesisblock" {

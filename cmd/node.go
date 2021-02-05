@@ -138,6 +138,23 @@ func RunAddNode(nodename string) error {
 	return nil
 }
 
+func ChanList(nodename string) error {
+	if nodename == "" {
+		return fmt.Errorf("nodename is empty")
+	}
+	for _, peer := range GlobalConfig.Peers {
+		if peer.NodeName == nodename {
+			//启动节点
+			peerAddress := fmt.Sprintf("peer%s.%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
+			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
+			if err := obj.RunShow("channel_list", BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, peer.Domain, ""); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func HandleNode(stringType string, isStart bool) error {
 	if stringType == TypeExplorer {
 		operationExplorer(isStart)

@@ -155,3 +155,21 @@ def test_chaincode(fabric_version, func, bin_path, yaml_path, peer_address, orde
 
     command = env + bin + param + tls
     local(command)
+
+
+def channel_list(bin_path, yaml_path, peer_address, peer_id, org_id, domain_name,crypto_type):
+    tls_root_file = yaml_path + "crypto-config/peerOrganizations/%s.%s/peers/peer%s.%s.%s/tls/ca.crt" % (
+        org_id, domain_name, peer_id, org_id, domain_name)
+    msp_path = yaml_path + "crypto-config/peerOrganizations/%s.%s/users/Admin@%s.%s/msp" % (
+        org_id, domain_name, org_id, domain_name)
+    env = ' FABRIC_CFG_PATH=%s ' % yaml_path
+    env = env + ' CORE_PEER_LOCALMSPID=%s' % org_id
+    env = env + ' CORE_PEER_TLS_ROOTCERT_FILE=%s' % tls_root_file
+    env = env + ' CORE_PEER_MSPCONFIGPATH=%s' % msp_path
+    env = env + ' CORE_PEER_TLS_ENABLED=true'
+    env = env + ' CORE_PEER_ADDRESS=%s ' % peer_address
+    bin = utils.get_bin_path(bin_path, "peer", crypto_type)
+    param = '  channel list '
+    command = env + bin + param
+    local(command)
+
