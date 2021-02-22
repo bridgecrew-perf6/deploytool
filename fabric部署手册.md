@@ -128,7 +128,7 @@ node.json
 
 ```json
 {
-  "fabricVersion":"2.0","domain":"irchain.net",
+  "fabricVersion":"2.2","domain":"irchain.net","cryptoType":"GM",
   "sshUserName":"root","sshPwd":"xxx","sshPort":"22","sshKey":"/etc/login.pem",
   "ccInit":"'{\"Args\":[\"init\"]}'",
   "ccName":"mycc","ccVersion":"1","ccInstallType":"path",
@@ -140,12 +140,12 @@ node.json
   "batchTime":"1s", "batchSize":100, "batchPreferred":"1024 KB",
   "orderers":[
     {"ip":"10.0.2.15","id":"0","orgId":"ord1","ports":["7050:7050"]},
-    {"ip":"10.0.2.15","id":"1","orgId":"ord1","ports":["6050:6050"]},
-    {"ip":"10.0.2.15","id":"2","orgId":"ord1","ports":["5050:5050"]}
+    {"ip":"10.0.2.15","id":"1","orgId":"ord1","ports":["6050:7050"]},
+    {"ip":"10.0.2.15","id":"2","orgId":"ord1","ports":["5050:7050"]}
   ],
   "peers": [
     {"ip":"10.0.2.15","id":"0","orgId":"test","ports":["7051:7051"]},
-    {"ip":"10.0.2.15","id":"1","orgId":"test","ports":["8051:8051"]}
+    {"ip":"10.0.2.15","id":"1","orgId":"test","ports":["8051:7051"]}
   ]
 }
 ```
@@ -174,7 +174,7 @@ log: orderer和peer日志级别， eg: "INFO"
 batchTime、batchSize、batchPreferred: 切块的条件
 orderers： 对应orderer节点数组
 ip: 服务器ip
-id： 当前节点序列号
+id： 当前节点序列号,“必须从0，1，2顺序填写”
 orgId: 当前节点归属组织组织名
 ports： 当前节点端口映射数组列表， eg: ["7050:7050"] , 前面为外部访问端口
 peers: 对应peers节点数组， 和orderer解释一样

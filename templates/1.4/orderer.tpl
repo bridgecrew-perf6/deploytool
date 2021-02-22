@@ -28,6 +28,8 @@ services:
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric
     command: orderer
     volumes:
+      - /etc/timezone:/etc/timezone
+      - /etc/localtime:/etc/localtime
       - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
       - ../crypto-config/ordererOrganizations/{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/msp:/var/hyperledger/orderer/msp
       - ../crypto-config/ordererOrganizations/{{.orgId}}.{{.domain}}/orderers/orderer{{.id}}.ord{{.orgId}}.{{.domain}}/tls:/var/hyperledger/orderer/tls

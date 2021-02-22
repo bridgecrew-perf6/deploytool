@@ -47,6 +47,8 @@ services:
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     volumes:
+        - /etc/localtime:/etc/localtime
+        - /etc/timezone:/etc/timezone
         - /var/run/:/host/var/run/
         - ../crypto-config/peerOrganizations/{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/msp:/etc/hyperledger/fabric/msp
         - ../crypto-config/peerOrganizations/{{.orgId}}.{{.domain}}/peers/peer{{.id}}.org{{.orgId}}.{{.domain}}/tls:/etc/hyperledger/fabric/tls
