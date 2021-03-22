@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	pb "github.com/hyperledger/fabric-protos-go/peer"
 )
@@ -23,6 +22,11 @@ const SUCCESS_CODE = "0"
 type CommonCC struct {
 }
 
+type HistoryResult struct {
+	FabricTxId string `json:"FabricTxId"`
+	UpdateTime int64  `json:"UpdateTime"`
+}
+
 func (t *CommonCC) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Println("CommonCC init")
 	return shim.Success(nil)
@@ -35,12 +39,18 @@ func (t *CommonCC) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.saveData(stub, args)
 	} else if function == "getDataByMsgSn" {
 		return t.getDataByMsgSn(stub, args)
+	} else if function == "getHistoryByKey" {
+		return t.getHistoryByKey(stub, args)
 	}
 	return response(ERR_CODE, "function not found", "", "")
 }
 
 //saveData
 func (t *CommonCC) saveData(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) < 2 {
+		str := "args length less 2"
+		return response(ERR_CODE, str, "", "")
+	}
 	key := args[0]
 	data := args[1]
 	if key == "" {
@@ -65,6 +75,10 @@ func (t *CommonCC) saveData(stub shim.ChaincodeStubInterface, args []string) pb.
 
 //getDataByMsgSn
 func (t *CommonCC) getDataByMsgSn(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) < 1 {
+		str := "args length less 1"
+		return response(ERR_CODE, str, "", "")
+	}
 	key := args[0]
 	if key == "" {
 		str := "args[0] key is empty"
@@ -85,6 +99,36 @@ func (t *CommonCC) getDataByMsgSn(stub shim.ChaincodeStubInterface, args []strin
 		return response(ERR_CODE_DATA_NOT_FOUND, str, "", "")
 	}
 	return response(SUCCESS_CODE, "", string(msgDataBytes), string(txId))
+}
+
+//getHistoryByKey
+func (t *CommonCC) getHistoryByKey(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) < 1 {
+		str := "args length less 1"
+		return response(ERR_CODE, str, "", "")
+	}
+	key := args[0]
+	if key == "" {
+		str := "args[0] key is empty"
+		return response(ERR_CODE, str, "", "")
+	}
+	resultsIterator, err := stub.GetHistoryForKey(key)
+	if err != nil {
+		str := "key: [" + key + "] " + err.Error()
+		return response(ERR_CODE_DATA_NOT_FOUND, str, "", "")
+	}
+	defer resultsIterator.Close()
+	var list []HistoryResult
+	for resultsIterator.HasNext() {
+		result, err := resultsIterator.Next()
+		if err != nil {
+			str := "key: [" + key + "] " + err.Error()
+			return response(ERR_CODE, str, "", "")
+		}
+		list = append(list, HistoryResult{result.TxId, result.Timestamp.Seconds,})
+	}
+	str, _ := json.Marshal(list)
+	return response(SUCCESS_CODE, "", string(str), "")
 }
 
 func response(errCode, errMsg, data, txId string) pb.Response {
