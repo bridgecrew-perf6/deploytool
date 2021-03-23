@@ -85,11 +85,17 @@ chmod +x /usr/local/bin/docker-compose
 
 记录每台服务器IP地址，下面修改配置文件需要使用。
 
-部署orderer节点服务器开放 "7050" 端口， 如果同时部署多orderer就要额外开放"5050"、"6050"
+部署orderer节点服务器开放 "7050","8443" 端口， 
+如果同时部署多orderer就要额外开放"8060"、"8070"、"8453"、"8463"
 
-部署peer节点服务器开放 "7051" 端口， 如果同时部署多peer就要额外开放"8051"、"9051"等
+部署peer节点服务器开放 "7051","9443" 端口， 
+如果同时部署多peer就要额外开放"7061"、"7071"、"9453"、"9463"等
 
-建议开放端口： 5050，6050，7050， 7051，8051， 7054，8054
+建议开放端口： 7050，7060，7070， 7051，7061， 7054，7064，8443，8453，8463，9443，9453
+
+端口策略规则:
+peer：服务端口（7051），健康检查端口（9443）， 如果冲突+10，即7061，9453
+orderer: 服务端口（7050），健康检查端口（8443）， 如果冲突+10，即7060，8453
 
 #### 安装依赖镜像
 
@@ -139,13 +145,13 @@ node.json
   "consensusType":"raft", "imagePre":"gmhyperledger","imageTag":"2.2.1-gm","log":"info",
   "batchTime":"1s", "batchSize":100, "batchPreferred":"1024 KB",
   "orderers":[
-    {"ip":"10.0.2.15","id":"0","orgId":"ord1","ports":["7050:7050"]},
-    {"ip":"10.0.2.15","id":"1","orgId":"ord1","ports":["6050:7050"]},
-    {"ip":"10.0.2.15","id":"2","orgId":"ord1","ports":["5050:7050"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"ord1","ports":["7050:7050","8443:9443"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"ord1","ports":["7060:7050","8453:9443"]},
+    {"ip":"10.0.2.15","id":"2","orgId":"ord1","ports":["7070:7050","8463:9443"]}
   ],
   "peers": [
-    {"ip":"10.0.2.15","id":"0","orgId":"test","ports":["7051:7051"]},
-    {"ip":"10.0.2.15","id":"1","orgId":"test","ports":["8051:7051"]}
+    {"ip":"10.0.2.15","id":"0","orgId":"test","ports":["7051:7051","9443:9443"]},
+    {"ip":"10.0.2.15","id":"1","orgId":"test","ports":["7061:7051","9453:9443"]}
   ]
 }
 ```
@@ -169,14 +175,14 @@ testArgs： 执行测试智能合约的参数
 chan_counts： 创建的业务通道个数，默认为1对应通道"mychannel" 修改后为"mychannel2" ...
 mountPath: orderer和peer节点账本数据挂载的宿主机位置，默认"/data"eg:/data/peer0.org1.irchain.net
 imagePre： 镜像前缀,   eg：  "gmhyperledger"
-imageTag: 镜像标签， eg: "2.0.0-gm" 
+imageTag: 镜像标签， eg: "2.2.1-gm" 
 log: orderer和peer日志级别， eg: "INFO"
 batchTime、batchSize、batchPreferred: 切块的条件
 orderers： 对应orderer节点数组
 ip: 服务器ip
 id： 当前节点序列号,“必须从0，1，2顺序填写”
 orgId: 当前节点归属组织组织名
-ports： 当前节点端口映射数组列表， eg: ["7050:7050"] , 前面为外部访问端口
+ports： 当前节点端口映射数组列表， eg: ["7050:7050","8443:9443"] , 前面为外部访问端口
 peers: 对应peers节点数组， 和orderer解释一样
 ```
 
@@ -285,9 +291,9 @@ docker exec manager bash -c './deployFabricTool -r chanlist -nodename peer0.test
 修改node.json文件在peers里面添加正确节点信息
 
 ```json
-{"ip":"10.0.2.15","id":"0","orgId":"test","ports":["7051:7051"]},
+{"ip":"10.0.2.15","id":"0","orgId":"test","ports":["7051:7051","9443:9443"]},
 //新增 peer1.test.irchain.net 节点
-{"ip":"10.0.2.15","id":"1","orgId":"test","ports":["6051:7051"]} 
+{"ip":"10.0.2.15","id":"1","orgId":"test","ports":["7061:7051","9453:9443"]} 
 ```
 
 #### 2. 生成节点证书文件并启动
@@ -322,7 +328,7 @@ docker exec manager bash -c './newnodeinstallcc.sh basechannel basecc 1 peer1.te
 
 ```json
 //新增 peer0.test3.irchain.net 节点
-{"ip":"10.0.2.15","id":"0","orgId":"test3","ports":["7051:7051"]},
+{"ip":"10.0.2.15","id":"0","orgId":"test3","ports":["7071:7051","9463:9443"]},
 ```
 
 #### 2. 创建新组织配置文件
@@ -367,7 +373,7 @@ docker exec manager bash -c './deployFabricTool -r rmnode -nodename peer0.test2.
 
 ```json
 //新增 orderer3.ord.irchain.net 节点，注意按照json格式上一行结尾加逗号
-{"ip":"10.0.2.15","id":"3","orgId":"ord","ports":["9050:7050"]}
+{"ip":"10.0.2.15","id":"3","orgId":"ord","ports":["7070:7050","8463:8443"]}
 ```
 
 #### 2.更新原有orderer节点的域名列表
