@@ -113,7 +113,11 @@ docker pull gmhyperledger/fabric-baseos:2.2.1-gm
 离线方式
 
 ```bash
-docker load -i xxx.tar
+#导出本地镜像
+docker save gmhyperledger/fabric-peer:2.2.1-gm  -o fabric-peer.tar                
+#复杂文件fabric-peer到目标主机
+#目标主机安装镜像
+docker load -i fabric-peer.tar   
 ```
 
 #### 创建部署目录
