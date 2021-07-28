@@ -1,4 +1,4 @@
-FROM peersafes/deploy-base:latest
+FROM peersafes/deploy-base:ubuntu
 
 # tool
 ADD ./deployFabricTool.tar.gz  /opt
