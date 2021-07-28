@@ -7,6 +7,14 @@ verifyResult() {
   fi
 }
 
-echo "-------check node (验证所有节点)-------"
-./deployFabricTool -r checknode
-verifyResult $?
+if [[ "$1" == "" ]]; then
+    echo "-------writehost (写域名映射)-------"
+    ./deployFabricTool -r writehost
+    verifyResult $?
+else
+    echo "-------check node (验证所有节点)-------"
+    ./deployFabricTool -r checknode
+    verifyResult $?
+fi
+
+

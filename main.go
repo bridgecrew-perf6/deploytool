@@ -24,7 +24,7 @@ var (
 	run         = flag.String("r", "", "joinchannel,  updateanchor, installchaincode, runchaincode, "+
 		"createnodeyaml, addorgnodecert,putnodecrypto,runaddnode,installcctonewnode,chanlist"+
 		"addorgtoconfigblock,createneworgconfigtxfile,runcctonewnode,rmorgfromconfigblock" +
-		",checknode, upgradecc,testcc,updatenodedomain,updategenesisblock,rmorderfromconfigblock,addordertoconfigblock")
+		",checknode,writehost, upgradecc,testcc,updatenodedomain,updategenesisblock,rmorderfromconfigblock,addordertoconfigblock")
 	put        = flag.String("p", "", "put all (include crypto-config and channel-artifacts to remote)")
 	removeData = flag.String("rm", "", "remove mount data")
 	analyse    = flag.String("a", "", "event analyse")
@@ -79,6 +79,8 @@ func main() {
 		err = cmd.TestChaincode(*ccname, *channelname, *function, *testArgs)
 	} else if *run == "checknode" {
 		err = cmd.CheckNode("all")
+	} else if *run == "writehost" {
+		err = cmd.WriteHost()
 	} else if *getlog == "jmeter" {
 		err = cmd.GetJmeterLog(*logdir)
 	} else if *getlog == "event" {
