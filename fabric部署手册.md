@@ -274,10 +274,16 @@ docker exec manager bash -c ./0-checknode.sh
 
 ### 发交易测试智能合约是否部署成功
 
-修改node.json文件中的testArgs对应的参数
+修改node.json文件中的testArgs对应的参数（发给所有peer节点）
 
 ```bash
 docker exec manager bash -c './invokecc.sh basechannel basecc'
+```
+
+或 指定peer节点
+
+```bash
+docker exec manager bash -c './invokecc.sh basechannel basecc peer0.test1.irchain.net'
 ```
 
 ### 查询指定节点已加入通道
