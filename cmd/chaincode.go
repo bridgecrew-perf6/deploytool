@@ -244,7 +244,7 @@ func RunCCToNewNode(ccname, ccversion, channelName string) error {
 	return nil
 }
 
-func TestChaincode(ccname, channelName, function, testArgs string) error {
+func TestChaincode(ccname, channelName, function, testArgs,peerName string) error {
 	if channelName == "" {
 		return fmt.Errorf("channel is nil")
 	}
@@ -265,6 +265,9 @@ func TestChaincode(ccname, channelName, function, testArgs string) error {
 	cmdParas := ""
 	var wg sync.WaitGroup
 	for _, peer := range GlobalConfig.Peers {
+		if peerName != "all" && peer.NodeName != peerName {
+			continue
+		}
 		peerAddress := fmt.Sprintf("peer%s.%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
 		if GlobalConfig.FabricVersion == "1.4" {
 			wg.Add(1)
@@ -283,11 +286,17 @@ func TestChaincode(ccname, channelName, function, testArgs string) error {
 			//}
 		}
 	}
+	if cmdParas == "" {
+		return fmt.Errorf("peername %s not found",peerName)
+	}
 	wg.Wait()
 	if GlobalConfig.FabricVersion != "1.4" {
 		for _, peer := range GlobalConfig.Peers {
+			if peerName != "all" && peer.NodeName != peerName {
+				continue
+			}
 			peerAddress := fmt.Sprintf("peer%s.%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
-			obj := NewFabCmd("chaincode.py", peer.Ip, peer.SshUserName, peer.SshPwd, peer.SshPort, peer.SshKey)
+			obj := NewLocalFabCmd("chaincode.py")
 			testparam := fmt.Sprintf(`%s`, GlobalConfig.TestArgs)
 			err := obj.RunShow("test_chaincode", "2.0", "invoke", BinPath(), ConfigDir(), peerAddress, ordererAddress, order_tls_path, peer.Id, peer.OrgId,
 				GlobalConfig.Domain, channelName, ccname, testparam, GlobalConfig.CryptoType, cmdParas)

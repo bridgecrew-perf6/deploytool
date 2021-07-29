@@ -76,7 +76,7 @@ func main() {
 	} else if *run == "upgradecc" {
 		err = cmd.RunChaincode(*ccname, *ccversion, *channelname, "upgrade")
 	} else if *run == "testcc" {
-		err = cmd.TestChaincode(*ccname, *channelname, *function, *testArgs)
+		err = cmd.TestChaincode(*ccname, *channelname, *function, *testArgs, *nodename)
 	} else if *run == "checknode" {
 		err = cmd.CheckNode("all")
 	} else if *run == "writehost" {
