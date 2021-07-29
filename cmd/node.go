@@ -92,6 +92,9 @@ func RunRmNode(nodename string) error {
 	if nodename == "" {
 		return fmt.Errorf("nodename is empty")
 	}
+	if err := CheckNodeNameIsExist(nodename) ; err != nil {
+		return err
+	}
 	for _, peer := range GlobalConfig.Peers {
 		if peer.NodeName == nodename {
 			//删除节点
@@ -117,6 +120,9 @@ func RunAddNode(nodename string) error {
 	if nodename == "" {
 		return fmt.Errorf("nodename is empty")
 	}
+	if err := CheckNodeNameIsExist(nodename) ; err != nil {
+		return err
+	}
 	for _, peer := range GlobalConfig.Peers {
 		if peer.NodeName == nodename {
 			//启动节点
@@ -141,6 +147,9 @@ func RunAddNode(nodename string) error {
 func ChanList(nodename string) error {
 	if nodename == "" {
 		return fmt.Errorf("nodename is empty")
+	}
+	if err := CheckNodeNameIsExist(nodename) ; err != nil {
+		return err
 	}
 	for _, peer := range GlobalConfig.Peers {
 		if peer.NodeName == nodename {
@@ -243,6 +252,9 @@ func CheckNode(stringType string) error {
 }
 
 func UpdateNodeDomain(nodeName string) error {
+	if err := CheckNodeNameIsExist(nodeName) ; err != nil {
+		return err
+	}
 	for _, peer := range GlobalConfig.Peers {
 		if peer.NodeName == nodeName {
 			CopyConfig(&peer)

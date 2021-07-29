@@ -11,6 +11,9 @@ func AddOrgNodeCertById(orgid string) error {
 	if orgid == "" {
 		return fmt.Errorf("orgid is empty")
 	}
+	if err := CheckOrgNameIsExist(orgid) ; err != nil {
+		return err
+	}
 	if err := WriteHost(); err != nil {
 		return err
 	}
@@ -133,6 +136,9 @@ func makeExploreYaml() error {
 func CreateNodeYaml(nodename string) error {
 	if nodename == "" {
 		return fmt.Errorf("nodename is empty")
+	}
+	if err := CheckNodeNameIsExist(nodename) ; err != nil {
+		return err
 	}
 	for _, peer := range GlobalConfig.Peers {
 		if peer.NodeName == nodename {
@@ -277,6 +283,10 @@ func UpdateAnchor(channelName, orgId string) error {
 	if channelName == "" {
 		return fmt.Errorf("channel name is nil")
 	}
+
+	if err := CheckOrgNameIsExist(orgId) ; err != nil {
+		return err
+	}
 	ordererAddress := ""
 	order_tls_path := ""
 	for _, ord := range GlobalConfig.Orderers {
@@ -314,6 +324,9 @@ func JoinChannel(channelName, nodeName string) error {
 	if channelName == "" {
 		return fmt.Errorf("channel name is nil")
 	}
+	if err := CheckNodeNameIsExist(nodeName) ; err != nil {
+		return err
+	}
 	for _, peer := range GlobalConfig.Peers {
 		if nodeName != "" && peer.NodeName != nodeName {
 			continue
@@ -332,6 +345,9 @@ func JoinChannel(channelName, nodeName string) error {
 func PutNodeCrypto(nodename string) error {
 	if nodename == "" {
 		return fmt.Errorf("nodename is empty")
+	}
+	if err := CheckNodeNameIsExist(nodename) ; err != nil {
+		return err
 	}
 	for _, peer := range GlobalConfig.Peers {
 		if peer.NodeName == nodename {

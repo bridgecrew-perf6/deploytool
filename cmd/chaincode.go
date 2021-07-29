@@ -18,13 +18,16 @@ func InstallCCToNewNode(ccname, ccversion, ccpath, channelName, nodename string)
 	if nodename == "" {
 		return fmt.Errorf("nodename is empty")
 	}
+	if err := CheckNodeNameIsExist(nodename) ; err != nil {
+		return err
+	}
 	for _, peer := range GlobalConfig.Peers {
 		if nodename == peer.NodeName {
 			peerAddress := fmt.Sprintf("peer%s.%s.%s:%s", peer.Id, peer.OrgId, GlobalConfig.Domain, peer.ExternalPort)
 			obj := NewLocalFabCmd("chaincode.py")
 			err := obj.RunShow("install_chaincode", GlobalConfig.FabricVersion, BinPath(), ConfigDir(), peerAddress, peer.Id, peer.OrgId, GlobalConfig.Domain, ccname, ccversion, ccpath, GlobalConfig.CCInstallType, GlobalConfig.CryptoType)
 			if err != nil {
-				panic(err)
+				fmt.Printf(err.Error())
 			}
 		}
 	}
@@ -261,6 +264,9 @@ func TestChaincode(ccname, channelName, function, testArgs,peerName string) erro
 		order_tls_path = ConfigDir() + fmt.Sprintf("crypto-config/ordererOrganizations/%s/orderers/orderer0.%s/msp/tlscacerts/tlsca.%s-cert.pem", dirPath, dirPath, dirPath)
 		ordererAddress = fmt.Sprintf("orderer%s.%s.%s:%s", ord.Id, ord.OrgId, GlobalConfig.Domain, ord.ExternalPort)
 		break
+	}
+	if err := CheckNodeNameIsExist(peerName) ; err != nil {
+		return err
 	}
 	cmdParas := ""
 	var wg sync.WaitGroup

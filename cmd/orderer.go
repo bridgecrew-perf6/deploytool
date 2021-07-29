@@ -12,6 +12,9 @@ func HandleOrderToConfigBlock(nodeName, channelName, operation string) error {
 	if channelName == "" {
 		return fmt.Errorf("channelName is empty")
 	}
+	if err := CheckNodeNameIsExist(nodeName) ; err != nil {
+		return err
+	}
 	ordererAddress := ""
 	order_tls_path := ""
 	orderer_mspId := ""

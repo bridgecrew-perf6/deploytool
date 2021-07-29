@@ -12,6 +12,9 @@ func CreateNewOrgConfigTxFile(orgid string) error {
 	if orgid == "" {
 		return fmt.Errorf("orgid is empty")
 	}
+	if err := CheckOrgNameIsExist(orgid) ; err != nil {
+		return err
+	}
 	var orgInfo ConfigOrgInfo
 	orgInfo.MspID = orgid
 
@@ -31,6 +34,9 @@ func CreateNewOrgConfigTxFile(orgid string) error {
 func AddOrgToConfigBlock(orgid, channelName string) error {
 	if orgid == "" {
 		return fmt.Errorf("orgid is empty")
+	}
+	if err := CheckOrgNameIsExist(orgid) ; err != nil {
+		return err
 	}
 	if channelName == "" {
 		return fmt.Errorf("channelName is empty")
@@ -80,6 +86,9 @@ func AddOrgToConfigBlock(orgid, channelName string) error {
 func RmOrgFromConfigBlock(orgid, channelName string) error {
 	if orgid == "" {
 		return fmt.Errorf("orgid is empty")
+	}
+	if err := CheckOrgNameIsExist(orgid) ; err != nil {
+		return err
 	}
 	if channelName == "" {
 		return fmt.Errorf("channelName is empty")

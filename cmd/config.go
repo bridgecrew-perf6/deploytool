@@ -470,3 +470,37 @@ func findExternalPort(list []string, destPort string) (string, error) {
 	}
 	return "", fmt.Errorf("findExternalPort err destPort %s not exist ", destPort)
 }
+
+func CheckNodeNameIsExist(nodename string) error {
+	if nodename == "" || nodename == "all" {
+		return nil
+	}
+	for _, peer := range GlobalConfig.Peers {
+		if peer.NodeName == nodename {
+			return nil
+		}
+	}
+	for _, order := range GlobalConfig.Orderers {
+		if order.NodeName == nodename {
+			return nil
+		}
+	}
+	return fmt.Errorf("nodename:'%s' not exist",nodename)
+}
+
+func CheckOrgNameIsExist(orgname string) error {
+	if orgname == "" {
+		return nil
+	}
+	for name, _ := range GlobalConfig.OrgList {
+		if name == orgname {
+			return nil
+		}
+	}
+	for name, _ := range GlobalConfig.OrdList {
+		if name == orgname {
+			return nil
+		}
+	}
+	return fmt.Errorf("orgname: '%s' not exist",orgname)
+}
